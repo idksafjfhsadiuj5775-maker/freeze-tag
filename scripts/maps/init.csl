@@ -1,0 +1,877 @@
+import "core:ao"
+import "effects"
+
+// ============================================================================
+// Maps Module - Freeze Tag Arenas
+// ============================================================================
+
+Map_Data :: struct {
+    name: string;
+    description: string;
+    theme: string;
+    difficulty: string;
+    hazards: [..]string;
+    powerup_spots: [..]v2;
+    spawns_freezer: [..]v2;
+    spawns_runner: [..]v2;
+    bounds: v2;
+    has_dynamic_elements: bool;
+    day_night_cycle: bool;
+    weather_enabled: bool;
+    secret_rooms: [..]v2;
+    music_track: string;
+    ambient_color: v4;
+}
+
+Map_Hazard :: struct {
+    type: string;
+    position: v2;
+    radius: float;
+    damage: float;
+    interval: float;
+    timer: float;
+    active: bool;
+    visual: Entity;
+}
+
+Map_Region :: struct {
+    name: string;
+    bounds_min: v2;
+    bounds_max: v2;
+    properties: map[string]string;
+}
+
+Interactive_Object :: struct {
+    name: string;
+    position: v2;
+    object_type: string;
+    is_active: bool;
+    cooldown: float;
+    cooldown_timer: float;
+    visual: Entity;
+}
+
+current_map_data: Map_Data;
+map_hazards: [..]Map_Hazard;
+map_regions: [..]Map_Region;
+interactive_objects: [..]Interactive_Object;
+
+// ============================================================================
+// Map Definitions
+// ============================================================================
+
+get_map_data :: proc(map_name: string) -> Map_Data {
+    switch map_name {
+        case "Crystal Caverns": return Map_Data{
+            name = "Crystal Caverns",
+            description = "Beautiful ice caves with crystal formations",
+            theme = "Fantasy Ice",
+            difficulty = "Easy",
+            bounds = {22, 17},
+            hazards = {"icicle_drops", "slippery_floor"},
+            powerup_spots = {{-10, -5}, {0, 0}, {10, 5}, {-5, 10}, {5, -10}, {0, -12}, {12, 0}, {-12, 0}},
+            spawns_freezer = {{-18, 0}, {-18, 5}, {-18, -5}},
+            spawns_runner = {{18, 0}, {18, 5}, {18, -5}},
+            has_dynamic_elements = true,
+            day_night_cycle = false,
+            weather_enabled = true,
+            secret_rooms = {{-8, 12}, {8, -12}},
+            music_track = "crystal_caverns",
+            ambient_color = {0.5, 0.7, 1, 1},
+        };
+        case "Frost Factory": return Map_Data{
+            name = "Frost Factory",
+            description = "Abandoned ice factory with conveyor belts",
+            theme = "Industrial Ice",
+            difficulty = "Medium",
+            bounds = {25, 18},
+            hazards = {"conveyor_belt", "steam_vents", "crushing_machines"},
+            powerup_spots = {{-15, -5}, {-5, 0}, {5, 5}, {15, -3}, {0, -10}, {10, 10}, {-10, 8}},
+            spawns_freezer = {{-20, 0}, {-20, 8}, {-20, -8}},
+            spawns_runner = {{20, 0}, {20, 8}, {20, -8}},
+            has_dynamic_elements = true,
+            day_night_cycle = false,
+            weather_enabled = false,
+            secret_rooms = {{12, 12}, {-15, -10}},
+            music_track = "frost_factory",
+            ambient_color = {0.4, 0.5, 0.6, 1},
+        };
+        case "Arctic Arena": return Map_Data{
+            name = "Arctic Arena",
+            description = "Open arctic tundra arena",
+            theme = "Arctic",
+            difficulty = "Easy",
+            bounds = {30, 20},
+            hazards = {"blizzard", "ice_patches", "snow_drifts"},
+            powerup_spots = {{-20, -5}, {-10, 10}, {0, 0}, {10, -10}, {20, 5}, {-15, 15}, {15, -15}},
+            spawns_freezer = {{-25, 0}, {-25, 10}, {-25, -10}},
+            spawns_runner = {{25, 0}, {25, 10}, {25, -10}},
+            has_dynamic_elements = true,
+            day_night_cycle = true,
+            weather_enabled = true,
+            secret_rooms = {{0, 18}, {18, 0}},
+            music_track = "arctic_arena",
+            ambient_color = {0.6, 0.7, 0.9, 1},
+        };
+        case "Cyber Freeze": return Map_Data{
+            name = "Cyber Freeze",
+            description = "Neon-lit cyberpunk city arena",
+            theme = "Cyberpunk",
+            difficulty = "Medium",
+            bounds = {22, 17},
+            hazards = {"laser_gates", "electric_floor", "force_fields"},
+            powerup_spots = {{-12, -8}, {-8, 5}, {0, 0}, {8, -5}, {12, 8}, {-5, -12}, {5, 12}},
+            spawns_freezer = {{-18, 0}, {-18, 6}, {-18, -6}},
+            spawns_runner = {{18, 0}, {18, 6}, {18, -6}},
+            has_dynamic_elements = true,
+            day_night_cycle = true,
+            weather_enabled = false,
+            secret_rooms = {{-14, 10}, {14, -10}},
+            music_track = "cyber_freeze",
+            ambient_color = {0.8, 0.2, 0.8, 0.3},
+        };
+        case "Lava Tag": return Map_Data{
+            name = "Lava Tag",
+            description = "Volcanic arena with flowing lava",
+            theme = "Volcano",
+            difficulty = "Hard",
+            bounds = {20, 16},
+            hazards = {"lava_pools", "falling_rocks", "fire_geysers"},
+            powerup_spots = {{-10, -8}, {-5, 5}, {0, 0}, {5, -5}, {10, 8}, {-8, 10}, {8, -10}},
+            spawns_freezer = {{-16, 0}, {-16, 5}, {-16, -5}},
+            spawns_runner = {{16, 0}, {16, 5}, {16, -5}},
+            has_dynamic_elements = true,
+            day_night_cycle = false,
+            weather_enabled = true,
+            secret_rooms = {{10, -12}, {-12, 10}},
+            music_track = "lava_tag",
+            ambient_color = {1, 0.3, 0.1, 0.5},
+        };
+        case "Sky Gardens": return Map_Data{
+            name = "Sky Gardens",
+            description = "Floating islands in the sky",
+            theme = "Sky Islands",
+            difficulty = "Hard",
+            bounds = {25, 20},
+            hazards = {"wind_currents", "falling_platforms", "cloud_cover"},
+            powerup_spots = {{-15, -10}, {-8, 5}, {0, 8}, {8, -5}, {15, 10}, {-10, -15}, {10, 15}},
+            spawns_freezer = {{-20, 0}, {-20, 10}, {-20, -10}},
+            spawns_runner = {{20, 0}, {20, 10}, {20, -10}},
+            has_dynamic_elements = true,
+            day_night_cycle = true,
+            weather_enabled = true,
+            secret_rooms = {{-18, 12}, {18, -12}},
+            music_track = "sky_gardens",
+            ambient_color = {0.5, 0.8, 1, 0.3},
+        };
+        case "Haunted Halls": return Map_Data{
+            name = "Haunted Halls",
+            description = "Spooky haunted mansion",
+            theme = "Haunted",
+            difficulty = "Medium",
+            bounds = {20, 16},
+            hazards = {"ghost_apparitions", "slamming_doors", "darkness_zones"},
+            powerup_spots = {{-10, -6}, {-6, 4}, {0, 0}, {6, -4}, {10, 6}, {-8, 10}, {8, -10}},
+            spawns_freezer = {{-16, 0}, {-16, 5}, {-16, -5}},
+            spawns_runner = {{16, 0}, {16, 5}, {16, -5}},
+            has_dynamic_elements = true,
+            day_night_cycle = false,
+            weather_enabled = false,
+            secret_rooms = {{-14, -8}, {14, 8}},
+            music_track = "haunted_halls",
+            ambient_color = {0.3, 0.2, 0.4, 1},
+        };
+        case "Space Station Zero": return Map_Data{
+            name = "Space Station Zero",
+            description = "Sci-fi space station with zero-gravity sections",
+            theme = "Space",
+            difficulty = "Hard",
+            bounds = {22, 17},
+            hazards = {"zero_gravity_zones", "laser_turrets", "airlock_pulls"},
+            powerup_spots = {{-12, -5}, {-6, 8}, {0, 0}, {6, -8}, {12, 5}, {-10, -12}, {10, 12}},
+            spawns_freezer = {{-18, 0}, {-18, 6}, {-18, -6}},
+            spawns_runner = {{18, 0}, {18, 6}, {18, -6}},
+            has_dynamic_elements = true,
+            day_night_cycle = false,
+            weather_enabled = false,
+            secret_rooms = {{-16, 10}, {16, -10}},
+            music_track = "space_station",
+            ambient_color = {0.1, 0.2, 0.4, 1},
+        };
+        case "Jungle Rush": return Map_Data{
+            name = "Jungle Rush",
+            description = "Dense jungle with hidden paths",
+            theme = "Jungle",
+            difficulty = "Medium",
+            bounds = {24, 18},
+            hazards = {"poison_plants", "quicksand", "falling_vines"},
+            powerup_spots = {{-14, -8}, {-6, 6}, {0, 0}, {6, -6}, {14, 8}, {-8, -14}, {8, 14}},
+            spawns_freezer = {{-20, 0}, {-20, 8}, {-20, -8}},
+            spawns_runner = {{20, 0}, {20, 8}, {20, -8}},
+            has_dynamic_elements = true,
+            day_night_cycle = true,
+            weather_enabled = true,
+            secret_rooms = {{-16, 12}, {16, -12}},
+            music_track = "jungle_rush",
+            ambient_color = {0.2, 0.6, 0.2, 0.5},
+        };
+        case "Desert Oasis": return Map_Data{
+            name = "Desert Oasis",
+            description = "Hot desert with an oasis in the center",
+            theme = "Desert",
+            difficulty = "Easy",
+            bounds = {26, 18},
+            hazards = {"sand_storms", "quicksand_pits", "mirages"},
+            powerup_spots = {{-16, -8}, {-8, 6}, {0, 0}, {8, -6}, {16, 8}, {-12, -14}, {12, 14}},
+            spawns_freezer = {{-22, 0}, {-22, 8}, {-22, -8}},
+            spawns_runner = {{22, 0}, {22, 8}, {22, -8}},
+            has_dynamic_elements = true,
+            day_night_cycle = true,
+            weather_enabled = true,
+            secret_rooms = {{-18, 12}, {18, -12}},
+            music_track = "desert_oasis",
+            ambient_color = {0.9, 0.7, 0.3, 0.5},
+        };
+        default: return get_map_data("Crystal Caverns");
+    }
+}
+
+// ============================================================================
+// Map Loading
+// ============================================================================
+
+load_map :: proc(map_name: string) {
+    current_map_data = get_map_data(map_name);
+    current_map_name = map_name;
+
+    clear_hazards();
+    clear_interactive_objects();
+    setup_map_environment();
+    spawn_map_hazards();
+    spawn_interactive_objects();
+    spawn_secret_rooms();
+
+    announce("Map: % - %", {map_name, current_map_data.description});
+}
+
+clear_hazards :: proc() {
+    for h: map_hazards {
+        if h.visual != null {
+            h.visual.destroy();
+        }
+    }
+    map_hazards.clear();
+}
+
+clear_interactive_objects :: proc() {
+    for obj: interactive_objects {
+        if obj.visual != null {
+            obj.visual.destroy();
+        }
+    }
+    interactive_objects.clear();
+}
+
+setup_map_environment :: proc() {
+    // Set ambient lighting
+    set_ambient_color(current_map_data.ambient_color);
+
+    // Start day/night cycle
+    if current_map_data.day_night_cycle {
+        day_night_timer = 0;
+        day_night_cycle_active = true;
+    }
+
+    // Start weather
+    if current_map_data.weather_enabled {
+        weather_active = true;
+        weather_timer = 0;
+        select_random_weather();
+    }
+}
+
+day_night_cycle_active: bool;
+day_night_timer: float;
+weather_active: bool;
+weather_timer: float;
+current_weather: string;
+
+// ============================================================================
+// Hazard Spawning
+// ============================================================================
+
+spawn_map_hazards :: proc() {
+    for hazard_name: current_map_data.hazards {
+        spawn_hazard_type(hazard_name);
+    }
+}
+
+spawn_hazard_type :: proc(hazard_type: string) {
+    switch hazard_type {
+        case "icicle_drops": {
+            spots := [?]v2{{-15, -5}, {-10, 8}, {5, -8}, {12, 6}, {-5, -12}, {15, -3}};
+            for spot: spots {
+                hazard := Map_Hazard{
+                    type = "icicle_drops",
+                    position = spot,
+                    radius = 2.0,
+                    damage = 2.0,
+                    interval = 5.0,
+                    timer = get_random_float(0, 5),
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.7, 0.9, 1, 1};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "conveyor_belt": {
+            belts := [?]v2{{-12, -3}, {-5, 8}, {8, -5}, {15, 2}};
+            for spot: belts {
+                hazard := Map_Hazard{
+                    type = "conveyor_belt",
+                    position = spot,
+                    radius = 4.0,
+                    damage = 0,
+                    interval = 0,
+                    timer = 0,
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.3, 0.3, 0.4, 0.8};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "lava_pools": {
+            pools := [?]v2{{-14, -10}, {-8, 12}, {0, -14}, {14, 10}, {-6, -8}};
+            for spot: pools {
+                hazard := Map_Hazard{
+                    type = "lava_pool",
+                    position = spot,
+                    radius = 3.5,
+                    damage = 3.0,
+                    interval = 1.0,
+                    timer = 0,
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {1, 0.2, 0, 0.6};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "laser_gates": {
+            gates := [?]v2{{-8, 0}, {8, 0}, {0, 8}, {0, -8}};
+            for spot: gates {
+                hazard := Map_Hazard{
+                    type = "laser_gate",
+                    position = spot,
+                    radius = 1.0,
+                    damage = 4.0,
+                    interval = 3.0,
+                    timer = get_random_float(0, 3),
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {1, 0, 0.5, 0.8};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "blizzard": {
+            hazard := Map_Hazard{
+                type = "blizzard",
+                position = {0, 0},
+                radius = 30.0,
+                damage = 0.5,
+                interval = 0.5,
+                timer = 0,
+                active = true,
+            };
+            map_hazards.append(hazard);
+        }
+        case "wind_currents": {
+            currents := [?]v2{{-10, -15}, {10, 15}, {-15, 10}, {15, -10}};
+            for spot: currents {
+                hazard := Map_Hazard{
+                    type = "wind_current",
+                    position = spot,
+                    radius = 3.0,
+                    damage = 0,
+                    interval = 0,
+                    timer = 0,
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.7, 0.8, 1, 0.4};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "zero_gravity_zones": {
+            zones := [?]v2{{-10, -8}, {10, 8}, {-5, 5}, {5, -5}};
+            for spot: zones {
+                hazard := Map_Hazard{
+                    type = "zero_gravity",
+                    position = spot,
+                    radius = 4.0,
+                    damage = 0,
+                    interval = 0,
+                    timer = 0,
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.3, 0.3, 0.8, 0.3};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "poison_plants": {
+            plants := [?]v2{{-16, -8}, {-8, 12}, {12, -10}, {16, 8}};
+            for spot: plants {
+                hazard := Map_Hazard{
+                    type = "poison_plant",
+                    position = spot,
+                    radius = 2.5,
+                    damage = 1.5,
+                    interval = 2.0,
+                    timer = 0,
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.3, 0.8, 0.1, 0.7};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        case "sand_storms": {
+            hazard := Map_Hazard{
+                type = "sand_storm",
+                position = {0, 0},
+                radius = 25.0,
+                damage = 0.3,
+                interval = 1.0,
+                timer = 0,
+                active = true,
+            };
+            map_hazards.append(hazard);
+        }
+        case "ghost_apparitions": {
+            spots := [?]v2{{-12, -6}, {-4, 10}, {6, -10}, {14, 4}};
+            for spot: spots {
+                hazard := Map_Hazard{
+                    type = "ghost",
+                    position = spot,
+                    radius = 3.0,
+                    damage = 2.0,
+                    interval = 4.0,
+                    timer = get_random_float(0, 4),
+                    active = true,
+                };
+
+                visual := new(Entity);
+                visual.set_local_position(spot);
+                sprite := visual.add_component(Sprite_Renderer);
+                sprite.color = {0.5, 0.4, 0.6, 0.5};
+
+                hazard.visual = visual;
+                map_hazards.append(hazard);
+            }
+        }
+        default: {}
+    }
+}
+
+// ============================================================================
+// Hazard Processing
+// ============================================================================
+
+update_map_hazards :: proc(dt: float) {
+    for i: 0..<map_hazards.count {
+        h := &map_hazards[i];
+
+        if h.interval > 0 {
+            h.timer += dt;
+            if h.timer >= h.interval {
+                h.timer = 0;
+                process_hazard_effect(h);
+            }
+        } else {
+            process_hazard_effect(h);
+        }
+    }
+}
+
+process_hazard_effect :: proc(hazard: ref Map_Hazard) {
+    for p: player_iterator() {
+        player := p.(Player);
+        dist := distance(player.entity.world_position, hazard.position);
+
+        if dist <= hazard.radius {
+            switch hazard.type {
+                case "icicle_drops": {
+                    player.apply_freeze(hazard.damage * 0.5);
+                }
+                case "lava_pool": {
+                    player.apply_freeze(hazard.damage * 0.3);
+                }
+                case "laser_gate": {
+                    player.apply_freeze(hazard.damage * 0.5);
+                }
+                case "blizzard": {
+                    player.apply_slow(1.0);
+                    slow_effect := new(Slow_Effect);
+                    slow_effect.speed_multiplier = 0.6;
+                    slow_effect.set_duration(1.0);
+                    player.entity.add_passive_effect(slow_effect);
+                }
+                case "conveyor_belt": {
+                    push_dir: v2;
+                    if hazard.position.x < 0 {
+                        push_dir = {1, 0};
+                    } else {
+                        push_dir = {-1, 0};
+                    }
+                    player.entity.local_position += push_dir * 2 * 0.1;
+                }
+                case "wind_current": {
+                    wind_dir := hazard.position * -1;
+                    wind_dir = normalize(wind_dir);
+                    player.entity.local_position += wind_dir * 3 * 0.1;
+                }
+                case "zero_gravity": {
+                    zero_g_effect := new(Zero_Gravity_Effect);
+                    zero_g_effect.set_duration(0.5);
+                    player.entity.add_passive_effect(zero_g_effect);
+                }
+                case "poison_plant": {
+                    player.apply_freeze(hazard.damage * 0.3);
+                    slow_effect := new(Slow_Effect);
+                    slow_effect.speed_multiplier = 0.5;
+                    slow_effect.set_duration(2.0);
+                    player.entity.add_passive_effect(slow_effect);
+                }
+                case "sand_storm": {
+                    player.entity.get_component(Sprite_Renderer).color.w = 0.8;
+                }
+                case "ghost": {
+                    player.apply_freeze(hazard.damage * 0.4);
+                }
+                default: {}
+            }
+        }
+    }
+}
+
+// ============================================================================
+// Interactive Objects
+// ============================================================================
+
+spawn_interactive_objects :: proc() {
+    // Ice block pushables
+    ice_block_positions := [?]v2{{-12, -6}, {8, 10}, {-5, -10}, {14, -4}};
+    for pos: ice_block_positions {
+        obj := Interactive_Object{
+            name = "Ice Block",
+            position = pos,
+            object_type = "pushable",
+            is_active = true,
+            cooldown = 0,
+            cooldown_timer = 0,
+        };
+
+        visual := new(Entity);
+        visual.set_local_position(pos);
+        sprite := visual.add_component(Sprite_Renderer);
+        sprite.color = {0.5, 0.8, 1, 0.8};
+
+        obj.visual = visual;
+        interactive_objects.append(obj);
+    }
+
+    // Speed boost pads
+    boost_positions := [?]v2{{-18, -5}, {18, 5}, {-18, 5}, {18, -5}};
+    for pos: boost_positions {
+        obj := Interactive_Object{
+            name = "Boost Pad",
+            position = pos,
+            object_type = "boost_pad",
+            is_active = true,
+            cooldown = 3.0,
+            cooldown_timer = 0,
+        };
+
+        visual := new(Entity);
+        visual.set_local_position(pos);
+        sprite := visual.add_component(Sprite_Renderer);
+        sprite.color = {1, 1, 0, 0.5};
+
+        obj.visual = visual;
+        interactive_objects.append(obj);
+    }
+
+    // Teleport pads
+    teleport_pairs := [?][2]v2{{{ -16, -12}, {16, 12}}, {{ -16, 12}, {16, -12}}};
+    for pair: teleport_pairs {
+        for j: 0..<2 {
+            obj := Interactive_Object{
+                name = "Teleport Pad",
+                position = pair[j],
+                object_type = "teleport_pad",
+                is_active = true,
+                cooldown = 1.0,
+                cooldown_timer = 0,
+            };
+
+            visual := new(Entity);
+            visual.set_local_position(pair[j]);
+            sprite := visual.add_component(Sprite_Renderer);
+            sprite.color = {1, 0, 1, 0.5};
+
+            obj.visual = visual;
+            interactive_objects.append(obj);
+        }
+    }
+}
+
+update_interactive_objects :: proc(dt: float) {
+    for i: 0..<interactive_objects.count {
+        obj := &interactive_objects[i];
+        if obj.cooldown_timer > 0 {
+            obj.cooldown_timer -= dt;
+        }
+
+        if obj.object_type == "boost_pad" && obj.cooldown_timer <= 0 {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, obj.position);
+                if dist < 1.5 {
+                    boost_dir := normalize(player.entity.world_position - obj.position);
+                    if boost_dir.x == 0 && boost_dir.y == 0 {
+                        boost_dir = {1, 0};
+                    }
+                    player.entity.local_position += boost_dir * 4;
+                    player.speed_multiplier = 1.5;
+                    speed_effect := new(Speed_Boost_Effect);
+                    speed_effect.set_duration(2.0);
+                    player.entity.add_passive_effect(speed_effect);
+                    obj.cooldown_timer = obj.cooldown;
+                }
+            }
+        }
+
+        if obj.object_type == "teleport_pad" && obj.cooldown_timer <= 0 {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, obj.position);
+                if dist < 1.2 {
+                    // Find paired teleport pad
+                    for j: interactive_objects {
+                        if j.object_type == "teleport_pad" && j.position != obj.position {
+                            player.entity.local_position = j.position;
+                            teleport_effect := new(Teleport_Effect);
+                            player.entity.set_active_effect(teleport_effect);
+                            obj.cooldown_timer = obj.cooldown;
+                            j.cooldown_timer = j.cooldown;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ============================================================================
+// Secret Rooms
+// ============================================================================
+
+spawn_secret_rooms :: proc() {
+    for secret_pos: current_map_data.secret_rooms {
+        visual := new(Entity);
+        visual.set_local_position(secret_pos);
+        sprite := visual.add_component(Sprite_Renderer);
+        sprite.color = {1, 1, 1, 0.1};
+    }
+}
+
+check_secret_rooms :: proc(player: Player) {
+    for secret_pos: current_map_data.secret_rooms {
+        dist := distance(player.entity.world_position, secret_pos);
+        if dist < 2.0 {
+            announce("Secret room found! +50 XP", {});
+            add_xp(player, 50);
+
+            reward_chance := get_random_float(0, 1);
+            if reward_chance < 0.3 {
+                Economy.deposit(player, "gems", 10);
+                announce("Bonus: +10 Gems!", {});
+            } else if reward_chance < 0.1 {
+                player.inventory_items.append("star_dust");
+                announce("Found Star Dust!", {});
+            }
+        }
+    }
+}
+
+// ============================================================================
+// Weather & Environment
+// ============================================================================
+
+select_random_weather :: proc() {
+    weathers := [?]string{"clear", "snow", "rain", "fog", "storm", "aurora"};
+    current_weather = weathers[get_random_int(0, weathers.count - 1)];
+    announce("Weather: %", {current_weather});
+}
+
+update_weather :: proc(dt: float) {
+    if !weather_active return;
+
+    weather_timer += dt;
+    if weather_timer > 30.0 {
+        weather_timer = 0;
+        select_random_weather();
+    }
+
+    switch current_weather {
+        case "snow": {
+            set_ambient_color({0.6, 0.7, 0.9, 1});
+        }
+        case "rain": {
+            set_ambient_color({0.3, 0.3, 0.4, 1});
+        }
+        case "fog": {
+            set_fog_density(0.5 + sin(weather_timer * 0.5) * 0.3);
+        }
+        case "storm": {
+            set_ambient_color({0.2, 0.2, 0.2, 1});
+            if get_random_float(0, 1) < 0.01 {
+                lightning_flash();
+            }
+        }
+        case "aurora": {
+            set_ambient_color({0.1 + sin(weather_timer * 0.3) * 0.3, 0.3 + cos(weather_timer * 0.2) * 0.3, 0.5 + sin(weather_timer * 0.4) * 0.3, 1});
+        }
+        default: {
+            set_ambient_color({0.5, 0.5, 0.5, 1});
+        }
+    }
+}
+
+lightning_flash :: proc() {
+    set_ambient_color({1, 1, 1, 1});
+    delay_effect := new(Entity);
+    delay_component := delay_effect.add_component(Delayed_Action);
+    delay_component.delay = 0.1;
+    delay_component.action = proc() {
+        set_ambient_color({0.2, 0.2, 0.2, 1});
+        delay_effect.destroy();
+    };
+}
+
+Delayed_Action :: class : Component {
+    delay: float;
+    action: proc();
+    timer: float;
+}
+
+update_delayed_actions :: proc(dt: float) {
+    for da: component_iterator(Delayed_Action) {
+        da.timer += dt;
+        if da.timer >= da.delay && da.action != null {
+            da.action();
+        }
+    }
+}
+
+update_day_night_cycle :: proc(dt: float) {
+    if !day_night_cycle_active return;
+    day_night_timer += dt * 0.1;
+    cycle_value := sin(day_night_timer);
+    day_factor := (cycle_value + 1) / 2;
+    set_ambient_light_level(0.3 + day_factor * 0.7);
+}
+
+set_ambient_color :: proc(color: v4) {
+
+}
+
+set_fog_density :: proc(density: float) {
+
+}
+
+set_ambient_light_level :: proc(level: float) {
+
+}
+
+// ============================================================================
+// Region System
+// ============================================================================
+
+register_region :: proc(name: string, min: v2, max: v2, properties: map[string]string) {
+    region := Map_Region{
+        name = name,
+        bounds_min = min,
+        bounds_max = max,
+        properties = properties,
+    };
+    map_regions.append(region);
+}
+
+get_region_at :: proc(pos: v2) -> Map_Region {
+    for region: map_regions {
+        if pos.x >= region.bounds_min.x && pos.x <= region.bounds_max.x &&
+           pos.y >= region.bounds_min.y && pos.y <= region.bounds_max.y {
+            return region;
+        }
+    }
+    return {};
+}
+
+// ============================================================================
+// Map Rotation
+// ============================================================================
+
+get_next_map :: proc() -> string {
+    maps := match_settings.maps_in_rotation;
+    if maps.count == 0 return "Crystal Caverns";
+    current_idx := -1;
+    for i: 0..<maps.count {
+        if maps[i] == current_map_name {
+            current_idx = i;
+            break;
+        }
+    }
+    next_idx := (current_idx + 1) % maps.count;
+    return maps[next_idx];
+}

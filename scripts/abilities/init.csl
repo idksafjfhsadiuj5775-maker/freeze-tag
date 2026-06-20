@@ -1,0 +1,515 @@
+import "core:ao"
+
+// ============================================================================
+// Abilities Module - Freeze Tag
+// ============================================================================
+
+// Common Abilities
+Freeze_Tag_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Freeze Tag";
+        icon = get_asset(Texture_Asset, "icons/freeze_tag.png");
+    }
+
+    can_use :: method() -> bool {
+        player := this.player.(Player);
+        return player != null && player.freeze_state == .NONE && player.team == .FREEZERS;
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            if player.team == .FREEZERS {
+                tag_nearby_runners(player);
+                current_cooldown = 0.5;
+            }
+        }
+    }
+}
+
+tag_nearby_runners :: proc(freezer: Player) {
+    for p: player_iterator() {
+        if p.get_user_id() == freezer.get_user_id() continue;
+        other := p.(Player);
+        if other.team == .RUNNERS {
+            dist := distance(freezer.entity.world_position, other.entity.world_position);
+            if dist < 2.0 {
+                other.apply_tag(freezer.get_user_id());
+            }
+        }
+    }
+}
+
+Rescue_Aura_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Rescue Aura";
+        icon = get_asset(Texture_Asset, "icons/rescue_aura.png");
+    }
+
+    can_use :: method() -> bool {
+        player := this.player.(Player);
+        return player != null && player.freeze_state == .NONE;
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        holding := Ability_Utilities.update_holding_ability(player, ref params, null);
+        if holding.active && params.can_use {
+            player := this.player.(Player);
+            if player.team == .RUNNERS {
+                rescue_nearby_teammates(player);
+                current_cooldown = 3.0;
+            }
+        }
+    }
+}
+
+rescue_nearby_teammates :: proc(rescuer: Player) {
+    for p: player_iterator() {
+        if p.get_user_id() == rescuer.get_user_id() continue;
+        other := p.(Player);
+        if other.team == .RUNNERS && (other.freeze_state == .FULL || other.freeze_state == .PERMAFROST) {
+            dist := distance(rescuer.entity.world_position, other.entity.world_position);
+            if dist < 4.0 {
+                complete_rescue(rescuer, other);
+            }
+        }
+    }
+}
+
+// ============================================================================
+// Rare Abilities
+// ============================================================================
+
+Dash_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Dash";
+        icon = get_asset(Texture_Asset, "icons/dash.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            input := get_movement_input();
+            if input.x == 0 && input.y == 0 {
+                input = {1, 0};
+            }
+            input *= 8.0;
+            player.entity.local_position += input;
+
+            dash_effect := new(Dash_Effect);
+            dash_effect.direction = input;
+            player.entity.set_active_effect(dash_effect);
+
+            current_cooldown = 5.0;
+        }
+    }
+}
+
+Speed_Boost_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Speed Boost";
+        icon = get_asset(Texture_Asset, "icons/speed_boost.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.speed_multiplier = 2.0;
+
+            speed_effect := new(Speed_Boost_Effect);
+            speed_effect.set_duration(4.0);
+            player.entity.add_passive_effect(speed_effect);
+
+            current_cooldown = 12.0;
+        }
+    }
+}
+
+Shield_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Freeze Shield";
+        icon = get_asset(Texture_Asset, "icons/shield.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.has_shield = true;
+            player.shield_hits = 3;
+
+            shield_effect := new(Shield_Effect);
+            shield_effect.set_duration(8.0);
+            player.entity.add_passive_effect(shield_effect);
+
+            current_cooldown = 20.0;
+        }
+    }
+}
+
+Teleport_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Teleport";
+        icon = get_asset(Texture_Asset, "icons/teleport.png");
+        is_aimed_ability = true;
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        activation := Ability_Utilities.full_update_aimed_ability(player, ref params);
+
+        if activation.activate && params.can_use {
+            player := this.player.(Player);
+            new_pos := player.entity.world_position + activation.direction * 5;
+            new_pos = clamp_vector(new_pos, {-20, -15}, {20, 15});
+            player.entity.local_position = new_pos;
+
+            teleport_effect := new(Teleport_Effect);
+            player.entity.set_active_effect(teleport_effect);
+
+            current_cooldown = 15.0;
+        }
+    }
+}
+
+// ============================================================================
+// Epic Abilities
+// ============================================================================
+
+Freeze_Aura_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Freeze Aura";
+        icon = get_asset(Texture_Asset, "icons/freeze_aura.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            if player.team == .FREEZERS {
+                create_freeze_zone(
+                    player.entity.world_position,
+                    5.0,
+                    .FREEZERS,
+                    5.0
+                );
+
+                for p: player_iterator() {
+                    if p.get_user_id() == player.get_user_id() continue;
+                    other := p.(Player);
+                    if other.team == .RUNNERS {
+                        dist := distance(player.entity.world_position, other.entity.world_position);
+                        if dist < 5.0 {
+                            other.apply_freeze(2.0);
+                        }
+                    }
+                }
+
+                current_cooldown = 30.0;
+            }
+        }
+    }
+}
+
+Time_Slow_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Time Slow";
+        icon = get_asset(Texture_Asset, "icons/time_slow.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+
+            // Slow all nearby enemies
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                if other.team != player.team {
+                    dist := distance(player.entity.world_position, other.entity.world_position);
+                    if dist < 8.0 {
+                        other.apply_slow(4.0);
+                        slow_effect := new(Slow_Effect);
+                        slow_effect.speed_multiplier = 0.3;
+                        slow_effect.set_duration(4.0);
+                        other.entity.add_passive_effect(slow_effect);
+                    }
+                }
+            }
+
+            current_cooldown = 25.0;
+        }
+    }
+}
+
+Super_Jump_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Super Jump";
+        icon = get_asset(Texture_Asset, "icons/super_jump.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.entity.local_position.y += 6.0;
+            announce("% used Super Jump!", {player.get_username()});
+            current_cooldown = 8.0;
+        }
+    }
+}
+
+Invisibility_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Invisibility";
+        icon = get_asset(Texture_Asset, "icons/invisibility.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.is_invisible = true;
+            player.invisible_timer = 5.0;
+            player.entity.get_component(Sprite_Renderer).color.w = 0.3;
+            announce("% turned invisible!", {player.get_username()});
+            current_cooldown = 20.0;
+        }
+    }
+}
+
+// ============================================================================
+// Legendary Abilities
+// ============================================================================
+
+Magnet_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Magnet";
+        icon = get_asset(Texture_Asset, "icons/magnet.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+
+            // Pull all nearby players toward you
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                dist := distance(player.entity.world_position, other.entity.world_position);
+                if dist < 10.0 {
+                    direction := player.entity.world_position - other.entity.world_position;
+                    direction = normalize(direction);
+                    pull := direction * (10.0 - dist) * 0.5;
+                    other.entity.local_position += pull;
+                }
+            }
+
+            current_cooldown = 20.0;
+        }
+    }
+}
+
+Repulsion_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Repulsion";
+        icon = get_asset(Texture_Asset, "icons/repulsion.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+
+            // Push all nearby players away
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                dist := distance(player.entity.world_position, other.entity.world_position);
+                if dist < 8.0 {
+                    direction := other.entity.world_position - player.entity.world_position;
+                    direction = normalize(direction);
+                    push := direction * (8.0 - dist);
+                    other.entity.local_position += push;
+                }
+            }
+
+            current_cooldown = 15.0;
+        }
+    }
+}
+
+Clone_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Clone";
+        icon = get_asset(Texture_Asset, "icons/clone.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+
+            clone_entity := new(Entity);
+            clone_entity.set_local_position(player.entity.world_position + {get_random_float(-3, 3), get_random_float(-3, 3)});
+            clone_sprite := clone_entity.add_component(Sprite_Renderer);
+            clone_sprite.color = player.entity.get_component(Sprite_Renderer).color;
+            clone_sprite.color.w = 0.5;
+
+            clone_timer: float = 5.0;
+
+            announce("% created a decoy!", {player.get_username()});
+            current_cooldown = 25.0;
+        }
+    }
+}
+
+Phase_Shift_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Phase Shift";
+        icon = get_asset(Texture_Asset, "icons/phase_shift.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.is_phased = true;
+            player.phase_timer = 3.0;
+            player.entity.get_component(Sprite_Renderer).color.w = 0.3;
+            player.entity.get_component(Sprite_Renderer).color = {0.5, 0.5, 1, 0.3};
+            announce("% phased through reality!", {player.get_username()});
+            current_cooldown = 30.0;
+        }
+    }
+}
+
+// ============================================================================
+// Mythical Abilities
+// ============================================================================
+
+Ultra_Freeze_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Ultra Freeze";
+        icon = get_asset(Texture_Asset, "icons/ultra_freeze.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            if player.team == .FREEZERS {
+                create_freeze_zone(player.entity.world_position, 10.0, .FREEZERS, 8.0);
+
+                for p: player_iterator() {
+                    if p.get_user_id() == player.get_user_id() continue;
+                    other := p.(Player);
+                    if other.team == .RUNNERS {
+                        dist := distance(player.entity.world_position, other.entity.world_position);
+                        if dist < 10.0 {
+                            other.apply_freeze(8.0);
+                        }
+                    }
+                }
+
+                announce("ULTRA FREEZE activated by %!", {player.get_username()});
+            }
+            current_cooldown = 60.0;
+        }
+    }
+}
+
+Mass_Rescue_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Mass Rescue";
+        icon = get_asset(Texture_Asset, "icons/mass_rescue.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            if player.team == .RUNNERS {
+                rescued_count := 0;
+                for p: player_iterator() {
+                    if p.get_user_id() == player.get_user_id() continue;
+                    other := p.(Player);
+                    if other.team == .RUNNERS && other.freeze_state != .NONE {
+                        dist := distance(player.entity.world_position, other.entity.world_position);
+                        if dist < 15.0 {
+                            other.freeze_state = .NONE;
+                            other.freeze_timer = 0;
+                            other.is_being_rescued = false;
+                            other.entity.remove_effect(Frozen_Effect, false);
+                            rescued_count += 1;
+                        }
+                    }
+                }
+                announce("MASS RESCUE by %! % players freed!", {player.get_username(), rescued_count});
+            }
+            current_cooldown = 90.0;
+        }
+    }
+}
+
+Gravity_Well_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Gravity Well";
+        icon = get_asset(Texture_Asset, "icons/gravity_well.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            center := player.entity.world_position;
+
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                dist := distance(other.entity.world_position, center);
+                if dist < 12.0 {
+                    pull_dir := center - other.entity.world_position;
+                    pull_dir = normalize(pull_dir);
+                    pull_strength := (12.0 - dist) * 0.8;
+                    other.entity.local_position += pull_dir * pull_strength;
+                }
+            }
+
+            announce("GRAVITY WELL by %!", {player.get_username()});
+            current_cooldown = 45.0;
+        }
+    }
+}
+
+Time_Freeze_Ability :: class : Ability_Base {
+    on_init :: method() {
+        name = "Time Freeze";
+        icon = get_asset(Texture_Asset, "icons/time_freeze.png");
+    }
+
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                if other.team != player.team {
+                    time_freeze_effect := new(Time_Freeze_Effect);
+                    time_freeze_effect.set_duration(3.0);
+                    other.entity.add_passive_effect(time_freeze_effect);
+                }
+            }
+
+            announce("TIME FREEZE by %!", {player.get_username()});
+            current_cooldown = 60.0;
+        }
+    }
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+clamp_vector :: proc(v: v2, min: v2, max: v2) -> v2 {
+    result := v;
+    result.x = clamp(result.x, min.x, max.x);
+    result.y = clamp(result.y, min.y, max.y);
+    return result;
+}
+
+normalize :: proc(v: v2) -> v2 {
+    len := sqrt(v.x * v.x + v.y * v.y);
+    if len == 0 return {0, 0};
+    return {v.x / len, v.y / len};
+}

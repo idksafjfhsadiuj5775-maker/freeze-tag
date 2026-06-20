@@ -1,0 +1,532 @@
+import "core:ao"
+import "effects"
+
+// ============================================================================
+// Events Module - Freeze Tag
+// ============================================================================
+
+Event_Type :: enum {
+    HOLIDAY;
+    WORLD;
+    WEEKEND;
+    COMMUNITY;
+    BOSS_BATTLE;
+    INVASION;
+    SEASONAL;
+    ANNIVERSARY;
+    SURPRISE;
+    TOURNAMENT;
+}
+
+Game_Event :: struct {
+    id: string;
+    name: string;
+    description: string;
+    event_type: Event_Type;
+    start_time: float;
+    end_time: float;
+    is_active: bool;
+    requirements: [..]string;
+    rewards: [..]Event_Reward;
+    special_rules: [..]string;
+    theme: string;
+    exclusive_items: [..]string;
+}
+
+Event_Reward :: struct {
+    type: string;
+    id: string;
+    quantity: int;
+    rarity: string;
+}
+
+Event_Boss :: struct {
+    name: string;
+    health: int;
+    max_health: int;
+    damage: int;
+    speed: float;
+    abilities: [..]string;
+    position: v2;
+    phase: int;
+    max_phases: int;
+    reward_pool: [..]Event_Reward;
+}
+
+current_event: Game_Event;
+active_boss: Event_Boss;
+event_participation: map[string]int;
+
+// ============================================================================
+// Event Definitions
+// ============================================================================
+
+get_all_events :: proc() -> [..]Game_Event {
+    return {
+        // Seasonal Events
+        {"winter_fest", "Winter Festival", "Celebrate winter with icy fun!", .SEASONAL, 0, 0, false, {}, {
+            { "skin", "skin_snowflake", 1, "common" },
+            { "currency", "ice_crystals", 500, "common" }
+        }, {}, "winter", {"skin_snowflake", "pet_snowman", "trail_ice"},
+
+        {"spring_thaw", "Spring Thaw", "The ice is melting! New challenges await!", .SEASONAL, 0, 0, false, {}, {
+            { "currency", "frost_essence", 300, "common" }
+        }, {}, "spring", {"skin_flower", "trail_rainbow"},
+
+        {"summer_scorch", "Summer Scorch", "Heat things up with summer fun!", .SEASONAL, 0, 0, false, {}, {
+            { "currency", "star_dust", 200, "common" }
+        }, {}, "summer", {"skin_fire_runner", "trail_fire"},
+
+        {"fall_frost", "Fall Frost", "Autumn winds bring early frost!", .SEASONAL, 0, 0, false, {}, {
+            { "currency", "rune_fragments", 250, "common" }
+        }, {}, "fall", {"skin_crystal_mage", "trail_ghost"},
+
+        // Holiday Events
+        {"halloween_horror", "Halloween Horror", "Spooky chills and ghostly freezes!", .HOLIDAY, 0, 0, false, {}, {
+            { "skin", "skin_ghost", 1, "epic" },
+            { "pet", "pet_ghost", 1, "rare" }
+        }, {}, "halloween", {"skin_ghost", "pet_ghost", "trail_ghost"},
+
+        {"christmas_chill", "Christmas Chill", "Holiday cheer with a freezing twist!", .HOLIDAY, 0, 0, false, {}, {
+            { "skin", "skin_elf", 1, "rare" },
+            { "currency", "ice_crystals", 1000, "common" }
+        }, {}, "christmas", {"skin_elf", "pet_snowman", "trail_ice"},
+
+        {"new_year_freeze", "New Year Freeze", "Ring in the new year with ice and fireworks!", .HOLIDAY, 0, 0, false, {}, {
+            { "title", "New Year Champion", 1, "legendary" },
+            { "currency", "tokens", 50, "epic" }
+        }, {}, "new_year", {},
+
+        {"valentines_tag", "Valentine's Tag", "Share the love with friendly tags!", .HOLIDAY, 0, 0, false, {}, {
+            { "trail", "trail_heart", 1, "rare" },
+            { "emote", "emote_love", 1, "rare" }
+        }, {}, "valentines", {"trail_heart", "emote_love"},
+
+        // World Events
+        {"ice_king_invasion", "Ice King Invasion", "The Ice King has arrived! Defeat him together!", .WORLD, 0, 0, false, {}, {
+            { "title", "Ice King Slayer", 1, "legendary" },
+            { "currency", "tokens", 100, "epic" }
+        }, {"boss_fight"}, "ice_king", {},
+
+        {"frost_giant_rampage", "Frost Giant Rampage", "A giant frost creature terrorizes the arena!", .WORLD, 0, 0, false, {}, {
+            { "skin", "skin_giant_slayer", 1, "epic" },
+            { "currency", "gems", 500, "rare" }
+        }, {"boss_fight"}, "frost_giant", {},
+
+        {"eternal_winter", "Eternal Winter", "The sun has disappeared! Endless winter!", .WORLD, 0, 0, false, {}, {
+            { "title", "Eternal Survivor", 1, "epic" }
+        }, {"permablizzard"}, "eternal_winter", {},
+
+        // Weekend Events
+        {"double_xp_weekend", "Double XP Weekend", "Earn twice the experience points!", .WEEKEND, 0, 0, false, {}, {
+            { "currency", "xp_multiplier", 2, "common" }
+        }, {"2x_xp"}, "party", {},
+
+        {"double_coins_weekend", "Double Coins Weekend", "Earn twice the coins!", .WEEKEND, 0, 0, false, {}, {
+            { "currency", "coin_multiplier", 2, "common" }
+        }, {"2x_coins"}, "party", {},
+
+        {"chaos_weekend", "Chaos Weekend", "All modes are CHAOS mode!", .WEEKEND, 0, 0, false, {}, {}, {"chaos_modes"}, "chaos", {},
+
+        // Community Events
+        {"tag_athon", "Tag-A-Thon", "Community goal: 1,000,000 tags in 48 hours!", .COMMUNITY, 0, 0, false, {}, {
+            { "title", "Tag Champion", 1, "legendary" },
+            { "currency", "tokens", 200, "epic" }
+        }, {"community_goal"}, "community", {},
+
+        {"rescue_rush", "Rescue Rush", "Community goal: 500,000 rescues!", .COMMUNITY, 0, 0, false, {}, {
+            { "title", "Guardian Angel", 1, "legendary" },
+            { "currency", "gems", 1000, "epic" }
+        }, {"community_goal"}, "community", {},
+
+        // Anniversary Events
+        {"first_anniversary", "1 Year Anniversary", "Celebrate one year of Freeze Tag!", .ANNIVERSARY, 0, 0, false, {}, {
+            { "skin", "skin_anniversary_gold", 1, "legendary" },
+            { "title", "Veteran Player", 1, "legendary" },
+            { "currency", "tokens", 500, "epic" }
+        }, {}, "anniversary", {},
+
+        // Boss Battles
+        {"boss_ice_dragon", "Ice Dragon Hunt", "Face the legendary Ice Dragon!", .BOSS_BATTLE, 0, 0, false, {}, {
+            { "pet", "pet_dragon", 1, "legendary" },
+            { "title", "Dragon Slayer", 1, "legendary" }
+        }, {"boss_fight"}, "dragon", {},
+
+        {"boss_abominable", "Abominable Snowman", "The Abominable Snowman attacks!", .BOSS_BATTLE, 0, 0, false, {}, {
+            { "skin", "skin_abominable", 1, "epic" },
+            { "currency", "shards", 100, "epic" }
+        }, {"boss_fight"}, "snowman", {},
+
+        // Invasion Events
+        {"alien_invasion", "Alien Invasion", "Aliens from a frozen planet invade!", .INVASION, 0, 0, false, {}, {
+            { "skin", "skin_alien", 1, "epic" },
+            { "emote", "emote_alien", 1, "rare" }
+        }, {"invasion_waves"}, "alien", {},
+
+        {"zombie_freeze", "Zombie Freeze", "Frozen zombies roam the arena!", .INVASION, 0, 0, false, {}, {
+            { "skin", "skin_zombie", 1, "rare" },
+            { "title", "Zombie Hunter", 1, "epic" }
+        }, {"infection_mode"}, "zombie", {},
+
+        // Surprise Events
+        {"mystery_merchant", "Mystery Merchant", "A strange merchant appears with rare items!", .SURPRISE, 0, 0, false, {}, {
+            { "currency", "shards", 50, "rare" }
+        }, {"limited_shop"}, "mystery", {},
+
+        {"powerup_palooza", "Powerup Palooza", "Powerups spawn 3x more frequently!", .SURPRISE, 0, 0, false, {}, {}, {"3x_powerups"}, "colorful", {},
+
+        // Tournament Events
+        {"weekly_tournament", "Weekly Tournament", "Compete for the top spot!", .TOURNAMENT, 0, 0, false, {}, {
+            { "title", "Tournament Champion", 1, "legendary" },
+            { "currency", "tokens", 300, "epic" },
+            { "currency", "gems", 2000, "rare" }
+        }, {"ranked"}, "competitive", {},
+    };
+}
+
+// ============================================================================
+// Event Management
+// ============================================================================
+
+activate_event :: proc(event_id: string) {
+    events := get_all_events();
+    for e: events {
+        if e.id == event_id {
+            current_event = e;
+            current_event.is_active = true;
+            announce("Event started: %!", {e.name});
+            announce("%", {e.description});
+
+            apply_event_modifiers(e);
+
+            if e.event_type == .BOSS_BATTLE {
+                spawn_event_boss(e);
+            }
+            return;
+        }
+    }
+}
+
+deactivate_event :: proc() {
+    if current_event.is_active {
+        announce("Event ended: %", {current_event.name});
+        remove_event_modifiers(current_event);
+        if active_boss.max_health > 0 {
+            active_boss = {};
+        }
+        current_event = {};
+    }
+}
+
+apply_event_modifiers :: proc(event: Game_Event) {
+    for rule: event.special_rules {
+        switch rule {
+            case "2x_xp":        xp_multiplier = 2.0;
+            case "2x_coins":     coin_multiplier = 2.0;
+            case "chaos_modes":  current_mode = .CHAOS;
+            case "3x_powerups":  powerup_spawn_interval = match_settings.powerup_spawn_interval / 3;
+            case "permablizzard": weather_active = true; current_weather = "snow";
+            case "infection_mode": current_mode = .INFECTION;
+            case "ranked":       ranked_mode_active = true;
+            default: {}
+        }
+    }
+}
+
+remove_event_modifiers :: proc(event: Game_Event) {
+    for rule: event.special_rules {
+        switch rule {
+            case "2x_xp":        xp_multiplier = 1.0;
+            case "2x_coins":     coin_multiplier = 1.0;
+            case "chaos_modes":  current_mode = .CLASSIC;
+            case "3x_powerups":  powerup_spawn_interval = match_settings.powerup_spawn_interval;
+            case "permablizzard": weather_active = false;
+            case "infection_mode": current_mode = .CLASSIC;
+            case "ranked":       ranked_mode_active = false;
+            default: {}
+        }
+    }
+}
+
+xp_multiplier: float = 1.0;
+coin_multiplier: float = 1.0;
+ranked_mode_active: bool = false;
+
+// ============================================================================
+// Boss Events
+// ============================================================================
+
+spawn_event_boss :: proc(event: Game_Event) {
+    boss_configs: map[string]Event_Boss;
+    boss_configs["ice_king_invasion"] = Event_Boss{"Ice King", 500, 500, 3, 2.0, {"ice_blast", "freeze_bombs", "royal_slam"}, {0, 12}, 1, 3, {}};
+    boss_configs["frost_giant_rampage"] = Event_Boss{"Frost Giant", 800, 800, 5, 1.0, {"ground_pound", "ice_throw", "stomp"}, {0, 14}, 1, 3, {}};
+    boss_configs["boss_ice_dragon"] = Event_Boss{"Ice Dragon", 1000, 1000, 4, 2.5, {"frost_breath", "wing_gust", "tail_sweep", "ice_storm"}, {0, 15}, 1, 4, {}};
+    boss_configs["boss_abominable"] = Event_Boss{"Abominable Snowman", 600, 600, 6, 1.5, {"snowball_fury", "freeze_stare", "rampage"}, {0, 12}, 1, 3, {}};
+
+    if boss_configs[event.id] != nil {
+        active_boss = boss_configs[event.id];
+        current_mode = .BOSS_BATTLE;
+
+        boss_entity = new(Entity);
+        boss_entity.set_local_position(active_boss.position);
+        boss_sprite := boss_entity.add_component(Sprite_Renderer);
+        boss_sprite.local_scale = {4, 4};
+
+        switch active_boss.name {
+            case "Ice King":      boss_sprite.color = {0.3, 0.5, 1, 1};
+            case "Frost Giant":   boss_sprite.color = {0.5, 0.7, 0.9, 1};
+            case "Ice Dragon":    boss_sprite.color = {0.2, 0.6, 0.9, 1};
+            case "Abominable Snowman": boss_sprite.color = {0.7, 0.7, 0.8, 1};
+            default:              boss_sprite.color = {0.5, 0.5, 1, 1};
+        }
+
+        announce("% has appeared! Health: %/%", {active_boss.name, active_boss.health, active_boss.max_health});
+    }
+}
+
+update_event_boss :: proc(dt: float) {
+    if !current_event.is_active || active_boss.max_health <= 0 return;
+
+    boss_time += dt;
+    active_boss.phase = 1 + (boss_time / 30).(int);
+    if active_boss.phase > active_boss.max_phases {
+        active_boss.phase = active_boss.max_phases;
+    }
+
+    // Boss movement
+    boss_pos := boss_entity.local_position;
+    boss_pos.x += sin(boss_time * 0.5) * 3 * dt;
+    boss_pos.y += cos(boss_time * 0.3) * 2 * dt;
+    boss_pos.y = max(boss_pos.y, 8);
+    boss_entity.local_position = boss_pos;
+
+    // Boss attacks based on phase
+    if get_random_float(0, 1) < 0.01 * active_boss.phase {
+        execute_boss_attack();
+    }
+
+    // Update boss health visual
+    health_pct := active_boss.health.(float) / active_boss.max_health.(float);
+    boss_entity.get_component(Sprite_Renderer).color = {
+        1.0 - health_pct,
+        health_pct * 0.8,
+        health_pct * 0.5,
+        1
+    };
+}
+
+boss_time: float;
+
+execute_boss_attack :: proc() {
+    if active_boss.abilities.count == 0 return;
+    ability_idx := get_random_int(0, active_boss.abilities.count - 1);
+    ability := active_boss.abilities[ability_idx];
+
+    switch ability {
+        case "ice_blast": {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, active_boss.position);
+                if dist < 10 {
+                    player.apply_freeze(3.0);
+                }
+            }
+            announce("% uses ICE BLAST!", {active_boss.name});
+        }
+        case "freeze_bombs": {
+            for i: 0..<3 {
+                target_pos := v2{get_random_float(-20, 20), get_random_float(-15, 15)};
+                for p: player_iterator() {
+                    player := p.(Player);
+                    dist := distance(player.entity.world_position, target_pos);
+                    if dist < 4 {
+                        player.apply_freeze(2.0);
+                    }
+                }
+                bomb_visual := new(Entity);
+                bomb_visual.set_local_position(target_pos);
+                sprite := bomb_visual.add_component(Sprite_Renderer);
+                sprite.color = {0.5, 0.8, 1, 1};
+                sprite.local_scale = {0.5, 0.5};
+            }
+            announce("% drops FREEZE BOMBS!", {active_boss.name});
+        }
+        case "ground_pound": {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, active_boss.position);
+                if dist < 8 {
+                    player.entity.local_position += {0, 3};
+                    player.apply_slow(2.0);
+                }
+            }
+            announce("% uses GROUND POUND!", {active_boss.name});
+        }
+        case "frost_breath": {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, active_boss.position);
+                if dist < 12 {
+                    player.apply_freeze(4.0);
+                }
+            }
+            announce("% uses FROST BREATH!", {active_boss.name});
+        }
+        case "snowball_fury": {
+            for p: player_iterator() {
+                player := p.(Player);
+                dist := distance(player.entity.world_position, active_boss.position);
+                if dist < 15 {
+                    knockback := normalize(player.entity.world_position - active_boss.position) * 5;
+                    player.entity.local_position += knockback;
+                    player.apply_freeze(1.0);
+                }
+            }
+            announce("% uses SNOWBALL FURY!", {active_boss.name});
+        }
+        default: {}
+    }
+}
+
+damage_event_boss :: proc(amount: int) {
+    if active_boss.max_health <= 0 return;
+
+    active_boss.health -= amount;
+    if active_boss.health <= 0 {
+        active_boss.health = 0;
+        boss_defeated();
+    }
+}
+
+boss_defeated :: proc() {
+    announce("% DEFEATED!", {active_boss.name});
+    boss_entity.destroy();
+    boss_active = false;
+
+    // Distribute rewards
+    for p: player_iterator() {
+        player := p.(Player);
+        Economy.deposit(player, "gems", 100);
+        Economy.deposit(player, "tokens", 10);
+        add_xp(player, 1000);
+    }
+
+    if current_event.rewards.count > 0 {
+        for p: player_iterator() {
+            player := p.(Player);
+            for reward: current_event.rewards {
+                if reward.type == "title" {
+                    player.unlocked_titles.append(reward.id);
+                    player.selected_title = reward.id;
+                    announce("Title unlocked: %!", {reward.id});
+                } else if reward.type == "currency" {
+                    Economy.deposit(player, reward.id, reward.quantity.(s64));
+                }
+            }
+        }
+    }
+
+    end_round();
+}
+
+// ============================================================================
+// Community Events
+// ============================================================================
+
+community_event_progress: int;
+community_event_goal: int;
+player_contribution: map[string]int;
+
+contribute_to_event :: proc(player: Player, amount: int) {
+    community_event_progress += amount;
+    player_contribution[player.get_user_id()] += amount;
+
+    if community_event_progress >= community_event_goal {
+        complete_community_event();
+    }
+}
+
+complete_community_event :: proc() {
+    announce("COMMUNITY EVENT COMPLETE! Thank you all!", {});
+
+    for p: player_iterator() {
+        player := p.(Player);
+        contribution := player_contribution[player.get_user_id()] != nil ? player_contribution[player.get_user_id()] : 0;
+
+        // Tiered rewards based on contribution
+        if contribution > 100 {
+            Economy.deposit(player, "tokens", 50);
+            announce("Top contributor reward: 50 Tokens!", {});
+        } else if contribution > 50 {
+            Economy.deposit(player, "gems", 200);
+            announce("Great contributor reward: 200 Gems!", {});
+        } else {
+            Economy.deposit(player, "coins", 500);
+            announce("Participation reward: 500 Coins!", {});
+        }
+    }
+}
+
+// ============================================================================
+// Weekly Tasks
+// ============================================================================
+
+generate_event_tasks :: proc() -> [..]Quest {
+    tasks: [..]Quest;
+    if current_event.is_active {
+        task_prefix := current_event.id;
+        add_quest(&tasks, task_prefix + "_play", "Play 10 Event Matches", "Play 10 matches during the event", 10, "event_tickets", 5, 500, "easy");
+        add_quest(&tasks, task_prefix + "_tag", "Tag 50 Players in Event", "Tag 50 players during the event", 50, "event_tickets", 10, 1000, "medium");
+
+        if current_event.event_type == .BOSS_BATTLE {
+            add_quest(&tasks, task_prefix + "_boss_damage", "Deal 1000 Boss Damage", "Deal 1000 damage to event bosses", 1000, "gems", 200, 2000, "hard");
+            add_quest(&tasks, task_prefix + "_boss_defeat", "Defeat Boss 3 Times", "Defeat the event boss 3 times", 3, "tokens", 50, 5000, "legendary");
+        }
+    }
+    return tasks;
+}
+
+// ============================================================================
+// Event Shop
+// ============================================================================
+
+get_event_shop_items :: proc() -> [..]Shop_Item {
+    if !current_event.is_active return {};
+
+    items: [..]Shop_Item;
+    for exclusive_id: current_event.exclusive_items {
+        for shop_item: get_shop_items() {
+            if shop_item.id == exclusive_id {
+                shop_item.price_currency = .EVENT_TICKETS;
+                shop_item.price_amount = 50;
+                items.append(shop_item);
+                break;
+            }
+        }
+    }
+
+    return items;
+}
+
+// ============================================================================
+// Surprise Events
+// ============================================================================
+
+spawn_random_event :: proc() {
+    event_types := [?]Event_Type{.SURPRISE, .SURPRISE, .INVASION};
+    chosen_type := event_types[get_random_int(0, event_types.count - 1)];
+
+    switch chosen_type {
+        case .SURPRISE: {
+            surprises := [?]string{"powerup_palooza", "mystery_merchant"};
+            surprise_id := surprises[get_random_int(0, surprises.count - 1)];
+            activate_event(surprise_id);
+        }
+        case .INVASION: {
+            invasions := [?]string{"alien_invasion", "zombie_freeze"};
+            invasion_id := invasions[get_random_int(0, invasions.count - 1)];
+            activate_event(invasion_id);
+        }
+        default: {}
+    }
+}

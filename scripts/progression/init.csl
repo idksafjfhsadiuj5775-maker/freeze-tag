@@ -1,0 +1,347 @@
+import "core:ao"
+
+// ============================================================================
+// Progression Module - Freeze Tag
+// ============================================================================
+
+Quest :: struct {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    required: int;
+    reward_type: string;
+    reward_amount: s64;
+    xp_reward: s64;
+    difficulty: string;
+    expires_at: float;
+}
+
+Achievement :: struct {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    reward_type: string;
+    reward_amount: s64;
+    xp_reward: s64;
+    hidden: bool;
+    category: string;
+}
+
+Milestone :: struct {
+    id: string;
+    name: string;
+    description: string;
+    required_value: s64;
+    reward_type: string;
+    reward_amount: s64;
+    xp_reward: s64;
+}
+
+Tier :: struct {
+    name: string;
+    min_level: int;
+    color: v4;
+    title: string;
+}
+
+Title :: struct {
+    id: string;
+    name: string;
+    description: string;
+    unlock_condition: string;
+    rarity: string;
+}
+
+// ============================================================================
+// Tier Definitions
+// ============================================================================
+
+get_tier_for_level :: proc(level: int) -> Tier {
+    if level >= 100 {
+        return Tier{"LEGEND", 100, {1, 0.8, 0, 1}, "The Legend"};
+    } else if level >= 75 {
+        return Tier{"MASTER", 75, {1, 0.5, 0, 1}, "The Master"};
+    } else if level >= 50 {
+        return Tier{"EXPERT", 50, {0, 1, 0.5, 1}, "The Expert"};
+    } else if level >= 30 {
+        return Tier{"ADVANCED", 30, {0, 0.8, 1, 1}, "The Advanced"};
+    } else if level >= 15 {
+        return Tier{"INTERMEDIATE", 15, {0.5, 0.5, 1, 1}, "The Intermediate"};
+    } else if level >= 5 {
+        return Tier{"NOVICE", 5, {0.5, 1, 0.5, 1}, "The Novice"};
+    }
+    return Tier{"BEGINNER", 0, {1, 1, 1, 1}, "The Beginner"};
+}
+
+// ============================================================================
+// Achievement Definitions
+// ============================================================================
+
+get_all_achievements :: proc() -> [..]Achievement {
+    return {
+        {"first_tag", "First Tag!", "Tag your first player", "icons/achievements/first_tag.png", "coins", 100, 50, false, "combat"},
+        {"tag_master", "Tag Master", "Tag 100 players total", "icons/achievements/tag_master.png", "gems", 50, 200, false, "combat"},
+        {"tag_legend", "Tag Legend", "Tag 1,000 players total", "icons/achievements/tag_legend.png", "gems", 200, 500, false, "combat"},
+        {"first_rescue", "First Rescue!", "Rescue your first teammate", "icons/achievements/first_rescue.png", "coins", 100, 50, false, "support"},
+        {"hero_rescuer", "Hero Rescuer", "Rescue 100 teammates", "icons/achievements/hero_rescuer.png", "gems", 50, 200, false, "support"},
+        {"savior", "The Savior", "Rescue 500 teammates", "icons/achievements/savior.png", "gems", 200, 500, false, "support"},
+        {"win_first", "First Victory!", "Win your first match", "icons/achievements/win_first.png", "coins", 200, 100, false, "victory"},
+        {"win_streak_5", "Hot Streak", "Win 5 matches in a row", "icons/achievements/win_streak_5.png", "gems", 100, 300, false, "victory"},
+        {"win_100", "Centurion", "Win 100 matches", "icons/achievements/win_100.png", "gems", 300, 500, false, "victory"},
+        {"level_10", "Getting Started", "Reach level 10", "icons/achievements/level_10.png", "coins", 500, 100, false, "progression"},
+        {"level_50", "Dedicated Player", "Reach level 50", "icons/achievements/level_50.png", "gems", 200, 500, false, "progression"},
+        {"level_100", "True Legend", "Reach level 100", "icons/achievements/level_100.png", "tokens", 50, 1000, false, "progression"},
+        {"prestige_1", "First Prestige", "Prestige for the first time", "icons/achievements/prestige_1.png", "gems", 300, 500, false, "progression"},
+        {"prestige_5", "Prestige Master", "Reach Prestige 5", "icons/achievements/prestige_5.png", "tokens", 100, 1000, false, "progression"},
+        {"prestige_10", "Ultimate Prestige", "Reach Prestige 10", "icons/achievements/prestige_10.png", "tokens", 500, 2000, false, "progression"},
+        {"collector_10", "Collector", "Unlock 10 skins", "icons/achievements/collector_10.png", "coins", 300, 200, false, "collection"},
+        {"collector_50", "Master Collector", "Unlock 50 cosmetics", "icons/achievements/collector_50.png", "gems", 200, 500, false, "collection"},
+        {"powerup_collector", "Power Up!", "Collect 100 powerups", "icons/achievements/powerup_collector.png", "coins", 200, 150, false, "items"},
+        {"survivor", "Survivor", "Survive as the last runner 10 times", "icons/achievements/survivor.png", "gems", 150, 300, false, "victory"},
+        {"freezer_specialist", "Freezer Specialist", "Play 50 matches as a Freezer", "icons/achievements/freezer_specialist.png", "gems", 100, 250, false, "combat"},
+        {"runner_specialist", "Runner Specialist", "Play 50 matches as a Runner", "icons/achievements/runner_specialist.png", "gems", 100, 250, false, "combat"},
+        {"untouchable", "Untouchable!", "Win a match without being frozen once", "icons/achievements/untouchable.png", "gems", 500, 1000, false, "victory"},
+        {"speed_demon", "Speed Demon", "Collect 50 Speed Boost powerups", "icons/achievements/speed_demon.png", "coins", 300, 200, false, "items"},
+        {"team_player", "Team Player", "Play 100 matches", "icons/achievements/team_player.png", "gems", 200, 500, false, "social"},
+        {"friendly", "Friendly", "Add 10 friends", "icons/achievements/friendly.png", "coins", 500, 200, false, "social"},
+        {"popular", "Popular", "Play 50 matches with friends", "icons/achievements/popular.png", "gems", 200, 300, false, "social"},
+        {"comeback_king", "Comeback King", "Win a match after being frozen 5+ times", "icons/achievements/comeback_king.png", "gems", 300, 500, false, "victory"},
+        {"perfectionist", "Perfectionist", "Tag every runner in a match as a Freezer", "icons/achievements/perfectionist.png", "tokens", 10, 800, false, "combat"},
+        {"guardian_angel", "Guardian Angel", "Rescue 10 teammates in a single match", "icons/achievements/guardian_angel.png", "tokens", 10, 800, false, "support"},
+        {"veteran", "Veteran", "Play 500 matches", "icons/achievements/veteran.png", "tokens", 100, 2000, false, "progression"},
+    };
+}
+
+// ============================================================================
+// Quest Generation
+// ============================================================================
+
+generate_daily_quests :: proc(player: Player) -> [..]Quest {
+    quests: [..]Quest;
+    add_quest(&quests, "daily_tag", "Tag 10 Players", "Tag 10 players in any mode", 10, "coins", 200, 100, "easy");
+    add_quest(&quests, "daily_rescue", "Rescue 5 Teammates", "Rescue 5 frozen teammates", 5, "coins", 200, 100, "easy");
+    add_quest(&quests, "daily_win", "Win 2 Matches", "Win 2 matches in any mode", 2, "gems", 20, 150, "medium");
+    add_quest(&quests, "daily_score", "Score 500 Points", "Earn 500 points total", 500, "coins", 300, 150, "medium");
+    add_quest(&quests, "daily_powerup", "Collect 10 Powerups", "Collect 10 powerups", 10, "coins", 150, 80, "easy");
+    add_quest(&quests, "daily_survive", "Survive 5 Rounds", "Remain unfrozen for 5 full rounds", 5, "gems", 30, 200, "hard");
+    return quests;
+}
+
+generate_weekly_quests :: proc(player: Player) -> [..]Quest {
+    quests: [..]Quest;
+    add_quest(&quests, "weekly_tag_100", "Tag 100 Players", "Tag 100 players across any mode", 100, "gems", 150, 500, "medium");
+    add_quest(&quests, "weekly_rescue_50", "Rescue 50 Teammates", "Rescue 50 teammates", 50, "gems", 150, 500, "medium");
+    add_quest(&quests, "weekly_win_10", "Win 10 Matches", "Win 10 matches", 10, "tokens", 10, 800, "hard");
+    add_quest(&quests, "weekly_score_5000", "Score 5,000 Points", "Earn 5,000 points total", 5000, "gems", 300, 1000, "hard");
+    add_quest(&quests, "weekly_as_freezer", "Play 20 Rounds as Freezer", "Play 20 rounds as a Freezer", 20, "gems", 200, 500, "medium");
+    add_quest(&quests, "weekly_as_runner", "Play 20 Rounds as Runner", "Play 20 rounds as a Runner", 20, "gems", 200, 500, "medium");
+    add_quest(&quests, "weekly_streak_3", "3 Win Streak", "Win 3 matches in a row", 3, "tokens", 25, 1000, "legendary");
+
+    // Add 7 random daily quests
+    dailies := generate_daily_quests(player);
+    for i: 0..<min(7, dailies.count) {
+        quests.append(dailies[i]);
+        dailies[i].reward_amount *= 3;
+        dailies[i].xp_reward *= 3;
+    }
+
+    return quests;
+}
+
+generate_monthly_quests :: proc(player: Player) -> [..]Quest {
+    quests: [..]Quest;
+    add_quest(&quests, "monthly_tag_1000", "Tag 1,000 Players", "Tag 1,000 players this month", 1000, "tokens", 100, 5000, "legendary");
+    add_quest(&quests, "monthly_rescue_500", "Rescue 500 Teammates", "Rescue 500 teammates this month", 500, "tokens", 100, 5000, "legendary");
+    add_quest(&quests, "monthly_win_50", "Win 50 Matches", "Win 50 matches this month", 50, "shards", 50, 3000, "epic");
+    add_quest(&quests, "monthly_score_25000", "Score 25,000 Points", "Earn 25,000 points this month", 25000, "tokens", 200, 8000, "legendary");
+    add_quest(&quests, "monthly_level_up", "Gain 10 Levels", "Gain 10 levels this month", 10, "gems", 500, 3000, "epic");
+    return quests;
+}
+
+add_quest :: proc(quests: ref [..]Quest, id: string, name: string, desc: string, required: int, reward_type: string, reward_amount: s64, xp_reward: s64, difficulty: string) {
+    quests.append(Quest{
+        id = id,
+        name = name,
+        description = desc,
+        required = required,
+        reward_type = reward_type,
+        reward_amount = reward_amount,
+        xp_reward = xp_reward,
+        difficulty = difficulty,
+    });
+}
+
+complete_quest :: proc(player: Player, quest_id: string) {
+    for i: 0..<player.daily_quests.count {
+        if player.daily_quests[i].id == quest_id {
+            q := player.daily_quests[i];
+            if q.reward_type == "coins" {
+                Economy.deposit(player, "coins", q.reward_amount);
+            } else if q.reward_type == "gems" {
+                Economy.deposit(player, "gems", q.reward_amount);
+            } else if q.reward_type == "tokens" {
+                Economy.deposit(player, "tokens", q.reward_amount);
+            } else if q.reward_type == "shards" {
+                Economy.deposit(player, "shards", q.reward_amount);
+            }
+            add_xp(player, q.xp_reward);
+            announce("Quest completed: %! (+% XP)", {q.name, q.xp_reward});
+            player.daily_quests.ordered_remove(i);
+            return;
+        }
+    }
+}
+
+check_quest_progress :: proc(player: Player) {
+    for q: player.daily_quests {
+        progress := player.quest_progress[q.id] != nil ? player.quest_progress[q.id] : 0;
+        if progress >= q.required && !is_quest_completed(player, q.id) {
+            complete_quest(player, q.id);
+        }
+    }
+}
+
+is_quest_completed :: proc(player: Player, quest_id: string) -> bool {
+    for q: player.daily_quests {
+        if q.id == quest_id return false;
+    }
+    return true;
+}
+
+// ============================================================================
+// Milestones
+// ============================================================================
+
+get_all_milestones :: proc() -> [..]Milestone {
+    return {
+        {"milestone_tags_10", "10 Tags", "Tag 10 players", 10, "coins", 100, 50},
+        {"milestone_tags_50", "50 Tags", "Tag 50 players", 50, "coins", 300, 150},
+        {"milestone_tags_100", "100 Tags", "Tag 100 players", 100, "gems", 50, 300},
+        {"milestone_tags_500", "500 Tags", "Tag 500 players", 500, "gems", 200, 500},
+        {"milestone_tags_1000", "1,000 Tags", "Tag 1,000 players", 1000, "tokens", 50, 1000},
+        {"milestone_rescues_10", "10 Rescues", "Rescue 10 teammates", 10, "coins", 100, 50},
+        {"milestone_rescues_50", "50 Rescues", "Rescue 50 teammates", 50, "coins", 300, 150},
+        {"milestone_rescues_100", "100 Rescues", "Rescue 100 teammates", 100, "gems", 50, 300},
+        {"milestone_rescues_500", "500 Rescues", "Rescue 500 teammates", 500, "gems", 200, 500},
+        {"milestone_rescues_1000", "1,000 Rescues", "Rescue 1,000 teammates", 1000, "tokens", 50, 1000},
+        {"milestone_wins_10", "10 Wins", "Win 10 matches", 10, "coins", 200, 100},
+        {"milestone_wins_50", "50 Wins", "Win 50 matches", 50, "gems", 100, 300},
+        {"milestone_wins_100", "100 Wins", "Win 100 matches", 100, "gems", 300, 500},
+        {"milestone_wins_500", "500 Wins", "Win 500 matches", 500, "tokens", 100, 1000},
+        {"milestone_wins_1000", "1,000 Wins", "Win 1,000 matches", 1000, "shards", 50, 2000},
+        {"milestone_matches_100", "100 Matches", "Play 100 matches", 100, "coins", 500, 200},
+        {"milestone_matches_500", "500 Matches", "Play 500 matches", 500, "gems", 300, 500},
+        {"milestone_matches_1000", "1,000 Matches", "Play 1,000 matches", 1000, "tokens", 100, 1000},
+    };
+}
+
+check_milestones :: proc(player: Player) {
+    milestones := get_all_milestones();
+    for m: milestones {
+        completed_key := "milestone_completed_" + m.id;
+        already := Save.get_bool(player, completed_key, false);
+
+        if !already {
+            if m.id starts_with "milestone_tags_" && player.lifetime_tags.(s64) >= m.required_value {
+                grant_milestone_reward(player, m);
+            } else if m.id starts_with "milestone_rescues_" && player.lifetime_rescues.(s64) >= m.required_value {
+                grant_milestone_reward(player, m);
+            } else if m.id starts_with "milestone_wins_" && player.lifetime_wins.(s64) >= m.required_value {
+                grant_milestone_reward(player, m);
+            } else if m.id starts_with "milestone_matches_" && player.lifetime_matches.(s64) >= m.required_value {
+                grant_milestone_reward(player, m);
+            }
+        }
+    }
+}
+
+grant_milestone_reward :: proc(player: Player, milestone: Milestone) {
+    if milestone.reward_type == "coins" {
+        Economy.deposit(player, "coins", milestone.reward_amount);
+    } else if milestone.reward_type == "gems" {
+        Economy.deposit(player, "gems", milestone.reward_amount);
+    } else if milestone.reward_type == "tokens" {
+        Economy.deposit(player, "tokens", milestone.reward_amount);
+    } else if milestone.reward_type == "shards" {
+        Economy.deposit(player, "shards", milestone.reward_amount);
+    }
+    add_xp(player, milestone.xp_reward);
+
+    completed_key := "milestone_completed_" + milestone.id;
+    Save.set_bool(player, completed_key, true);
+    announce("Milestone reached: %! (+% XP)", {milestone.name, milestone.xp_reward});
+}
+
+// ============================================================================
+// Rebirth System
+// ============================================================================
+
+perform_rebirth :: proc(player: Player) -> bool {
+    if player.rebirth_count >= 10 return false;
+    if player.level < 100 return false;
+
+    cost := (1000 + player.rebirth_count * 500).(s64);
+    if Economy.get_balance(player, "tokens") < cost return false;
+
+    Economy.withdraw(player, "tokens", cost);
+    player.rebirth_count += 1;
+    player.level = 1;
+    player.xp = 0;
+    player.prestige_level = 0;
+
+    // Rebirth rewards
+    Economy.deposit(player, "gems", (500 + player.rebirth_count * 250).(s64));
+    grant_rebirth_title(player);
+
+    announce("REBIRTH! % has been reborn % times!", {player.get_username(), player.rebirth_count});
+    return true;
+}
+
+grant_rebirth_title :: proc(player: Player) {
+    title: string;
+    switch player.rebirth_count {
+        case 1:  title = "Reborn";
+        case 2:  title = "Twice Born";
+        case 3:  title = "Thrice Born";
+        case 4:  title = "Phoenix";
+        case 5:  title = "Immortal";
+        case 6:  title = "Eternal";
+        case 7:  title = "Transcendent";
+        case 8:  title = "Infinite";
+        case 9:  title = "Omega";
+        case 10: title = "Alpha & Omega";
+        default: title = "Reborn";
+    }
+
+    if !has_title(player, title) {
+        player.unlocked_titles.append(title);
+        player.selected_title = title;
+        announce("Title unlocked: %!", {title});
+    }
+}
+
+has_title :: proc(player: Player, title: string) -> bool {
+    for t: player.unlocked_titles {
+        if t == title return true;
+    }
+    return false;
+}
+
+// ============================================================================
+// Mastery System
+// ============================================================================
+
+get_mastery_for_level :: proc(level: int) -> string {
+    if level >= 100   return "Grandmaster";
+    if level >= 50    return "Master";
+    if level >= 25    return "Expert";
+    if level >= 10    return "Adept";
+    if level >= 5     return "Apprentice";
+    return "Novice";
+}
+
+get_mastery_bonus :: proc(level: int) -> float {
+    return 1.0 + float(level) * 0.02;
+}

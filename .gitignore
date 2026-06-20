@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python generated
+generate_ideas.py
+
+# AllOut editor
+*.log
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*

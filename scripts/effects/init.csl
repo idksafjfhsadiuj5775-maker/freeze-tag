@@ -1,0 +1,476 @@
+import "core:ao"
+
+// ============================================================================
+// Effects Module - Freeze Tag
+// ============================================================================
+
+// ========================================================================
+// Core Freeze Effects
+// ========================================================================
+
+Frozen_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player_specific.freeze_player = true;
+        player_specific.disable_movement_inputs = true;
+
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {0.5, 0.8, 1, 1};
+
+            // Add ice crystal visual
+            ice_particles := player.entity.add_component(Particle_Emitter);
+            ice_particles.color = {0.7, 0.9, 1, 1};
+            ice_particles.emission_rate = 5;
+        }
+    }
+
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null && player.is_local() {
+            remaining := player.freeze_timer;
+            ts := UI.default_text_settings();
+            ts.size = 24;
+            ts.color = {0.5, 0.8, 1, 1};
+            rect := UI.get_screen_rect().bottom_center_rect().offset(0, 50);
+            UI.text(rect, ts, "FROZEN: %.1f", {remaining});
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+
+            particles := player.entity.get_component(Particle_Emitter);
+            if particles != null {
+                player.entity.remove_component(Particle_Emitter);
+            }
+        }
+    }
+}
+
+Rescue_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(1.0);
+
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {1, 0.8, 0.2, 1};
+
+            // Rescue burst visual
+            burst := player.entity.add_component(Particle_Emitter);
+            burst.color = {1, 0.8, 0.2, 1};
+            burst.emission_rate = 20;
+            burst.burst_count = 1;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+
+            particles := player.entity.get_component(Particle_Emitter);
+            if particles != null {
+                player.entity.remove_component(Particle_Emitter);
+            }
+        }
+    }
+}
+
+Invincible_Effect :: class : Effect_Base {
+    flash_timer: float;
+
+    effect_start :: method() {
+        set_duration(2.0);
+    }
+
+    effect_update :: method(dt: float) {
+        flash_timer += dt;
+
+        player := this.player.(Player);
+        if player != null {
+            // Flashing visual
+            alpha := abs(sin(flash_timer * 10));
+            player.entity.get_component(Sprite_Renderer).color.w = 0.5 + alpha * 0.5;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color.w = 1;
+            player.is_invincible = false;
+        }
+    }
+}
+
+Slow_Effect :: class : Effect_Base {
+    speed_multiplier: float = 0.5;
+
+    effect_start :: method() {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = this.speed_multiplier;
+            player.entity.get_component(Sprite_Renderer).color = {0.5, 0.3, 1, 1};
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            if !player.is_slowed {
+                player.speed_multiplier = 1.0;
+            }
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+        }
+    }
+}
+
+// ========================================================================
+// Powerup Effects
+// ========================================================================
+
+Speed_Boost_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 2.0;
+            trail := player.entity.add_component(Trail_Renderer);
+            trail.color = {1, 1, 0, 1};
+            trail.duration = 0.5;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 1.0;
+            trail := player.entity.get_component(Trail_Renderer);
+            if trail != null {
+                player.entity.remove_component(Trail_Renderer);
+            }
+        }
+    }
+}
+
+Shield_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        shield_visual := new(Entity);
+        shield_visual.set_local_position({0, 0});
+        shield_visual.set_parent(this.entity);
+
+        circle := shield_visual.add_component(Circle_Renderer);
+        circle.radius = 1.5;
+        circle.color = {0, 0.8, 1, 0.4};
+        circle.filled = false;
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.has_shield = false;
+        }
+        // Shield visual is child entity, auto-destroyed with effect
+    }
+}
+
+Teleport_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(0.3);
+        player := this.player.(Player);
+        if player != null {
+            // Teleport flash
+            particles := player.entity.add_component(Particle_Emitter);
+            particles.color = {1, 0, 1, 1};
+            particles.emission_rate = 30;
+            particles.burst_count = 1;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            particles := player.entity.get_component(Particle_Emitter);
+            if particles != null {
+                player.entity.remove_component(Particle_Emitter);
+            }
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+        }
+    }
+}
+
+Dash_Effect :: class : Effect_Base {
+    direction: v2;
+
+    effect_start :: method() {
+        set_duration(0.2);
+        player_specific.disable_movement_inputs = true;
+
+        trail := this.entity.add_component(Trail_Renderer);
+        trail.color = {0, 1, 1, 1};
+        trail.duration = 0.3;
+    }
+
+    effect_end :: method(interrupt: bool) {
+        trail := this.entity.get_component(Trail_Renderer);
+        if trail != null {
+            this.entity.remove_component(Trail_Renderer);
+        }
+    }
+}
+
+Time_Freeze_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player_specific.freeze_player = true;
+
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 0.1;
+            player.entity.get_component(Sprite_Renderer).color = {0.3, 0.3, 1, 0.8};
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 1.0;
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+        }
+    }
+}
+
+// ========================================================================
+// Status Effects (Passive - Stackable)
+// ========================================================================
+
+Burn_Effect :: class : Effect_Base {
+    damage_per_sec: float = 1.0;
+
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null {
+            player.apply_freeze(dt * this.damage_per_sec * 0.5);
+        }
+    }
+}
+
+Regen_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {0.5, 1, 0.5, 1};
+        }
+    }
+
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null && player.freeze_state != .NONE {
+            player.freeze_timer -= dt * 2;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+        }
+    }
+}
+
+Haste_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 1.5;
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 0.3, 1};
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.speed_multiplier = 1.0;
+            player.entity.get_component(Sprite_Renderer).color = {1, 1, 1, 1};
+        }
+    }
+}
+
+Magnet_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(6.0);
+        player := this.player.(Player);
+        if player != null {
+            announce("% has magnetic pull!", {player.get_username()});
+        }
+    }
+
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player == null return;
+
+        for p: player_iterator() {
+            if p.get_user_id() == player.get_user_id() continue;
+            other := p.(Player);
+            dist := distance(player.entity.world_position, other.entity.world_position);
+            if dist < 6.0 && dist > 0 {
+                pull_dir := player.entity.world_position - other.entity.world_position;
+                pull_dir = normalize(pull_dir);
+                other.entity.local_position += pull_dir * dt * 2;
+            }
+        }
+    }
+}
+
+Freeze_Resist_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(10.0);
+        player := this.player.(Player);
+        if player != null {
+            announce("% is freeze-resistant!", {player.get_username()});
+        }
+    }
+}
+
+Spectator_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        player_specific.freeze_player = true;
+        this.entity.get_component(Sprite_Renderer).color.w = 0;
+    }
+
+    effect_end :: method(interrupt: bool) {
+        this.entity.get_component(Sprite_Renderer).color.w = 1;
+    }
+}
+
+// ========================================================================
+// Environmental Effects
+// ========================================================================
+
+Lava_Damage_Effect :: class : Effect_Base {
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null {
+            player.apply_freeze(dt * 0.5);
+        }
+    }
+}
+
+Healing_Zone_Effect :: class : Effect_Base {
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null && player.freeze_state != .NONE {
+            player.freeze_timer -= dt * 3;
+            if player.freeze_timer <= 0 {
+                player.freeze_state = .NONE;
+                remove_effect(false);
+            }
+        }
+    }
+}
+
+Wind_Effect :: class : Effect_Base {
+    direction: v2 = {1, 0};
+    strength: float = 2.0;
+
+    effect_update :: method(dt: float) {
+        player := this.player.(Player);
+        if player != null {
+            player.entity.local_position += this.direction * this.strength * dt;
+        }
+    }
+}
+
+Zero_Gravity_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(5.0);
+        player := this.player.(Player);
+        if player != null {
+            player.jump_multiplier = 3.0;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null {
+            player.jump_multiplier = 1.0;
+        }
+    }
+}
+
+// ========================================================================
+// Visual Effects (Client-Only)
+// ========================================================================
+
+Spawn_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(1.0);
+        if this.player != null && this.player.is_local() {
+            particles := this.entity.add_component(Particle_Emitter);
+            particles.color = {1, 1, 1, 1};
+            particles.emission_rate = 50;
+            particles.burst_count = 1;
+            particles.duration = 0.5;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        if this.player != null {
+            particles := this.entity.get_component(Particle_Emitter);
+            if particles != null {
+                this.entity.remove_component(Particle_Emitter);
+            }
+        }
+    }
+}
+
+Elimination_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(0.5);
+
+        if this.player != null && this.player.is_local() {
+            particles := this.entity.add_component(Particle_Emitter);
+            particles.color = {0, 0.5, 1, 1};
+            particles.emission_rate = 80;
+            particles.burst_count = 1;
+            particles.duration = 0.3;
+
+            screen_shake(0.3, 5.0);
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        if this.player != null {
+            particles := this.entity.get_component(Particle_Emitter);
+            if particles != null {
+                this.entity.remove_component(Particle_Emitter);
+            }
+        }
+    }
+}
+
+Victory_Effect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(3.0);
+
+        if this.player != null && this.player.is_local() {
+            particles := this.entity.add_component(Particle_Emitter);
+            particles.color = {1, 0.8, 0, 1};
+            particles.emission_rate = 30;
+            particles.burst_count = 3;
+        }
+    }
+
+    effect_end :: method(interrupt: bool) {
+        if this.player != null {
+            particles := this.entity.get_component(Particle_Emitter);
+            if particles != null {
+                this.entity.remove_component(Particle_Emitter);
+            }
+        }
+    }
+}
+
+screen_shake :: proc(duration: float, intensity: float) {
+
+}

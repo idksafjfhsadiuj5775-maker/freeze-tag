@@ -1,0 +1,534 @@
+import "core:ao"
+
+// ============================================================================
+// UI Module - Freeze Tag
+// ============================================================================
+
+draw_hud :: proc() {
+    player := get_local_player();
+    if player == null return;
+
+    draw_timer();
+    draw_scoreboard();
+    draw_team_indicator(player);
+    draw_match_info(player);
+    draw_announcements();
+    draw_round_info();
+    draw_streak_indicator(player);
+    draw_powerup_status(player);
+    draw_minimap(player);
+    draw_quest_progress(player);
+}
+
+draw_timer :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 48;
+    ts.color = {1, 1, 1, 1};
+    ts.bold = true;
+
+    display_time: string;
+    if match_state == .COUNTDOWN {
+        display_time = format_string("Starting in %...", {countdown_timer.(int) + 1});
+        ts.color = {1, 1, 0, 1};
+    } else if match_state == .PLAYING || match_state == .OVERTIME {
+        remaining := round_timer.(int);
+        minutes := remaining / 60;
+        seconds := remaining % 60;
+        display_time = format_string("%02d:%02d", {minutes, seconds});
+
+        if remaining <= 10 {
+            ts.color = {1, 0, 0, 1};
+        } else if remaining <= 30 {
+            ts.color = {1, 1, 0, 1};
+        }
+    } else if match_state == .ROUND_END {
+        display_time = "Round Over!";
+        ts.color = {0, 1, 0, 1};
+    } else if match_state == .MATCH_END {
+        display_time = "Match Over!";
+        ts.color = {1, 0.8, 0, 1};
+    } else {
+        display_time = format_string("Waiting... (%/2)", {get_player_count(), match_settings.min_players});
+        ts.color = {0.5, 0.5, 0.5, 1};
+    }
+
+    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(rect, ts, display_time, {});
+}
+
+draw_scoreboard :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 18;
+    ts.color = {1, 1, 1, 1};
+
+    // Freezer team scores
+    freezer_score := 0;
+    runner_score := 0;
+    freezer_players := 0;
+    frozen_runners := 0;
+    total_runners := 0;
+
+    for p: player_iterator() {
+        player := p.(Player);
+        if player.team == .FREEZERS {
+            freezer_score += player.score;
+            freezer_players += 1;
+        } else if player.team == .RUNNERS {
+            runner_score += player.score;
+            total_runners += 1;
+            if player.freeze_state != .NONE {
+                frozen_runners += 1;
+            }
+        }
+    }
+
+    // Freezer team header
+    rect := UI.get_screen_rect().top_left_rect().offset(10, 80);
+    ts.color = {0, 0.5, 1, 1};
+    ts.bold = true;
+    UI.text(rect, ts, "FREEZERS (Round Wins: %)", {freezer_team_rounds_won});
+    ts.bold = false;
+    ts.color = {1, 1, 1, 0.7};
+    rect.y += 25;
+
+    for p: player_iterator() {
+        player := p.(Player);
+        if player.team == .FREEZERS {
+            UI.text(rect, ts, "  % - % pts", {player.get_username(), player.score});
+            rect.y += 20;
+        }
+    }
+
+    // Runner team header
+    rect.y += 10;
+    ts.color = {0, 1, 0.5, 1};
+    ts.bold = true;
+    UI.text(rect, ts, "RUNNERS (%/% frozen) (Wins: %)", {frozen_runners, total_runners, runner_team_rounds_won});
+    ts.bold = false;
+    ts.color = {1, 1, 1, 0.7};
+    rect.y += 25;
+
+    for p: player_iterator() {
+        player := p.(Player);
+        if player.team == .RUNNERS {
+            frozen_icon := player.freeze_state != .NONE ? "[FROZEN] " : "";
+            UI.text(rect, ts, "  % % - % pts", {frozen_icon, player.get_username(), player.score});
+            rect.y += 20;
+        }
+    }
+}
+
+draw_team_indicator :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 20;
+    ts.bold = true;
+
+    if player.team == .FREEZERS {
+        ts.color = {0, 0.5, 1, 1};
+    } else {
+        ts.color = {0, 1, 0.5, 1};
+    }
+
+    rect := UI.get_screen_rect().top_left_rect().offset(10, 10);
+    team_name := player.team == .FREEZERS ? "FREEZER" : "RUNNER";
+    UI.text(rect, ts, "Team: %", {team_name});
+}
+
+draw_match_info :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 16;
+    ts.color = {0.7, 0.7, 0.7, 1};
+
+    rect := UI.get_screen_rect().top_right_rect().offset(-10, 10);
+    UI.text(rect, ts, "Round %/%", {current_round, match_settings.rounds_per_match});
+
+    rect.y += 20;
+    mode_name: string;
+    switch current_mode {
+        case .CLASSIC:          mode_name = "Classic";
+        case .INFECTION:       mode_name = "Infection";
+        case .KING_OF_THE_HILL: mode_name = "King of the Hill";
+        case .LAST_MAN_STANDING: mode_name = "Last Man Standing";
+        case .TEAM_BATTLE:     mode_name = "Team Battle";
+        case .CHAOS:           mode_name = "Chaos";
+        case .SPEED:           mode_name = "Speed";
+        case .ZERO_GRAVITY:    mode_name = "Zero Gravity";
+        case .BOSS_BATTLE:     mode_name = "Boss Battle";
+        case .SURVIVAL:        mode_name = "Survival";
+        default:               mode_name = "Classic";
+    }
+    UI.text(rect, ts, "Mode: %", {mode_name});
+}
+
+draw_announcements :: proc() {
+    for i: 0..<announcements.count {
+        ann := announcements[i];
+        t := ann.timer / ann.duration;
+        alpha := 1.0;
+        if t < 0.2 {
+            alpha = t / 0.2;
+        }
+
+        ts := UI.default_text_settings();
+        ts.size = 32;
+        ts.color = {1, 1, 1, alpha};
+        ts.bold = true;
+        ts.alignment = .CENTER;
+
+        rect := UI.get_screen_rect().center();
+        rect.y -= float(announcements.count - i) * 40;
+        UI.text(rect, ts, ann.message, {});
+    }
+}
+
+draw_round_info :: proc() {
+    if match_state != .PLAYING && match_state != .OVERTIME return;
+
+    ts := UI.default_text_settings();
+    ts.size = 14;
+
+    freezer_count := 0;
+    runner_count := 0;
+    frozen_count := 0;
+
+    for p: player_iterator() {
+        player := p.(Player);
+        if player.team == .FREEZERS {
+            freezer_count += 1;
+        } else {
+            runner_count += 1;
+            if player.freeze_state != .NONE {
+                frozen_count += 1;
+            }
+        }
+    }
+
+    ts.color = {0.7, 0.7, 0.7, 1};
+    rect := UI.get_screen_rect().bottom_left_rect().offset(10, -10);
+    UI.text(rect, ts, "Freezers: % | Runners: % (% frozen)", {freezer_count, runner_count, frozen_count});
+
+    if sudden_death_active {
+        ts.color = {1, 0, 0, 1};
+        ts.bold = true;
+        rect.y -= 20;
+        UI.text(rect, ts, "SUDDEN DEATH! Zone shrinking!", {});
+    }
+}
+
+draw_streak_indicator :: proc(player: Player) {
+    if player.streak_count < 2 return;
+
+    ts := UI.default_text_settings();
+    ts.bold = true;
+
+    streak_color: v4;
+    streak_text: string;
+
+    if player.streak_count >= 10 {
+        streak_color = {1, 0, 0, 1};
+        streak_text = "LEGENDARY STREAK";
+    } else if player.streak_count >= 7 {
+        streak_color = {1, 0.5, 0, 1};
+        streak_text = "AMAZING STREAK";
+    } else if player.streak_count >= 5 {
+        streak_color = {1, 1, 0, 1};
+        streak_text = "GREAT STREAK";
+    } else if player.streak_count >= 3 {
+        streak_color = {0, 1, 0, 1};
+        streak_text = "STREAK";
+    } else {
+        streak_color = {1, 1, 1, 1};
+        streak_text = "Streak";
+    }
+
+    ts.size = 20;
+    ts.color = streak_color;
+    rect := UI.get_screen_rect().bottom_right_rect().offset(-10, -10);
+    UI.text(rect, ts, "% x%", {streak_text, player.streak_count});
+}
+
+draw_powerup_status :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 14;
+    ts.color = {0.5, 1, 0.5, 1};
+    rect := UI.get_screen_rect().bottom_right_rect().offset(-10, -40);
+
+    if player.has_shield {
+        UI.text(rect, ts, "Shield: % hits", {player.shield_hits});
+        rect.y -= 18;
+    }
+    if player.is_invisible {
+        ts.color = {0.5, 0.5, 1, 1};
+        UI.text(rect, ts, "Invisible: %.1f", {player.invisible_timer});
+        rect.y -= 18;
+    }
+    if player.is_phased {
+        ts.color = {0.5, 0, 1, 1};
+        UI.text(rect, ts, "Phased: %.1f", {player.phase_timer});
+        rect.y -= 18;
+    }
+    if player.speed_multiplier > 1.0 {
+        ts.color = {1, 1, 0, 1};
+        UI.text(rect, ts, "Speed Boost", {});
+        rect.y -= 18;
+    }
+}
+
+draw_minimap :: proc(player: Player) {
+    map_size: float = 120;
+    map_pos := v2{UI.get_screen_rect().right - map_size - 10, UI.get_screen_rect().bottom - map_size - 60};
+
+    // Background
+    UI.rect(map_pos, {map_size, map_size}, {0, 0, 0, 0.5});
+
+    // Player dots
+    dot_size: float = 4;
+    for p: player_iterator() {
+        p2 := p.(Player);
+        rel_pos := p2.entity.world_position / 45.0;
+        dot_pos := map_pos + {rel_pos.x * map_size / 2 + map_size / 2, -rel_pos.y * map_size / 2 + map_size / 2};
+
+        dot_color: v4;
+        if p2.get_user_id() == player.get_user_id() {
+            dot_color = {1, 1, 1, 1};
+            dot_size = 6;
+        } else if p2.team == .FREEZERS {
+            dot_color = {0, 0.5, 1, 1};
+        } else if p2.freeze_state != .NONE {
+            dot_color = {0.5, 0.5, 1, 0.5};
+        } else {
+            dot_color = {0, 1, 0.5, 1};
+        }
+
+        UI.rect(dot_pos, {dot_size, dot_size}, dot_color);
+    }
+}
+
+draw_quest_progress :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 12;
+    ts.color = {0.7, 0.7, 0.7, 0.7};
+    rect := UI.get_screen_rect().top_right_rect().offset(-10, 120);
+
+    for i: 0..<player.daily_quests.count {
+        q := player.daily_quests[i];
+        if i >= 3 break;
+        progress := player.quest_progress[q.id] != nil ? player.quest_progress[q.id] : 0;
+        UI.text(rect, ts, "%: %/%", {q.name, progress, q.required});
+        rect.y += 16;
+    }
+}
+
+// ============================================================================
+// Menu UIs
+// ============================================================================
+
+draw_main_menu :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 64;
+    ts.bold = true;
+    ts.color = {0, 0.8, 1, 1};
+
+    title_rect := UI.get_screen_rect().center();
+    title_rect.y -= 100;
+    UI.text(title_rect, ts, "FREEZE TAG", {});
+
+    ts.size = 24;
+    ts.bold = false;
+    ts.color = {0.7, 0.7, 0.7, 1};
+    title_rect.y += 60;
+    UI.text(title_rect, ts, "Tag or be tagged!", {});
+
+    // Mode selection buttons
+    btn_width: float = 200;
+    btn_height: float = 40;
+    start_y := title_rect.y + 60;
+
+    modes := [?]string{"Classic", "Infection", "Speed", "Chaos", "Survival"};
+    for i: 0..<modes.count {
+        btn_rect := v2{UI.get_screen_rect().center.x - btn_width / 2, start_y + float(i) * (btn_height + 10)};
+        btn_color := v4{0.2, 0.2, 0.3, 0.8};
+
+        if UI.button(btn_rect, {btn_width, btn_height}, btn_color, modes[i]) {
+            select_game_mode(i);
+        }
+    }
+
+    // Start button
+    start_rect := v2{UI.get_screen_rect().center.x - 100, start_y + float(modes.count) * (btn_height + 10) + 20};
+    if UI.button(start_rect, {200, 50}, {0, 0.5, 1, 0.8}, "START GAME") {
+        request_match_start();
+    }
+}
+
+draw_shop_menu :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 36;
+    ts.bold = true;
+    ts.color = {1, 0.8, 0, 1};
+
+    player := get_local_player();
+    if player == null return;
+
+    title_rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(title_rect, ts, "SHOP", {});
+
+    // Currency display
+    ts.size = 18;
+    ts.bold = false;
+    ts.color = {1, 1, 1, 1};
+    title_rect.y += 40;
+    UI.text(title_rect, ts, "Coins: % | Gems: % | Tokens: %", {player.coins, player.gems, player.tokens});
+
+    // Shop tabs
+    tab_width: float = 100;
+    tab_y := title_rect.y + 40;
+
+    tabs := [?]string{"Skins", "Trails", "Pets", "Emotes", "Effects"};
+    for i: 0..<tabs.count {
+        tab_rect := v2{UI.get_screen_rect().center.x - (tabs.count * tab_width) / 2 + float(i) * tab_width, tab_y};
+        tab_color := v4{0.2, 0.3, 0.4, 0.8};
+
+        if UI.button(tab_rect, {tab_width - 5, 35}, tab_color, tabs[i]) {
+            set_shop_tab(i);
+        }
+    }
+
+    // Items grid
+    draw_shop_items(tab_y + 50);
+}
+
+draw_shop_items :: proc(start_y: float) {
+    ts := UI.default_text_settings();
+    ts.size = 14;
+    ts.color = {0.7, 0.7, 0.7, 1};
+
+    item_y := start_y;
+    for i: 0..<20 {
+        rect := v2{UI.get_screen_rect().center.x - 150, item_y};
+        item_color := v4{0.15, 0.15, 0.25, 0.8};
+
+        if UI.button(rect, {300, 30}, item_color, "Item % - 500 Coins", {i + 1}) {
+            purchase_item(i);
+        }
+
+        item_y += 35;
+    }
+}
+
+draw_collections_menu :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 36;
+    ts.bold = true;
+    ts.color = {0, 1, 0.5, 1};
+
+    title_rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(title_rect, ts, "COLLECTIONS", {});
+
+    player := get_local_player();
+    if player == null return;
+
+    ts.size = 18;
+    ts.color = {1, 1, 1, 0.7};
+    title_rect.y += 40;
+
+    UI.text(title_rect, ts, "Skins: %/%", {player.unlocked_skins.count, get_total_skins()});
+    title_rect.y += 25;
+    UI.text(title_rect, ts, "Trails: %/%", {player.unlocked_trails.count, get_total_trails()});
+    title_rect.y += 25;
+    UI.text(title_rect, ts, "Achievements: %/%", {player.collected_achievements.count, get_total_achievements()});
+    title_rect.y += 25;
+    UI.text(title_rect, ts, "Titles: %/%", {player.unlocked_titles.count, get_total_titles()});
+}
+
+draw_leaderboard :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 36;
+    ts.bold = true;
+    ts.color = {1, 0.8, 0, 1};
+
+    title_rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(title_rect, ts, "LEADERBOARD", {});
+
+    // Sort leaderboard
+    sorted: [..]Leaderboard_Entry;
+    for entry: leaderboard {
+        sorted.append(entry);
+    }
+
+    for i: 0..<sorted.count {
+        for j: i + 1..<sorted.count {
+            if sorted[j].score > sorted[i].score {
+                temp := sorted[i];
+                sorted[i] = sorted[j];
+                sorted[j] = temp;
+            }
+        }
+    }
+
+    ts.size = 18;
+    ts.bold = true;
+    ts.color = {1, 1, 1, 1};
+    header_rect := title_rect + {0, 50};
+
+    UI.text(header_rect, ts, "Rank  Player                    Score  Tags  Rescues");
+    ts.bold = false;
+
+    for i: 0..<min(sorted.count, 10) {
+        entry := sorted[i];
+        row_rect := header_rect + {0, float(i + 1) * 25};
+
+        if i == 0 {
+            ts.color = {1, 0.8, 0, 1};
+        } else if i == 1 {
+            ts.color = {0.7, 0.7, 0.7, 1};
+        } else if i == 2 {
+            ts.color = {0.8, 0.5, 0.2, 1};
+        } else {
+            ts.color = {0.7, 0.7, 0.7, 0.7};
+        }
+
+        UI.text(row_rect, ts, "  %-4d  %-24s  %-5d  %-4d  %-4d", {i + 1, entry.username, entry.score, entry.tags, entry.rescues});
+    }
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+get_local_player :: proc() -> Player {
+    for p: player_iterator() {
+        if p.is_local() {
+            return p.(Player);
+        }
+    }
+    return null;
+}
+
+get_total_skins :: proc() -> int { return 50; }
+get_total_trails :: proc() -> int { return 30; }
+get_total_achievements :: proc() -> int { return 100; }
+get_total_titles :: proc() -> int { return 40; }
+
+select_game_mode :: proc(index: int) {
+    modes := [?]Game_Mode{.CLASSIC, .INFECTION, .SPEED, .CHAOS, .SURVIVAL};
+    if index < modes.count {
+        current_mode = modes[index];
+        announce("Mode selected: %", {});
+    }
+}
+
+request_match_start :: proc() {
+    if get_player_count() >= match_settings.min_players {
+        game_started = true;
+        start_countdown();
+    }
+}
+
+set_shop_tab :: proc(index: int) {
+
+}
+
+purchase_item :: proc(index: int) {
+
+}
