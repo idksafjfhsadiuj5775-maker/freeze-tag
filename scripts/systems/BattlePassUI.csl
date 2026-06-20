@@ -1,0 +1,22 @@
+draw_battle_pass :: proc(player: Player) {
+    sl := Save.get_int(player, "season_level", 0).(int);
+    sx := Save.get_int(player, "season_xp", 0);
+    needed := (100 + sl * 50).(s64);
+
+    ts := UI.default_text_settings();
+    ts.size = 24; ts.bold = true; ts.color = {1, 0.8, 0, 1};
+    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(rect, ts, "SEASON PASS", {});
+
+    ts.size = 16; ts.bold = false; ts.color = {1, 1, 1, 1};
+    rect.y += 35;
+    UI.text(rect, ts, "Level % - %/% XP", {sl, sx, needed});
+
+    rect.y += 30;
+    for i: 0..<5 {
+        reward, qty := get_season_pass_rewards(sl + i + 1);
+        ts.color = i == 0 ? v4{1,1,0,1} : v4{0.5,0.5,0.5,1};
+        UI.text(rect, ts, "Lv%: % (%s)", {sl + i + 1, reward, qty > 0 ? format_string("%d", {qty}) : ""});
+        rect.y += 22;
+    }
+}

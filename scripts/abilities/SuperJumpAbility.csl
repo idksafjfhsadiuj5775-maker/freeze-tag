@@ -1,0 +1,12 @@
+SuperJumpAbility :: class : Ability_Base {
+    on_init :: method() {
+        name = "Super Jump"; icon = get_asset(Texture_Asset, "icons/jump.png");
+    }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.entity.local_position.y += 7;
+            current_cooldown = 8.0;
+        }
+    }
+}

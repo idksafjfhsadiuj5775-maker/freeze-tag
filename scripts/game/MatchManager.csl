@@ -1,0 +1,92 @@
+// ============================================================================
+// MatchManager - Handles game state and rounds
+// ============================================================================
+
+GameState :: enum {
+    WAITING; COUNTDOWN; PLAYING; OVERTIME; ROUND_END; MATCH_END;
+}
+
+Team :: enum {
+    FREEZERS; RUNNERS; SPECTATOR;
+}
+
+FreezeState :: enum {
+    NONE; SLOWED; PARTIAL; FULL; PERMAFROST;
+}
+
+@ao_serialize
+match_state: GameState = .WAITING;
+@ao_serialize
+current_round: int;
+@ao_serialize
+round_timer: float;
+@ao_serialize
+freezer_wins: int;
+@ao_serialize
+runner_wins: int;
+@ao_serialize
+sudden_death_active: bool;
+
+team_assignments: map[string]Team;
+
+MatchManager :: class {
+    start_countdown :: method() {
+        match_state = .COUNTDOWN;
+        round_timer = 5.0;
+    }
+
+    start_round :: method() {
+        current_round += 1;
+        match_state = .PLAYING;
+        round_timer = config.round_time;
+        sudden_death_active = false;
+        assign_teams();
+    }
+
+    assign_teams :: method() {
+        players: [..]string;
+        for p: player_iterator() { players.append(p.get_user_id()); }
+        if players.count == 0 return;
+
+        players = shuffle(players);
+        freezer_count := max(1, (players.count * config.freezer_ratio).(int));
+        if freezer_count >= players.count { freezer_count = 1; }
+
+        for i: 0..<players.count {
+            team_assignments[players[i]] = i < freezer_count ? .FREEZERS : .RUNNERS;
+        }
+    }
+
+    end_round :: method() {
+        match_state = .ROUND_END;
+        count_frozen();
+        if current_round >= config.rounds_per_match {
+            match_state = .MATCH_END;
+        }
+    }
+
+    count_frozen :: method() {
+        frozen := 0; total := 0;
+        for p: player_iterator() {
+            player := p.(Player);
+            if player.team == .RUNNERS {
+                total += 1;
+                if player.freeze_state != .NONE { frozen += 1; }
+            }
+        }
+        if frozen >= total && total > 0 { freezer_wins += 1; }
+        else { runner_wins += 1; }
+    }
+}
+
+match_manager: MatchManager;
+
+shuffle :: proc(list: [..]string) -> [..]string {
+    result: [..]string;
+    for i: 0..<list.count { result.append(list[i]); }
+    for i: 0..<result.count {
+        j := (ao_get_random_seed().(int) & 0x7FFFFFFF) % result.count;
+        temp := result[i]; result[i] = result[j]; result[j] = temp;
+    }
+    return result;
+}

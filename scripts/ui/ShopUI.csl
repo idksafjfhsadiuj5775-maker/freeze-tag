@@ -1,0 +1,58 @@
+// ============================================================================
+// ShopUI - In-game shop interface
+// ============================================================================
+
+draw_shop :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 28; ts.bold = true; ts.color = {1, 0.8, 0, 1};
+    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(rect, ts, "SHOP", {});
+
+    ts.size = 16; ts.bold = false; ts.color = {1, 1, 1, 1};
+    rect.y += 35;
+    UI.text(rect, ts, "Coins: %", {Economy.get_balance(player, "coins")});
+
+    items := get_shop_items();
+    y: float = rect.y + 40;
+    for i: 0..<min(items.count, 8) {
+        item := items[i];
+        btn := v2{UI.get_screen_rect().center.x - 120, y};
+        if UI.button(btn, {240, 28}, {0.15, 0.15, 0.25, 0.8}, "% - % coins", {item.name, item.price}) {
+            purchase_item(player, item.id);
+        }
+        y += 32;
+    }
+}
+
+ShopItem :: struct {
+    id: string; name: string; price: int; category: string;
+}
+
+get_shop_items :: proc() -> [..]ShopItem {
+    return {
+        {"skin_blue", "Blue Ice Skin", 500, "skin"},
+        {"skin_red", "Red Fire Skin", 500, "skin"},
+        {"skin_gold", "Gold Legend Skin", 2000, "skin"},
+        {"trail_ice", "Ice Trail", 300, "trail"},
+        {"trail_fire", "Fire Trail", 500, "trail"},
+        {"pet_penguin", "Penguin Pet", 1000, "pet"},
+        {"emote_wave", "Wave Emote", 100, "emote"},
+        {"emote_dance", "Dance Emote", 200, "emote"},
+    };
+}
+
+purchase_item :: proc(player: Player, item_id: string) {
+    items := get_shop_items();
+    for item: items {
+        if item.id == item_id {
+            if Economy.get_balance(player, "coins") >= item.price.(s64) {
+                Economy.withdraw(player, "coins", item.price.(s64));
+                player.inventory_items.append(item_id);
+                announce("Purchased %!", {item.name});
+            } else {
+                announce("Not enough coins!", {});
+            }
+            return;
+        }
+    }
+}

@@ -1,0 +1,77 @@
+// ============================================================================
+// DebugCommands - Testing and admin commands
+// ============================================================================
+
+execute_command :: proc(player: Player, cmd: string) {
+    if !player.is_admin() && !player.is_vip() && !player.is_moderator() {
+        announce("No permission!", {}); return;
+    }
+
+    parts := split(cmd, " ");
+    if parts.count == 0 return;
+
+    switch parts[0] {
+        case "/start": match_manager.start_countdown();
+        case "/end": match_manager.end_round();
+        case "/freeze": {
+            target := get_player_by_username(parts.count > 1 ? parts[1] : player.get_username());
+            if target != null { target.freeze_state = .FULL; target.freeze_timer = 999; }
+        }
+        case "/unfreeze": {
+            target := get_player_by_username(parts.count > 1 ? parts[1] : player.get_username());
+            if target != null { target.freeze_state = .NONE; target.freeze_timer = 0; }
+        }
+        case "/coins": {
+            if parts.count > 1 {
+                Economy.deposit(player, "coins", parse_int(parts[1]).(s64));
+            }
+        }
+        case "/gems": {
+            if parts.count > 1 {
+                Economy.deposit(player, "gems", parse_int(parts[1]).(s64));
+            }
+        }
+        case "/level": {
+            if parts.count > 1 {
+                level := parse_int(parts[1]).(int);
+                Save.set_int(player, "level", level.(s64));
+                announce("Level set to %!", {level});
+            }
+        }
+        case "/skin": {
+            if parts.count > 1 {
+                player.selected_skin = parts[1];
+                Save.set_string(player, "selected_skin", parts[1]);
+                announce("Skin set to %!", {parts[1]});
+            }
+        }
+        case "/help": {
+            announce("Commands: /start, /end, /freeze, /unfreeze, /coins, /gems, /level, /skin", {});
+        }
+        default: announce("Unknown command!", {});
+    }
+}
+
+split :: proc(s: string, delim: string) -> [..]string {
+    result: [..]string; current: string;
+    for c: s {
+        if c == delim[0] { result.append(current); current = ""; }
+        else { current += c; }
+    }
+    result.append(current);
+    return result;
+}
+
+parse_int :: proc(s: string) -> int {
+    result: int; sign: int = 1; start: int = 0;
+    if s[0] == '-' { sign = -1; start = 1; }
+    for i: start..<s.count { result = result * 10 + (s[i] - '0'); }
+    return result * sign;
+}
+
+get_player_by_username :: proc(username: string) -> Player {
+    for p: player_iterator() {
+        if p.get_username() == username { return p.(Player); }
+    }
+    return null;
+}

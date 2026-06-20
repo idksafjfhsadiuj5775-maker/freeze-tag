@@ -1,0 +1,35 @@
+Collection :: struct {
+    id: string; name: string; items: [..]string;
+    bonus_type: string; bonus_amount: int;
+}
+
+get_collections :: proc() -> [..]Collection {
+    return {
+        {"ice_set", "Ice Collection", {"skin_blue", "trail_ice", "pet_penguin"}, "gems", 100},
+        {"fire_set", "Fire Collection", {"skin_red", "trail_fire"}, "gems", 75},
+        {"gold_set", "Gold Collection", {"skin_gold", "emote_dance"}, "tokens", 10},
+        {"starter_set", "Starter Collection", {"skin_blue", "trail_ice", "emote_wave"}, "coins", 500},
+    };
+}
+
+check_collections :: proc(player: Player) {
+    for c: get_collections() {
+        key := "collection_" + c.id;
+        if Save.get_bool(player, key, false) continue;
+        has_all := true;
+        for item: c.items {
+            found := false;
+            for inv: player.inventory_items {
+                if inv == item { found = true; break; }
+            }
+            if !found { has_all = false; break; }
+        }
+        if has_all {
+            Save.set_bool(player, key, true);
+            if c.bonus_type == "gems" { Economy.deposit(player, "gems", c.bonus_amount.(s64)); }
+            if c.bonus_type == "coins" { Economy.deposit(player, "coins", c.bonus_amount.(s64)); }
+            if c.bonus_type == "tokens" { Economy.deposit(player, "tokens", c.bonus_amount.(s64)); }
+            announce("COLLECTION COMPLETE: %! +% %", {c.name, c.bonus_amount, c.bonus_type});
+        }
+    }
+}

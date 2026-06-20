@@ -1,0 +1,31 @@
+// ============================================================================
+// MainMenu - Title screen and mode selection
+// ============================================================================
+
+draw_main_menu :: proc() {
+    if match_state != .WAITING return;
+
+    ts := UI.default_text_settings();
+    ts.size = 48; ts.bold = true; ts.color = {0, 0.8, 1, 1};
+    rect := UI.get_screen_rect().center();
+    rect.y -= 80;
+    UI.text(rect, ts, "FREEZE TAG", {});
+
+    ts.size = 18; ts.bold = false; ts.color = {0.7, 0.7, 0.7, 1};
+    rect.y += 50;
+    UI.text(rect, ts, "Tag or be tagged!", {});
+
+    count := 0;
+    for p: player_iterator() { count += 1; }
+    rect.y += 40;
+    ts.color = count >= config.min_players ? v4{0,1,0,1} : v4{1,1,0,1};
+    UI.text(rect, ts, "Players: %/%", {count, config.min_players});
+
+    if count >= config.min_players {
+        rect.y += 40;
+        btn_rect := v2{rect.x - 80, rect.y};
+        if UI.button(btn_rect, {160, 40}, {0, 0.5, 1, 0.8}, "START") {
+            match_manager.start_countdown();
+        }
+    }
+}

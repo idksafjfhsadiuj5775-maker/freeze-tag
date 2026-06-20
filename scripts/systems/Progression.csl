@@ -1,0 +1,37 @@
+// ============================================================================
+// Progression - Level, XP, and rank system
+// ============================================================================
+
+ProgressionData :: struct {
+    level: int;
+    xp: s64;
+    prestige: int;
+    rebirth: int;
+    total_tags: int;
+    total_rescues: int;
+    total_wins: int;
+    total_matches: int;
+}
+
+get_xp_for_level :: proc(level: int) -> s64 {
+    return (100 + (level - 1) * 50).(s64);
+}
+
+add_xp :: proc(player: Player, amount: s64) {
+    level := Save.get_int(player, "level", 1).(int);
+    xp := Save.get_int(player, "xp", 0) + amount;
+    needed := get_xp_for_level(level);
+
+    if xp >= needed {
+        xp -= needed;
+        level += 1;
+        Save.set_int(player, "level", level.(s64));
+        announce("LEVEL UP! Now level %!", {level});
+
+        if level % 10 == 0 {
+            Economy.deposit(player, "gems", 50);
+            announce("Bonus: 50 Gems!", {});
+        }
+    }
+    Save.set_int(player, "xp", xp);
+}

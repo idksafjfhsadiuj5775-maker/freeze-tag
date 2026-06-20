@@ -1,0 +1,35 @@
+// ============================================================================
+// MatchRewards - End-of-match reward distribution
+// ============================================================================
+
+distribute_rewards :: proc(winner_team: Team) {
+    for p: player_iterator() {
+        player := p.(Player);
+        base_coins := 50; base_xp := 100;
+        bonus_coins := 0; bonus_xp := 0;
+
+        if player.team == winner_team {
+            bonus_coins += 100; bonus_xp += 200;
+        }
+
+        bonus_coins += player.tags_this_round * 10;
+        bonus_xp += player.tags_this_round * 20;
+        bonus_coins += player.rescues_this_round * 15;
+        bonus_xp += player.rescues_this_round * 30;
+
+        if player.streak >= 3 { bonus_coins += 50; bonus_xp += 100; }
+
+        Economy.deposit(player, "coins", (base_coins + bonus_coins).(s64));
+        add_xp(player, (base_xp + bonus_xp).(s64));
+
+        // Save stats
+        Save.set_int(player, "total_tags", (Save.get_int(player, "total_tags", 0) + player.tags_this_round.(s64)));
+        Save.set_int(player, "total_rescues", (Save.get_int(player, "total_rescues", 0) + player.rescues_this_round.(s64)));
+        Save.set_int(player, "total_matches", (Save.get_int(player, "total_matches", 0) + 1));
+        if player.team == winner_team {
+            Save.set_int(player, "total_wins", (Save.get_int(player, "total_wins", 0) + 1));
+        }
+
+        check_achievements(player);
+    }
+}

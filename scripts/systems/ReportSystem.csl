@@ -1,0 +1,15 @@
+Report :: struct {
+    reporter_id: string; target_id: string; reason: string; timestamp: float;
+}
+
+reports: [..]Report;
+
+report_player :: proc(reporter: Player, target_id: string, reason: string) {
+    reports.append(Report{
+        reporter_id = reporter.get_user_id(),
+        target_id = target_id,
+        reason = reason,
+        timestamp = ao_get_time(),
+    });
+    notify("Report submitted. Thank you!", {0, 1, 0, 1});
+}

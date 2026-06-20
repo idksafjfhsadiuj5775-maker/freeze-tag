@@ -1,0 +1,18 @@
+RepulsionAbility :: class : Ability_Base {
+    on_init :: method() { name = "Repulsion"; icon = get_asset(Texture_Asset, "icons/repel.png"); }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                d := distance(player.entity.world_position, other.entity.world_position);
+                if d < 8 {
+                    dir := normalize(other.entity.world_position - player.entity.world_position);
+                    other.entity.local_position += dir * (8 - d);
+                }
+            }
+            current_cooldown = 15.0;
+        }
+    }
+}

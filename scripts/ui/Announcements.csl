@@ -1,0 +1,32 @@
+// ============================================================================
+// Announcements - In-game message system
+// ============================================================================
+
+Announcement :: struct {
+    message: string;
+    timer: float;
+    duration: float;
+}
+
+announcements: [..]Announcement;
+
+announce :: proc(msg: string, args: [..]any) {
+    a := Announcement{message = format_string(msg, args), timer = 3.0, duration = 3.0};
+    announcements.append(a);
+}
+
+draw_announcements :: proc() {
+    for i: 0..<announcements.count {
+        ann := &announcements[i];
+        ann.timer -= 0.016;
+        alpha := min(1.0, ann.timer / ann.duration * 5);
+        ts := UI.default_text_settings();
+        ts.size = 28; ts.bold = true;
+        ts.color = {1, 1, 1, alpha};
+        ts.alignment = .CENTER;
+        rect := UI.get_screen_rect().center();
+        rect.y -= float(announcements.count - i) * 35;
+        UI.text(rect, ts, ann.message, {});
+        if ann.timer <= 0 { announcements.ordered_remove(i); }
+    }
+}

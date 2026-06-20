@@ -1,0 +1,45 @@
+// ============================================================================
+// Leaderboard - Score ranking system
+// ============================================================================
+
+LBEntry :: struct {
+    username: string; score: int; tags: int; rescues: int;
+}
+
+get_leaderboard :: proc() -> [..]LBEntry {
+    entries: [..]LBEntry;
+    for p: player_iterator() {
+        player := p.(Player);
+        entries.append(LBEntry{
+            username = player.get_username(),
+            score = player.score,
+            tags = player.tags_this_round,
+            rescues = player.rescues_this_round,
+        });
+    }
+    // Sort by score descending
+    for i: 0..<entries.count {
+        for j: i+1..<entries.count {
+            if entries[j].score > entries[i].score {
+                t := entries[i]; entries[i] = entries[j]; entries[j] = t;
+            }
+        }
+    }
+    return entries;
+}
+
+draw_leaderboard :: proc() {
+    if match_state != .MATCH_END && match_state != .ROUND_END return;
+    ts := UI.default_text_settings(); ts.size = 20; ts.bold = true; ts.color = {1, 0.8, 0, 1};
+    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(rect, ts, "LEADERBOARD", {});
+
+    lb := get_leaderboard();
+    ts.size = 14; ts.bold = false;
+    for i: 0..<min(lb.count, 8) {
+        e := lb[i];
+        ts.color = i == 0 ? v4{1,0.8,0,1} : i == 1 ? v4{0.7,0.7,0.7,1} : i == 2 ? v4{0.8,0.5,0.2,1} : v4{1,1,1,0.7};
+        rect.y += 22;
+        UI.text(rect, ts, "%  %  Score:%  Tags:%  Rescues:%", {i+1, e.username, e.score, e.tags, e.rescues});
+    }
+}

@@ -1,0 +1,27 @@
+// ============================================================================
+// WeatherSystem - Dynamic weather effects per map
+// ============================================================================
+
+weather_active: bool;
+current_weather: string;
+weather_timer: float;
+weather_change_interval: float = 30.0;
+
+WeatherSystem :: class {
+    update :: method(dt: float) {
+        if !weather_active return;
+        weather_timer += dt;
+        if weather_timer >= weather_change_interval {
+            weather_timer = 0;
+            switch get_map_def(current_map_name).theme {
+                case "Arctic": current_weather = "snow";
+                case "Volcano": current_weather = "ash";
+                case "Desert": current_weather = "sandstorm";
+                case "Sky": current_weather = "windy";
+                case "Haunted": current_weather = "fog";
+                case "Jungle": current_weather = "rain";
+                default: current_weather = "clear";
+            }
+        }
+    }
+}

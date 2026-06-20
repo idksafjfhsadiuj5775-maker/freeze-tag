@@ -1,0 +1,22 @@
+RebirthSystem :: class {
+    rebirth :: method(player: Player) -> bool {
+        level := Save.get_int(player, "level", 1).(int);
+        rebirth := Save.get_int(player, "rebirth", 0).(int);
+        if level < 100 { announce("Need level 100 for rebirth!", {}); return false; }
+        if rebirth >= 10 { announce("Max rebirths reached!", {}); return false; }
+
+        cost := (1000 + rebirth * 500).(s64);
+        if Economy.get_balance(player, "tokens") < cost {
+            announce("Need % tokens!", {cost}); return false;
+        }
+
+        Economy.withdraw(player, "tokens", cost);
+        Save.set_int(player, "rebirth", (rebirth + 1).(s64));
+        Save.set_int(player, "level", 1.(s64));
+        Save.set_int(player, "xp", 0);
+        Save.set_int(player, "prestige", 0);
+        Economy.deposit(player, "gems", (500 + rebirth * 250).(s64));
+        announce("REBIRTH! % rebirths!", {rebirth + 1});
+        return true;
+    }
+}

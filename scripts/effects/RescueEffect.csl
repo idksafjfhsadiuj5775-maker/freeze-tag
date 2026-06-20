@@ -1,0 +1,11 @@
+RescueEffect :: class : Effect_Base {
+    effect_start :: method() {
+        set_duration(1.0);
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = {1, 0.8, 0.2, 1}; }
+    }
+    effect_end :: method(interrupt: bool) {
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = {1, 1, 1, 1}; }
+    }
+}

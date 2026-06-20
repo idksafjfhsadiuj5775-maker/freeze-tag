@@ -1,0 +1,88 @@
+// ============================================================================
+// Hazards - Environmental obstacles
+// ============================================================================
+
+Hazard :: struct {
+    type: string;
+    position: v2;
+    radius: float;
+    damage: float;
+    timer: float;
+    interval: float;
+}
+
+map_hazards: [..]Hazard;
+
+spawn_hazards :: proc(map_name: string) {
+    map_hazards.clear();
+    md := get_map_def(map_name);
+    for h_type: md.hazards {
+        switch h_type {
+            case "slippery_floor": {}
+            case "blizzard": map_hazards.append(Hazard{"blizzard", {0,0}, 30, 0.5, 0, 0.5});
+            case "laser_gates": {
+                positions := [?]v2{{-8,0}, {8,0}, {0,8}, {0,-8}};
+                for pos: positions { map_hazards.append(Hazard{"laser", pos, 1, 4, 0, 3}); }
+            }
+            case "lava_pools": {
+                positions := [?]v2{{-14,-10}, {-8,12}, {0,-14}, {14,10}};
+                for pos: positions { map_hazards.append(Hazard{"lava", pos, 3, 3, 0, 1}); }
+            }
+            case "wind": {
+                positions := [?]v2{{-10,-15}, {10,15}, {-15,10}, {15,-10}};
+                for pos: positions { map_hazards.append(Hazard{"wind", pos, 3, 0, 0, 0}); }
+            }
+            case "ghosts": {
+                positions := [?]v2{{-12,-6}, {-4,10}, {6,-10}, {14,4}};
+                for pos: positions { map_hazards.append(Hazard{"ghost", pos, 3, 2, 0, 4}); }
+            }
+            case "zero_g": {
+                positions := [?]v2{{-10,-8}, {10,8}};
+                for pos: positions { map_hazards.append(Hazard{"zero_g", pos, 4, 0, 0, 0}); }
+            }
+            case "poison": {
+                positions := [?]v2{{-16,-8}, {-8,12}, {12,-10}};
+                for pos: positions { map_hazards.append(Hazard{"poison", pos, 2.5, 1.5, 0, 2}); }
+            }
+            case "sandstorm": map_hazards.append(Hazard{"sandstorm", {0,0}, 25, 0.3, 0, 1});
+            case "conveyors": {
+                positions := [?]v2{{-12,-3}, {-5,8}, {8,-5}, {15,2}};
+                for pos: positions { map_hazards.append(Hazard{"conveyor", pos, 4, 0, 0, 0}); }
+            }
+        }
+    }
+}
+
+process_hazards :: proc(dt: float) {
+    for i: 0..<map_hazards.count {
+        h := &map_hazards[i];
+        if h.interval > 0 {
+            h.timer += dt;
+            if h.timer < h.interval continue;
+            h.timer = 0;
+        }
+        for p: player_iterator() {
+            player := p.(Player);
+            d := distance(player.entity.world_position, h.position);
+            if d > h.radius continue;
+            switch h.type {
+                case "lava": player.apply_freeze(h.damage * 0.3);
+                case "laser": player.apply_freeze(h.damage * 0.5);
+                case "blizzard": player.apply_slow(1.0);
+                case "ghost": player.apply_freeze(h.damage * 0.4);
+                case "poison": player.apply_freeze(h.damage * 0.3);
+                case "sandstorm": player.apply_slow(0.5);
+                case "wind": player.entity.local_position += normalize(h.position) * 3 * dt;
+                case "zero_g": player.entity.local_position += {0, 1} * dt;
+                case "conveyor": player.entity.local_position += v2{sign(-h.position.x), 0} * 2 * dt;
+            }
+        }
+    }
+}
+
+sign :: proc(v: float) -> float { return v < 0 ? -1 : 1; }
+
+normalize :: proc(v: v2) -> v2 {
+    l := sqrt(v.x*v.x + v.y*v.y);
+    return l == 0 ? v2{0,0} : v2{v.x/l, v.y/l};
+}

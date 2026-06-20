@@ -1,0 +1,29 @@
+MasterySystem :: struct {
+    player_id: string; mastery_level: int;
+    total_xp: s64; current_tier: string;
+}
+
+get_mastery_tier :: proc(level: int) -> string {
+    if level >= 100 return "Grandmaster";
+    if level >= 50  return "Master";
+    if level >= 25  return "Expert";
+    if level >= 10  return "Adept";
+    if level >= 5   return "Apprentice";
+    return "Novice";
+}
+
+get_mastery_bonus :: proc(level: int) -> float {
+    return 1.0 + float(level) * 0.01;
+}
+
+add_mastery_xp :: proc(player: Player, amount: s64) {
+    mxp := Save.get_int(player, "mastery_xp", 0) + amount;
+    ml := Save.get_int(player, "mastery_level", 0).(int);
+    needed := (1000 + ml * 500).(s64);
+    if mxp >= needed {
+        mxp -= needed; ml += 1;
+        Save.set_int(player, "mastery_level", ml.(s64));
+        announce("MASTERY LEVEL UP! Now % (%)", {get_mastery_tier(ml), ml});
+    }
+    Save.set_int(player, "mastery_xp", mxp);
+}

@@ -1,0 +1,58 @@
+// ============================================================================
+// Achievements - Milestone rewards system
+// ============================================================================
+
+Achievement :: struct {
+    id: string; name: string; desc: string;
+    condition: string; threshold: int;
+    reward_type: string; reward_amount: int;
+}
+
+get_all_achievements :: proc() -> [..]Achievement {
+    return {
+        {"first_tag", "First Tag!", "Tag your first player", "tags", 1, "coins", 100},
+        {"tag_master", "Tag Master", "Tag 100 players", "tags", 100, "gems", 50},
+        {"tag_legend", "Tag Legend", "Tag 1,000 players", "tags", 1000, "gems", 200},
+        {"first_rescue", "First Rescue!", "Rescue first teammate", "rescues", 1, "coins", 100},
+        {"hero", "Hero", "Rescue 100 teammates", "rescues", 100, "gems", 50},
+        {"savior", "Savior", "Rescue 500 teammates", "rescues", 500, "gems", 200},
+        {"first_win", "First Win!", "Win first match", "wins", 1, "coins", 200},
+        {"win_100", "Centurion", "Win 100 matches", "wins", 100, "gems", 300},
+        {"level_10", "Getting Started", "Reach level 10", "level", 10, "gems", 50},
+        {"level_50", "Dedicated", "Reach level 50", "level", 50, "gems", 200},
+        {"level_100", "True Legend", "Reach level 100", "level", 100, "tokens", 50},
+        {"games_100", "Veteran", "Play 100 matches", "matches", 100, "gems", 100},
+        {"games_1000", "Addict", "Play 1,000 matches", "matches", 1000, "tokens", 100},
+        {"untouchable", "Untouchable!", "Win without being frozen", "special", 1, "gems", 500},
+    };
+}
+
+check_achievements :: proc(player: Player) {
+    tags := Save.get_int(player, "total_tags", 0).(int);
+    rescues := Save.get_int(player, "total_rescues", 0).(int);
+    wins := Save.get_int(player, "total_wins", 0).(int);
+    matches := Save.get_int(player, "total_matches", 0).(int);
+    level := Save.get_int(player, "level", 1).(int);
+
+    for a: get_all_achievements() {
+        key := "ach_" + a.id;
+        if Save.get_bool(player, key, false) continue;
+
+        earned := false;
+        switch a.condition {
+            case "tags":    earned = tags >= a.threshold;
+            case "rescues": earned = rescues >= a.threshold;
+            case "wins":    earned = wins >= a.threshold;
+            case "matches": earned = matches >= a.threshold;
+            case "level":   earned = level >= a.threshold;
+        }
+
+        if earned {
+            Save.set_bool(player, key, true);
+            if a.reward_type == "coins" { Economy.deposit(player, "coins", a.reward_amount.(s64)); }
+            if a.reward_type == "gems" { Economy.deposit(player, "gems", a.reward_amount.(s64)); }
+            if a.reward_type == "tokens" { Economy.deposit(player, "tokens", a.reward_amount.(s64)); }
+            announce("ACHIEVEMENT: %! (%s)", {a.name, a.desc});
+        }
+    }
+}

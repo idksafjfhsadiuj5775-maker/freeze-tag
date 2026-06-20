@@ -1,0 +1,39 @@
+// ============================================================================
+// CraftingSystem - Blueprint and crafting mechanics
+// ============================================================================
+
+Recipe :: struct {
+    id: string; name: string; target_item: string;
+    ingredients: [..]Ingredient; craft_time: float;
+}
+
+Ingredient :: struct {
+    item_id: string; quantity: int;
+}
+
+get_recipes :: proc() -> [..]Recipe {
+    return {
+        {"bp_gold_skin", "Gold Skin Blueprint", "skin_gold",
+            {{"shards", 10}, {"tokens", 5}}, 3600},
+        {"bp_penguin", "Penguin Pet Blueprint", "pet_penguin",
+            {{"shards", 5}, {"gems", 10}}, 1800},
+    };
+}
+
+craft :: proc(player: Player, recipe_id: string) -> bool {
+    for r: get_recipes() {
+        if r.id == recipe_id {
+            for ing: r.ingredients {
+                if Economy.get_balance(player, ing.item_id) < ing.quantity.(s64) {
+                    announce("Missing ingredients!", {}); return false;
+                }
+            }
+            for ing: r.ingredients {
+                Economy.withdraw(player, ing.item_id, ing.quantity.(s64));
+            }
+            player.inventory_items.append(r.target_item);
+            announce("Crafted %!", {r.name}); return true;
+        }
+    }
+    return false;
+}

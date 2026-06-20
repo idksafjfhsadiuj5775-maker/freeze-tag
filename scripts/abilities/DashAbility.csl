@@ -1,0 +1,18 @@
+DashAbility :: class : Ability_Base {
+    on_init :: method() {
+        name = "Dash"; icon = get_asset(Texture_Asset, "icons/dash.png");
+    }
+    can_use :: method() -> bool {
+        player := this.player.(Player);
+        return player != null && player.freeze_state != .FULL && player.freeze_state != .PERMAFROST;
+    }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            input := get_input();
+            if input.x == 0 && input.y == 0 { input = {1, 0}; }
+            player.entity.local_position += normalize(input) * 8;
+            current_cooldown = 5.0;
+        }
+    }
+}

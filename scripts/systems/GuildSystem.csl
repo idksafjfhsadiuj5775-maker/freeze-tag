@@ -1,0 +1,55 @@
+// ============================================================================
+// GuildSystem - Guild/clan management
+// ============================================================================
+
+GuildMember :: struct {
+    user_id: string; username: string;
+    rank: string; contribution: int;
+}
+
+Guild :: struct {
+    id: string; name: string; tag: string;
+    level: int; xp: int;
+    leader: string; members: [..]GuildMember;
+}
+
+guilds: [..]Guild;
+
+create_guild :: proc(founder: Player, name: string, tag: string) -> bool {
+    if founder.level < 10 { announce("Need level 10!", {}); return false; }
+    if !Economy.withdraw(founder, "coins", 5000) { announce("Need 5000 coins!", {}); return false; }
+
+    guilds.append(Guild{
+        id = format_string("g_%", {ao_get_time().(int)}),
+        name = name, tag = tag, level = 1,
+        leader = founder.get_user_id(),
+    });
+    guilds[guilds.count-1].members.append(GuildMember{
+        user_id = founder.get_user_id(),
+        username = founder.get_username(),
+        rank = "Leader", contribution = 0,
+    });
+    founder.guild_id = guilds[guilds.count-1].id;
+    announce("Guild '%' created!", {name}); return true;
+}
+
+contribute :: proc(player: Player, amount: int) {
+    if player.guild_id == "" return;
+    for i: 0..<guilds.count {
+        if guilds[i].id == player.guild_id {
+            for j: 0..<guilds[i].members.count {
+                if guilds[i].members[j].user_id == player.get_user_id() {
+                    guilds[i].members[j].contribution += amount;
+                    guilds[i].xp += amount;
+                    needed := guilds[i].level * 1000;
+                    if guilds[i].xp >= needed {
+                        guilds[i].xp -= needed;
+                        guilds[i].level += 1;
+                        announce("Guild '%' leveled up to %!", {guilds[i].name, guilds[i].level});
+                    }
+                    return;
+                }
+            }
+        }
+    }
+}

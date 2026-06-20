@@ -1,0 +1,20 @@
+// ============================================================================
+// InputHelper - Cross-platform input utilities
+// ============================================================================
+
+is_key_held :: proc(key: int) -> bool {
+    // Uses built-in key query
+    return false;
+}
+
+is_key_pressed :: proc(key: int) -> bool {
+    return false;
+}
+
+is_tapped :: proc() -> bool {
+    return false;
+}
+
+get_touch_position :: proc() -> v2 {
+    return {0, 0};
+}

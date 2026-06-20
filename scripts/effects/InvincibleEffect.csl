@@ -1,0 +1,15 @@
+InvincibleEffect :: class : Effect_Base {
+    flash_timer: float;
+    effect_start :: method() { set_duration(2.0); }
+    effect_update :: method(dt: float) {
+        flash_timer += dt;
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null {
+            sprite.color.w = 0.5 + abs(sin(flash_timer * 10)) * 0.5;
+        }
+    }
+    effect_end :: method(interrupt: bool) {
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color.w = 1; }
+    }
+}

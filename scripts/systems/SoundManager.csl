@@ -1,0 +1,14 @@
+play_sound :: proc(name: string) {
+    switch name {
+        case "tag":        // play_sound_effect("sfx/tag.wav");
+        case "rescue":     // play_sound_effect("sfx/rescue.wav");
+        case "powerup":    // play_sound_effect("sfx/powerup.wav");
+        case "countdown":  // play_sound_effect("sfx/countdown.wav");
+        case "round_end":  // play_sound_effect("sfx/round_end.wav");
+        case "victory":    // play_sound_effect("sfx/victory.wav");
+        case "defeat":     // play_sound_effect("sfx/defeat.wav");
+        case "boss_hit":   // play_sound_effect("sfx/boss_hit.wav");
+        case "teleport":   // play_sound_effect("sfx/teleport.wav");
+        case "secret":     // play_sound_effect("sfx/secret.wav");
+    }
+}

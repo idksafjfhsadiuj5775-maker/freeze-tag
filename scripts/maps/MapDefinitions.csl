@@ -1,0 +1,33 @@
+// ============================================================================
+// MapDefinitions - All arena configurations
+// ============================================================================
+
+MapDef :: struct {
+    name: string;
+    description: string;
+    theme: string;
+    hazards: [..]string;
+    ambient_color: v4;
+}
+
+get_map_def :: proc(name: string) -> MapDef {
+    switch name {
+        case "Crystal Caverns": return MapDef{"Crystal Caverns", "Ice caves with crystals", "Fantasy", {"slippery_floor"}, {0.5, 0.7, 1, 1}};
+        case "Arctic Arena": return MapDef{"Arctic Arena", "Open tundra", "Arctic", {"blizzard"}, {0.6, 0.7, 0.9, 1}};
+        case "Cyber Freeze": return MapDef{"Cyber Freeze", "Neon city", "Cyberpunk", {"laser_gates"}, {0.8, 0.2, 0.8, 0.3}};
+        case "Lava Tag": return MapDef{"Lava Tag", "Volcanic arena", "Volcano", {"lava_pools"}, {1, 0.3, 0.1, 0.5}};
+        case "Sky Gardens": return MapDef{"Sky Gardens", "Floating islands", "Sky", {"wind"}, {0.5, 0.8, 1, 0.3}};
+        case "Haunted Halls": return MapDef{"Haunted Halls", "Spooky mansion", "Haunted", {"ghosts"}, {0.3, 0.2, 0.4, 1}};
+        case "Space Station": return MapDef{"Space Station", "Zero-G sections", "Space", {"zero_g"}, {0.1, 0.2, 0.4, 1}};
+        case "Jungle Rush": return MapDef{"Jungle Rush", "Dense jungle", "Jungle", {"poison"}, {0.2, 0.6, 0.2, 0.5}};
+        case "Desert Oasis": return MapDef{"Desert Oasis", "Hot desert", "Desert", {"sandstorm"}, {0.9, 0.7, 0.3, 0.5}};
+        case "Frost Factory": return MapDef{"Frost Factory", "Ice factory", "Industrial", {"conveyors"}, {0.4, 0.5, 0.6, 1}};
+    }
+    return get_map_def("Crystal Caverns");
+}
+
+map_rotation: [..]string = {
+    "Crystal Caverns", "Arctic Arena", "Cyber Freeze", "Lava Tag",
+    "Sky Gardens", "Haunted Halls", "Space Station", "Jungle Rush",
+    "Desert Oasis", "Frost Factory"
+};

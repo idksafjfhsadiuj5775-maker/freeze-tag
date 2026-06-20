@@ -1,0 +1,23 @@
+Notification :: struct {
+    message: string; timer: float; color: v4;
+}
+
+notifications: [..]Notification;
+
+notify :: proc(msg: string, color: v4) {
+    notifications.append(Notification{message = msg, timer = 2.0, color = color});
+}
+
+draw_notifications :: proc() {
+    y: float = UI.get_screen_rect().bottom - 100;
+    for i: 0..<notifications.count {
+        n := &notifications[i];
+        n.timer -= 0.016;
+        ts := UI.default_text_settings(); ts.size = 16; ts.color = n.color;
+        rect := UI.get_screen_rect().bottom_center_rect().offset(0, y - UI.get_screen_rect().bottom + 100);
+        rect.y = y;
+        UI.text(rect, ts, n.message, {});
+        y -= 22;
+        if n.timer <= 0 { notifications.ordered_remove(i); }
+    }
+}

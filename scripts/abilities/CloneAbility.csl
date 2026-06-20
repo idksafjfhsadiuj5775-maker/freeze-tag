@@ -1,0 +1,17 @@
+CloneAbility :: class : Ability_Base {
+    on_init :: method() { name = "Clone"; icon = get_asset(Texture_Asset, "icons/clone.png"); }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            clone := new(Entity);
+            clone.set_local_position(player.entity.world_position + {get_random_float(-3,3), get_random_float(-3,3)});
+            sprite := clone.add_component(Sprite_Renderer);
+            sprite.color = {0.5, 0.5, 1, 0.5};
+            current_cooldown = 25.0;
+        }
+    }
+}
+
+get_random_float :: proc(min, max: float) -> float {
+    return min + (ao_get_random_seed().(float) / 2147483647.0) * (max - min);
+}

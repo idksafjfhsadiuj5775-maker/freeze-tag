@@ -1,0 +1,96 @@
+// ============================================================================
+// PowerupSystem - Spawns collectible powerups
+// ============================================================================
+
+Powerup :: struct {
+    type: string;
+    position: v2;
+    active: bool;
+    entity: Entity;
+}
+
+active_powerups: [..]Powerup;
+powerup_spawn_timer: float;
+
+PowerupSpawn :: class {
+    update :: method(dt: float) {
+        powerup_spawn_timer += dt;
+        if powerup_spawn_timer >= config.powerup_interval {
+            powerup_spawn_timer = 0;
+            this.spawn_random();
+        }
+    }
+
+    spawn_random :: method() {
+        types := [?]string{"speed", "shield", "invis", "jump", "freeze_aura", "rescue_aura"};
+        chosen := types[ao_get_random_seed().(int) % types.count];
+        spawns := get_powerup_spawns();
+        pos := spawns[ao_get_random_seed().(int) % spawns.count];
+
+        pu := Powerup{type = chosen, position = pos, active = true};
+        pu.entity = new(Entity);
+        pu.entity.set_local_position(pos);
+        sprite := pu.entity.add_component(Sprite_Renderer);
+        switch chosen {
+            case "speed":       sprite.color = {1,1,0,1};
+            case "shield":      sprite.color = {0,0.8,1,1};
+            case "invis":       sprite.color = {0.5,0.5,0.5,1};
+            case "jump":        sprite.color = {0,1,0,1};
+            case "freeze_aura": sprite.color = {0,0.5,1,1};
+            case "rescue_aura": sprite.color = {1,0.5,0,1};
+        }
+        active_powerups.append(pu);
+    }
+
+    check_pickups :: method(player: Player) {
+        for i: 0..<active_powerups.count {
+            pu := &active_powerups[i];
+            if !pu.active continue;
+            d := distance(player.entity.world_position, pu.position);
+            if d < 1.5 {
+                apply_powerup(player, pu.type);
+                pu.entity.destroy();
+                pu.active = false;
+                active_powerups.ordered_remove(i);
+            }
+        }
+    }
+}
+
+get_powerup_spawns :: proc() -> [..]v2 {
+    return {{-15,-8}, {-8,5}, {0,0}, {8,-5}, {15,8}, {-5,-12}, {5,12}};
+}
+
+apply_powerup :: proc(player: Player, type: string) {
+    switch type {
+        case "speed":
+            player.speed_multiplier = 2.0;
+            e := new(SpeedEffect); e.set_duration(5.0);
+            player.entity.add_passive_effect(e);
+        case "shield":
+            player.has_shield = true; player.shield_hits = 3;
+        case "invis":
+            player.is_invisible = true; player.invisible_timer = 5.0;
+            sprite := player.entity.get_component(Sprite_Renderer);
+            if sprite != null { sprite.color.w = 0.3; }
+        case "jump":
+            player.entity.local_position.y += 5;
+        case "freeze_aura":
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                if other.team == .RUNNERS && distance(player.entity.world_position, other.entity.world_position) < 5 {
+                    other.apply_freeze(2.0);
+                }
+            }
+        case "rescue_aura":
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                if other.team == .RUNNERS && other.freeze_state == .FULL && distance(player.entity.world_position, other.entity.world_position) < 5 {
+                    rescue_player(player, other);
+                }
+            }
+    }
+    announce("% picked up % powerup!", {player.get_username(), type});
+}

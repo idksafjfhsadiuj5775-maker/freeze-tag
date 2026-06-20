@@ -1,0 +1,40 @@
+LoreEntry :: struct {
+    id: string; title: string; text: string; category: string;
+}
+
+get_lore :: proc() -> [..]LoreEntry {
+    return {
+        {"world_origin", "The Great Freeze", "Long ago, the world was consumed by an eternal winter. From the ice, two factions emerged: the Freezers who embraced the cold, and the Runners who sought to survive.", "world"},
+        {"freezers", "The Freezer Clan", "Masters of ice magic, the Freezers believe that freezing is the path to eternal peace. They seek to freeze all living things.", "faction"},
+        {"runners", "The Runner Resistance", "Those who refuse to be frozen. The Runners fight to keep moving, to stay warm, and to rescue their frozen comrades.", "faction"},
+        {"crystals", "Power Crystals", "Ancient crystals scattered across the arenas contain immense power. Collecting them grants temporary abilities.", "item"},
+        {"arenas", "The Frozen Arenas", "Each arena was once a thriving civilization, now frozen in time. They serve as battlegrounds for the eternal conflict.", "world"},
+        {"boss_ice_king", "The Ice King", "A legendary Freezer who became one with the frost. The Ice King rules the Crystal Caverns with an iron fist.", "boss"},
+        {"boss_dragon", "The Frost Dragon", "An ancient dragon encased in ice, awakened by the endless winter. Its breath can freeze entire armies.", "boss"},
+        {"prophecy", "The Thaw Prophecy", "It is said that one day a Runner will thaw the Ice King's heart and end the eternal winter. Many believe it to be a myth.", "lore"},
+    };
+}
+
+draw_lore_entry :: proc(player: Player, id: string) {
+    for entry: get_lore() {
+        if entry.id == id {
+            ts := UI.default_text_settings(); ts.size = 24; ts.bold = true; ts.color = {1, 1, 1, 1};
+            rect := UI.get_screen_rect().center(); rect.y -= 60;
+            UI.text(rect, ts, entry.title, {});
+            ts.size = 16; ts.bold = false; ts.color = {0.7, 0.7, 0.7, 1};
+            rect.y += 40; rect.x -= 200;
+            // Word wrap approximation
+            words := split(entry.text, " ");
+            line := ""; line_y: float = 0;
+            for w: words {
+                test := line.count > 0 ? line + " " + w : w;
+                if test.count > 40 {
+                    UI.text({rect.x, rect.y + line_y}, ts, line, {});
+                    line = w; line_y += 20;
+                } else { line = test; }
+            }
+            if line.count > 0 { UI.text({rect.x, rect.y + line_y}, ts, line, {}); }
+            return;
+        }
+    }
+}

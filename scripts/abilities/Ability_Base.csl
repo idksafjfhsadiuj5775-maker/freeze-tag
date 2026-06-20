@@ -1,0 +1,27 @@
+// ============================================================================
+// Ability_Base - Shared ability system
+// ============================================================================
+
+AbilityType :: enum {
+    DASH; SPEED_BOOST; SHIELD; TELEPORT; FREEZE_AURA;
+    RESCUE_AURA; SUPER_JUMP; INVISIBILITY; TIME_SLOW; MAGNET;
+    REPULSION; CLONE; PHASE_SHIFT; ULTRA_FREEZE; MASS_RESCUE;
+}
+
+AbilityDef :: struct {
+    name: string;
+    type: AbilityType;
+    cooldown: float;
+    duration: float;
+    rarity: string;
+    description: string;
+}
+
+register_ability :: proc(player: Player, type: AbilityType) {
+    switch type {
+        case .DASH:        draw_ability_button(player, DashAbility, 1);
+        case .SPEED_BOOST: draw_ability_button(player, SpeedBoostAbility, 2);
+        case .SHIELD:      draw_ability_button(player, ShieldAbility, 3);
+        case .TELEPORT:    draw_ability_button(player, TeleportAbility, 4);
+    }
+}

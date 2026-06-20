@@ -1,0 +1,27 @@
+// ============================================================================
+// ChatSystem - In-game messaging
+// ============================================================================
+
+ChatMessage :: struct {
+    sender: string; content: string; channel: string;
+}
+
+chat_history: [..]ChatMessage;
+
+send_message :: proc(sender: Player, content: string, channel: string) {
+    chat_history.append(ChatMessage{sender = sender.get_username(), content = content, channel = channel});
+    if chat_history.count > 50 { chat_history.ordered_remove(0); }
+}
+
+draw_chat :: proc() {
+    ts := UI.default_text_settings(); ts.size = 14; ts.color = {1, 1, 1, 0.7};
+    y: float = UI.get_screen_rect().bottom - 200;
+    start := max(0, chat_history.count - 5);
+    for i: start..<chat_history.count {
+        m := chat_history[i];
+        rect := UI.get_screen_rect().bottom_left_rect().offset(10, y - UI.get_screen_rect().bottom + 200);
+        rect.y = y;
+        UI.text(rect, ts, "%: %", {m.sender, m.content});
+        y += 18;
+    }
+}

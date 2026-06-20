@@ -1,0 +1,81 @@
+QuestDefinition :: struct {
+    id: string; name: string; description: string;
+    objective_type: string; objective_count: int;
+    rewards: string; reward_amount: s64;
+    xp_reward: s64;
+}
+
+get_all_quests :: proc() -> [..]QuestDefinition {
+    return {
+        {"q_tags", "Tag Master", "Tag % players total", "tag", 25, "coins", 500, 1000.(s64)},
+        {"q_rescues", "Savior", "Rescue % teammates", "rescue", 15, "gems", 50, 800.(s64)},
+        {"q_wins", "Champion", "Win % matches", "win", 5, "gems", 100, 1500.(s64)},
+        {"q_powerup", "Power Collector", "Collect % powerups", "powerup", 20, "coins", 300, 600.(s64)},
+        {"q_maps", "Explorer", "Play on % different maps", "maps", 3, "tokens", 2, 1200.(s64)},
+        {"q_boss", "Boss Slayer", "Defeat the boss % times", "boss", 3, "gems", 200, 2500.(s64)},
+        {"q_secret", "Secret Finder", "Find % secret areas", "secret", 5, "tokens", 5, 3000.(s64)},
+    };
+}
+
+assign_daily_quests :: proc(player: Player) {
+    rng := rng_new();
+    all := get_all_quests();
+    assigned: int;
+    for i: 0..<3 {
+        copy: [..]QuestDefinition;
+        for q: all { copy.append(q); }
+        if copy.count > 0 {
+            idx := rng.int_range(0, copy.count - 1);
+            q := copy[idx];
+            Save.set_string(player, "quest_" + i.(string) + "_name", q.id);
+            Save.set_int(player, "quest_" + i.(string) + "_progress", 0);
+            Save.set_int(player, "quest_" + i.(string) + "_target", q.objective_count.(s64));
+            all.ordered_remove(idx);
+        }
+    }
+}
+
+progress_quest :: proc(player: Player, type: string, amount: int = 1) {
+    for i: 0..<3 {
+        qid := Save.get_string(player, "quest_" + i.(string) + "_name", "");
+        if qid == "" continue;
+        target := Save.get_int(player, "quest_" + i.(string) + "_target", 0).(int);
+        progress := Save.get_int(player, "quest_" + i.(string) + "_progress", 0).(int);
+
+        for qd: get_all_quests() {
+            if qd.id == qid && qd.objective_type == type && progress < target {
+                np := progress + amount;
+                Save.set_int(player, "quest_" + i.(string) + "_progress", min(np, target).(s64));
+                if np >= target {
+                    Economy.deposit(player, qd.rewards, qd.reward_amount);
+                    add_xp(player, qd.xp_reward);
+                    announce("QUEST COMPLETE: %! +% %", {qd.name, qd.reward_amount, qd.rewards});
+                }
+                return;
+            }
+        }
+    }
+}
+
+draw_quests :: proc(player: Player) {
+    ts := UI.default_text_settings(); ts.size = 18; ts.bold = true; ts.color = {1, 1, 1, 1};
+    rect := UI.get_screen_rect().top_right_rect().offset(-200, 200);
+    UI.text(rect, ts, "DAILY QUESTS", {});
+    ts.size = 14; ts.bold = false; ts.color = {0.7, 0.7, 0.7, 1};
+
+    for i: 0..<3 {
+        qid := Save.get_string(player, "quest_" + i.(string) + "_name", "");
+        if qid == "" continue;
+        progress := Save.get_int(player, "quest_" + i.(string) + "_progress", 0).(int);
+        target := Save.get_int(player, "quest_" + i.(string) + "_target", 0).(int);
+        for qd: get_all_quests() {
+            if qd.id == qid {
+                rect.y += 25;
+                UI.text(rect, ts, "%: %/%", {qd.name, progress, target});
+                rect.y += 15;
+                progress_pct := progress.(float) / max(target, 1).(float);
+                UI.rect({rect.x, rect.y}, {180 * progress_pct, 4}, progress >= target ? v4{0,1,0,1} : v4{0.5,0.5,0.5,1});
+            }
+        }
+    }
+}

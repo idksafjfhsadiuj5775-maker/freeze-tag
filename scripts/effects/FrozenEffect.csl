@@ -1,0 +1,16 @@
+// ============================================================================
+// FrozenEffect - Visual freeze effect on players
+// ============================================================================
+
+FrozenEffect :: class : Effect_Base {
+    effect_start :: method() {
+        player_specific.freeze_player = true;
+        player_specific.disable_movement_inputs = true;
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = {0.5, 0.8, 1, 1}; }
+    }
+    effect_end :: method(interrupt: bool) {
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = {1, 1, 1, 1}; }
+    }
+}

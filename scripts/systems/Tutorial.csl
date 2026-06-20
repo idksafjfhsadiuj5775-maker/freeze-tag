@@ -1,0 +1,26 @@
+// ============================================================================
+// Tutorial - New player onboarding
+// ============================================================================
+
+TutorialStep :: struct {
+    title: string; text: string; position: v2; timer: float;
+}
+
+tutorial_steps: [..]TutorialStep = {
+    {"Welcome!", "Use WASD to move around", {0, 0}, 5.0},
+    {"Freezer Team", "If you're a Freezer, tag Runners to freeze them!", {-15, 0}, 5.0},
+    {"Runner Team", "If you're a Runner, avoid Freezers and rescue frozen teammates!", {15, 0}, 5.0},
+    {"Powerups", "Collect glowing powerups for temporary abilities!", {0, -10}, 5.0},
+    {"Rescuing", "Stand near a frozen teammate to rescue them", {0, 10}, 5.0},
+    {"Winning", "Freeze all Runners, or survive until time runs out!", {0, 0}, 5.0},
+};
+
+draw_tutorial :: proc(player: Player) {
+    if player.level > 1 return;
+    ts := UI.default_text_settings(); ts.size = 18;
+    ts.color = {1, 1, 1, 0.8};
+    for i: 0..<tutorial_steps.count {
+        rect := v2{UI.get_screen_rect().center.x - 150, UI.get_screen_rect().center.y + float(i) * 30 - 80};
+        UI.text(rect, ts, "% %", {tutorial_steps[i].title, tutorial_steps[i].text});
+    }
+}

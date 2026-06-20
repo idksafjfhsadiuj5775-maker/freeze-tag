@@ -1,0 +1,93 @@
+// ============================================================================
+// PlayerClass - Main player definition
+// ============================================================================
+
+Player :: class : Player_Base {
+    team: Team = .RUNNERS;
+    freeze_state: FreezeState = .NONE;
+    freeze_timer: float;
+    rescue_progress: float;
+    is_being_rescued: bool;
+    rescuer_id: string;
+    has_shield: bool;
+    shield_hits: int;
+    is_invisible: bool;
+    invisible_timer: float;
+    is_phased: bool;
+    phase_timer: float;
+    speed_multiplier: float = 1.0;
+    score: int;
+    streak: int;
+    best_streak: int;
+    tags_this_round: int;
+    rescues_this_round: int;
+    last_pos: v2;
+
+    ao_start :: method() {
+        this.last_pos = this.entity.world_position;
+        this.spawn();
+    }
+
+    ao_update :: method(dt: float) {
+        if this.freeze_state == .FULL || this.freeze_state == .PERMAFROST return;
+        this.update_timers(dt);
+        input := get_input();
+        speed := config.player_base_speed * this.speed_multiplier;
+        if this.freeze_state == .SLOWED { speed *= 0.5; }
+        this.entity.local_position += input * speed * dt;
+        clamp_to_arena(this);
+        this.last_pos = this.entity.world_position;
+    }
+
+    spawn :: method() {
+        this.freeze_state = .NONE; this.freeze_timer = 0;
+        this.rescue_progress = 0; this.is_being_rescued = false;
+        this.has_shield = false; this.shield_hits = 0;
+        this.is_invisible = false; this.is_phased = false;
+        this.speed_multiplier = 1.0; this.score = 0;
+        this.streak = 0; this.tags_this_round = 0;
+        this.rescues_this_round = 0;
+
+        if this.team == .FREEZERS {
+            this.entity.local_position = {
+                -config.arena_width/2 + config.spawn_padding,
+                ao_get_random_seed().(float) / 2147483647.0 * 10 - 5
+            };
+        } else {
+            this.entity.local_position = {
+                config.arena_width/2 - config.spawn_padding,
+                ao_get_random_seed().(float) / 2147483647.0 * 10 - 5
+            };
+        }
+    }
+
+    update_timers :: method(dt: float) {
+        if this.has_shield && this.shield_hits <= 0 { this.has_shield = false; }
+        if this.is_invisible { this.invisible_timer -= dt; if this.invisible_timer <= 0 { this.is_invisible = false; }}
+        if this.is_phased { this.phase_timer -= dt; if this.phase_timer <= 0 { this.is_phased = false; }}
+        if this.freeze_state == .SLOWED { this.freeze_timer -= dt; if this.freeze_timer <= 0 { this.freeze_state = .NONE; }}
+    }
+}
+
+get_input :: proc() -> v2 {
+    input := v2{0, 0};
+    if is_key_held(.W) || is_key_held(.UP) { input.y += 1; }
+    if is_key_held(.S) || is_key_held(.DOWN) { input.y -= 1; }
+    if is_key_held(.A) || is_key_held(.LEFT) { input.x -= 1; }
+    if is_key_held(.D) || is_key_held(.RIGHT) { input.x += 1; }
+    if input.x != 0 && input.y != 0 { input.x *= 0.707; input.y *= 0.707; }
+    return input;
+}
+
+clamp_to_arena :: proc(player: Player) {
+    pos := player.entity.local_position;
+    half_w := config.arena_width / 2;
+    half_h := config.arena_height / 2;
+    pos.x = clamp(pos.x, -half_w, half_w);
+    pos.y = clamp(pos.y, -half_h, half_h);
+    player.entity.local_position = pos;
+}
+
+clamp :: proc(v, min, max: float) -> float {
+    if v < min return min; if v > max return max; return v;
+}

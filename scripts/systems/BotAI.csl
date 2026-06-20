@@ -1,0 +1,94 @@
+// ============================================================================
+// BotAI - Simple computer-controlled players
+// ============================================================================
+
+Bot :: class : Player_Base {
+    target_id: string;
+    behavior: string = "wander";
+    behavior_timer: float;
+
+    ao_update :: method(dt: float) {
+        this.behavior_timer += dt;
+        if this.behavior_timer > 3.0 {
+            this.behavior_timer = 0;
+            this.behavior = get_random_float(0, 1) < 0.3 ? "chase" : "wander";
+        }
+
+        if this.team == .FREEZERS {
+            target := find_nearest_runner(this);
+            if target != null {
+                move_toward(this, target.entity.world_position, dt);
+                d := distance(this.entity.world_position, target.entity.world_position);
+                if d < config.tag_range {
+                    target.apply_tag(this.get_user_id());
+                }
+            }
+        } else if this.team == .RUNNERS {
+            nearest_freezer := find_nearest_freezer(this);
+            if nearest_freezer != null {
+                flee_from(this, nearest_freezer.entity.world_position, dt);
+            }
+            // Try to rescue frozen teammates
+            frozen := find_nearest_frozen_teammate(this);
+            if frozen != null {
+                d := distance(this.entity.world_position, frozen.entity.world_position);
+                if d < config.rescue_range { rescue_player(this, frozen); }
+                else { move_toward(this, frozen.entity.world_position, dt); }
+            }
+        }
+    }
+}
+
+find_nearest_runner :: proc(player: Player) -> Player {
+    nearest: Player; best_dist: float = 9999;
+    for p: player_iterator() {
+        other := p.(Player);
+        if other.team == .RUNNERS && other.freeze_state == .NONE {
+            d := distance(player.entity.world_position, other.entity.world_position);
+            if d < best_dist { best_dist = d; nearest = other; }
+        }
+    }
+    return nearest;
+}
+
+find_nearest_freezer :: proc(player: Player) -> Player {
+    nearest: Player; best_dist: float = 9999;
+    for p: player_iterator() {
+        other := p.(Player);
+        if other.team == .FREEZERS {
+            d := distance(player.entity.world_position, other.entity.world_position);
+            if d < best_dist { best_dist = d; nearest = other; }
+        }
+    }
+    return nearest;
+}
+
+find_nearest_frozen_teammate :: proc(player: Player) -> Player {
+    nearest: Player; best_dist: float = 9999;
+    for p: player_iterator() {
+        other := p.(Player);
+        if other.team == player.team && other.freeze_state == .FULL {
+            d := distance(player.entity.world_position, other.entity.world_position);
+            if d < best_dist { best_dist = d; nearest = other; }
+        }
+    }
+    return nearest;
+}
+
+move_toward :: proc(player: Player, target: v2, dt: float) {
+    dir := target - player.entity.world_position;
+    l := sqrt(dir.x*dir.x + dir.y*dir.y);
+    if l > 0 { dir = {dir.x/l, dir.y/l}; }
+    player.entity.local_position += dir * config.player_base_speed * 0.7 * dt;
+}
+
+flee_from :: proc(player: Player, threat: v2, dt: float) {
+    dir := player.entity.world_position - threat;
+    l := sqrt(dir.x*dir.x + dir.y*dir.y);
+    if l > 0 { dir = {dir.x/l, dir.y/l}; }
+    player.entity.local_position += dir * config.player_base_speed * 0.8 * dt;
+}
+
+get_random_float :: proc(min, max: float) -> float {
+    return min + (ao_get_random_seed().(float) / 2147483647.0) * (max - min);
+}

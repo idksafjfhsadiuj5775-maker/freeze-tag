@@ -1,0 +1,38 @@
+// ============================================================================
+// InteractiveObjects - Pushable blocks, buttons, doors
+// ============================================================================
+
+InteractObject :: struct {
+    name: string; position: v2; obj_type: string;
+    active: bool; cooldown: float; cooldown_timer: float;
+}
+
+interact_objects: [..]InteractObject;
+
+setup_interactive :: proc() {
+    // Pushable ice blocks
+    positions := [?]v2{{-12,-6}, {8,10}, {-5,-10}, {14,-4}};
+    for p: positions { interact_objects.append(InteractObject{"Ice Block", p, "pushable", true, 0, 0}); }
+    // Speed boost pads
+    boosts := [?]v2{{-18,-5}, {18,5}, {-18,5}, {18,-5}};
+    for p: boosts { interact_objects.append(InteractObject{"Boost Pad", p, "boost", true, 3.0, 0}); }
+}
+
+update_interactive :: proc(player: Player, dt: float) {
+    for i: 0..<interact_objects.count {
+        obj := &interact_objects[i];
+        if obj.cooldown_timer > 0 { obj.cooldown_timer -= dt; continue; }
+        d := distance(player.entity.world_position, obj.position);
+        if d > 1.5 continue;
+
+        if obj.obj_type == "boost" {
+            dir := normalize(player.entity.world_position - obj.position);
+            if dir.x == 0 && dir.y == 0 { dir = {1, 0}; }
+            player.entity.local_position += dir * 4;
+            player.speed_multiplier = 1.5;
+            e := new(SpeedEffect); e.set_duration(2.0);
+            player.entity.add_passive_effect(e);
+            obj.cooldown_timer = obj.cooldown;
+        }
+    }
+}

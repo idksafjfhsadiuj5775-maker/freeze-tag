@@ -1,0 +1,24 @@
+draw_dev_overlay :: proc() {
+    if !is_dev_mode() return;
+    ts := UI.default_text_settings(); ts.size = 12; ts.color = {0, 1, 0, 1};
+    y: float = 10;
+    rect := UI.get_screen_rect().top_right_rect().offset(-150, y);
+    UI.text(rect, ts, "DEV MODE", {});
+    y += 16;
+    UI.text({rect.x, y}, ts, "Players: %", {get_player_count()});
+    y += 16;
+    UI.text({rect.x, y}, ts, "State: %", {match_state.(int)});
+    y += 16;
+    UI.text({rect.x, y}, ts, "FPS: %.1f", {get_average_fps()});
+    y += 16;
+    UI.text({rect.x, y}, ts, "Powerups: %", {active_powerups.count});
+    y += 16;
+    UI.text({rect.x, y}, ts, "Hazards: %", {map_hazards.count});
+}
+
+is_dev_mode :: proc() -> bool {
+    for p: player_iterator() {
+        if p.is_local() && (p.is_admin() || p.is_vip() || p.is_moderator()) return true;
+    }
+    return false;
+}

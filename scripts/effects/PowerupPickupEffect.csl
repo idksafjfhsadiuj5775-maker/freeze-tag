@@ -1,0 +1,12 @@
+PowerupPickupEffect :: class : Effect_Base {
+    color: v4 = {1, 1, 0, 1};
+    effect_start :: method() {
+        set_duration(0.3);
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = this.color; }
+    }
+    effect_end :: method(interrupt: bool) {
+        sprite := this.entity.get_component(Sprite_Renderer);
+        if sprite != null { sprite.color = {1, 1, 1, 1}; }
+    }
+}

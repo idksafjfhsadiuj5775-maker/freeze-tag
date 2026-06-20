@@ -1,0 +1,20 @@
+SpeedBoostAbility :: class : Ability_Base {
+    on_init :: method() {
+        name = "Speed Boost"; icon = get_asset(Texture_Asset, "icons/speed.png");
+    }
+    can_use :: method() -> bool {
+        player := this.player.(Player);
+        return player != null;
+    }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            player.speed_multiplier = 2.0;
+            // Reset after duration
+            effect := new(SpeedEffect);
+            effect.set_duration(4.0);
+            player.entity.add_passive_effect(effect);
+            current_cooldown = 12.0;
+        }
+    }
+}

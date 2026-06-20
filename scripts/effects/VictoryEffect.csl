@@ -1,0 +1,11 @@
+VictoryEffect :: class : Effect_Base {
+    effect_start :: method() { set_duration(3.0); }
+    effect_update :: method(dt: float) {
+        if this.player != null && this.player.is_local() {
+            ts := UI.default_text_settings();
+            ts.size = 48; ts.color = {1, 0.8, 0, 1}; ts.bold = true;
+            rect := UI.get_screen_rect().center();
+            UI.text(rect, ts, "VICTORY!", {});
+        }
+    }
+}

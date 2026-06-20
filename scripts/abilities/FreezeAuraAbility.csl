@@ -1,0 +1,23 @@
+FreezeAuraAbility :: class : Ability_Base {
+    on_init :: method() {
+        name = "Freeze Aura"; icon = get_asset(Texture_Asset, "icons/freeze_aura.png");
+    }
+    can_use :: method() -> bool {
+        player := this.player.(Player);
+        return player != null && player.team == .FREEZERS;
+    }
+    on_update :: method(params: ref Ability_Update_Params) {
+        if params.clicked && params.can_use {
+            player := this.player.(Player);
+            for p: player_iterator() {
+                if p.get_user_id() == player.get_user_id() continue;
+                other := p.(Player);
+                if other.team == .RUNNERS {
+                    d := distance(player.entity.world_position, other.entity.world_position);
+                    if d < 6.0 { other.apply_freeze(3.0); }
+                }
+            }
+            current_cooldown = 25.0;
+        }
+    }
+}

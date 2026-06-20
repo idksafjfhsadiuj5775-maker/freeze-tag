@@ -1,0 +1,11 @@
+SlowEffect :: class : Effect_Base {
+    multiplier: float = 0.5;
+    effect_start :: method() {
+        player := this.player.(Player);
+        if player != null { player.speed_multiplier = this.multiplier; }
+    }
+    effect_end :: method(interrupt: bool) {
+        player := this.player.(Player);
+        if player != null { player.speed_multiplier = 1.0; }
+    }
+}

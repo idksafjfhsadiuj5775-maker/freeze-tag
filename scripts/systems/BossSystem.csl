@@ -1,0 +1,61 @@
+// ============================================================================
+// BossSystem - Boss battle mechanics
+// ============================================================================
+
+Boss :: struct {
+    name: string; health: int; max_health: int;
+    position: v2; phase: int;
+    attack_timer: float; entity: Entity;
+}
+
+active_boss: Boss;
+boss_engaged: bool;
+
+spawn_boss :: proc(name: string) {
+    active_boss = Boss{
+        name = name, health = 500, max_health = 500,
+        position = {0, 10}, phase = 1,
+    };
+    active_boss.entity = new(Entity);
+    active_boss.entity.set_local_position(active_boss.position);
+    sprite := active_boss.entity.add_component(Sprite_Renderer);
+    sprite.local_scale = {4, 4};
+    sprite.color = {1, 0.2, 0.2, 1};
+    boss_engaged = true;
+    announce("% appears! Health: %/%", {name, active_boss.health, active_boss.max_health});
+}
+
+update_boss :: proc(dt: float) {
+    if !boss_engaged return;
+    active_boss.attack_timer += dt;
+
+    // Move periodically
+    active_boss.entity.local_position.x += sin(active_boss.attack_timer * 0.5) * 3 * dt;
+    active_boss.entity.local_position.y += cos(active_boss.attack_timer * 0.3) * 2 * dt;
+
+    // Attack periodically
+    if active_boss.attack_timer > 5.0 {
+        active_boss.attack_timer = 0;
+        for p: player_iterator() {
+            player := p.(Player);
+            d := distance(active_boss.position, player.entity.world_position);
+            if d < 10 { player.apply_freeze(3.0); }
+        }
+        announce("BOSS: Freeze attack!", {});
+    }
+
+    // Color shifts with health
+    ratio := active_boss.health.(float) / active_boss.max_health.(float);
+    sprite := active_boss.entity.get_component(Sprite_Renderer);
+    if sprite != null { sprite.color = {1 - ratio, ratio * 0.5, 0, 1}; }
+}
+
+damage_boss :: proc(amount: int) {
+    active_boss.health -= amount;
+    if active_boss.health <= 0 {
+        active_boss.entity.destroy();
+        boss_engaged = false;
+        announce("BOSS DEFEATED! Victory!", {});
+        match_manager.end_round();
+    }
+}

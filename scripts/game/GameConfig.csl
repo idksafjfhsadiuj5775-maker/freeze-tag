@@ -1,0 +1,26 @@
+// ============================================================================
+// Game Configuration - All settings in one place
+// ============================================================================
+
+GameConfig :: struct {
+    round_time: float = 120.0;
+    freeze_duration: float = 15.0;
+    rescue_time: float = 2.0;
+    min_players: int = 2;
+    max_players: int = 16;
+    freezer_ratio: float = 0.3;
+    powerup_interval: float = 10.0;
+    sudden_death_enabled: bool = true;
+    overtime_enabled: bool = true;
+    rounds_per_match: int = 5;
+    score_to_win: int = 3;
+    arena_width: float = 44;
+    arena_height: float = 34;
+    spawn_padding: float = 2;
+    player_base_speed: float = 5.0;
+    invincibility_after_rescue: float = 2.0;
+    rescue_range: float = 1.5;
+    tag_range: float = 1.5;
+}
+
+config: GameConfig;
