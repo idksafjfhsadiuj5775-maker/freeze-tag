@@ -1,30 +1,21 @@
 // ============================================================================
-// EconomySystem - Currency and purchase management
+// EconomySystem - Economy API wrappers
+// All item/bundle definitions moved to economy/init.csl
 // ============================================================================
 
-CurrencyType :: enum {
-    COINS; GEMS; TOKENS; SHARDS; TICKETS;
-}
-
-init_currencies :: proc(player: Player) {
-    Economy.get_or_create_currency(player, "coins", 500);
-    Economy.get_or_create_currency(player, "gems", 100);
-    Economy.get_or_create_currency(player, "tokens", 5);
-    Economy.get_or_create_currency(player, "shards", 0);
-    Economy.get_or_create_currency(player, "tickets", 3);
-}
-
-Bundle :: struct {
-    id: string; name: string; desc: string;
-    items: [..]string;
-    price_type: string; price: int;
-    discount: float;
-}
-
-get_bundles :: proc() -> [..]Bundle {
-    return {
-        {"starter", "Starter Pack", "Everything to start!", {"skin_blue", "trail_ice"}, "coins", 1000, 0.5},
-        {"freezer", "Freezer Bundle", "For Freezer mains", {"trail_fire"}, "gems", 200, 0.3},
-        {"legend", "Legend Bundle", "Ultimate collection", {"skin_gold", "pet_penguin"}, "tokens", 50, 0.4},
-    };
+Economy :: struct {
+    deposit :: proc(player: Player, currency: string, amount: s64) {
+        ao_deposit_currency(player, currency, amount);
+    }
+    withdraw :: proc(player: Player, currency: string, amount: s64) -> bool {
+        return ao_withdraw_currency(player, currency, amount);
+    }
+    get_balance :: proc(player: Player, currency: string) -> s64 {
+        return ao_get_currency_balance(player, currency);
+    }
+    get_or_create_currency :: proc(player: Player, currency: string, default_amount: s64) {
+        if ao_get_currency_balance(player, currency) == 0 {
+            ao_deposit_currency(player, currency, default_amount);
+        }
+    }
 }

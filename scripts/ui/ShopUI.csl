@@ -10,49 +10,102 @@ draw_shop :: proc(player: Player) {
 
     ts.size = 16; ts.bold = false; ts.color = {1, 1, 1, 1};
     rect.y += 35;
-    UI.text(rect, ts, "Coins: %", {Economy.get_balance(player, "coins")});
+    UI.text(rect, ts, "Coins: %  Gems: %  Tokens: %", {
+        Economy.get_balance(player, "coins"),
+        Economy.get_balance(player, "gems"),
+        Economy.get_balance(player, "tokens")
+    });
 
     items := get_shop_items();
     y: float = rect.y + 40;
-    for i: 0..<min(items.count, 8) {
+    for i: 0..<min(items.count, 10) {
         item := items[i];
-        btn := v2{UI.get_screen_rect().center.x - 120, y};
-        if UI.button(btn, {240, 28}, {0.15, 0.15, 0.25, 0.8}, "% - % coins", {item.name, item.price}) {
+        btn := v2{UI.get_screen_rect().center.x - 140, y};
+        currency_name: string;
+        switch item.price_currency {
+            case .COINS:  currency_name = "coins";
+            case .GEMS:   currency_name = "gems";
+            case .TOKENS: currency_name = "tokens";
+            default:      currency_name = "coins";
+        }
+        if UI.button(btn, {280, 26}, {0.15, 0.15, 0.25, 0.8},
+            "% - % %", {item.name, item.price_amount, currency_name}) {
             purchase_item(player, item.id);
         }
-        y += 32;
+        y += 30;
     }
-}
-
-ShopItem :: struct {
-    id: string; name: string; price: int; category: string;
-}
-
-get_shop_items :: proc() -> [..]ShopItem {
-    return {
-        {"skin_blue", "Blue Ice Skin", 500, "skin"},
-        {"skin_red", "Red Fire Skin", 500, "skin"},
-        {"skin_gold", "Gold Legend Skin", 2000, "skin"},
-        {"trail_ice", "Ice Trail", 300, "trail"},
-        {"trail_fire", "Fire Trail", 500, "trail"},
-        {"pet_penguin", "Penguin Pet", 1000, "pet"},
-        {"emote_wave", "Wave Emote", 100, "emote"},
-        {"emote_dance", "Dance Emote", 200, "emote"},
-    };
 }
 
 purchase_item :: proc(player: Player, item_id: string) {
     items := get_shop_items();
     for item: items {
         if item.id == item_id {
-            if Economy.get_balance(player, "coins") >= item.price.(s64) {
-                Economy.withdraw(player, "coins", item.price.(s64));
+            currency_name: string;
+            switch item.price_currency {
+                case .COINS:  currency_name = "coins";
+                case .GEMS:   currency_name = "gems";
+                case .TOKENS: currency_name = "tokens";
+                default:      currency_name = "coins";
+            }
+            if Economy.get_balance(player, currency_name) >= item.price_amount {
+                Economy.withdraw(player, currency_name, item.price_amount);
                 player.inventory_items.append(item_id);
                 announce("Purchased %!", {item.name});
             } else {
-                announce("Not enough coins!", {});
+                announce("Not enough %!", {currency_name});
             }
             return;
         }
     }
+}
+
+draw_bundle_shop :: proc(player: Player) {
+    ts := UI.default_text_settings();
+    ts.size = 28; ts.bold = true; ts.color = {1, 0.5, 0, 1};
+    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
+    UI.text(rect, ts, "BUNDLES", {});
+
+    bundles := get_bundles();
+    y: float = rect.y + 45;
+    ts.size = 16; ts.bold = false; ts.color = {1, 1, 1, 0.7};
+
+    for b: bundles {
+        btn := v2{UI.get_screen_rect().center.x - 150, y};
+        currency_name: string;
+        switch b.price_currency {
+            case .COINS:  currency_name = "coins";
+            case .GEMS:   currency_name = "gems";
+            case .TOKENS: currency_name = "tokens";
+            default:      currency_name = "coins";
+        }
+        disc_str := b.discount > 0 ? format_string(" (-%%)", {b.discount.(int) * 100}) : "";
+        if UI.button(btn, {300, 28}, {0.25, 0.2, 0.15, 0.8},
+            "% - % %% %", {b.name, b.price_amount, currency_name, disc_str}) {
+            purchase_bundle(player, b.id);
+        }
+        y += 32;
+        items_str := "";
+        for i: 0..<b.items.count {
+            if i > 0 { items_str += ", "; }
+            items_str += b.items[i];
+        }
+        UI.text(v2{btn.x + 10, y}, ts, items_str, {});
+        y += 38;
+    }
+}
+
+current_shop_tab: string = "items";
+
+draw_shop_tabs :: proc(player: Player) {
+    items_btn := v2{UI.get_screen_rect().center.x - 150, 60};
+    if UI.button(items_btn, {145, 28}, current_shop_tab == "items" ? v4{0,0.5,1,0.9} : v4{0.2,0.2,0.3,0.7}, "ITEMS", {}) {
+        current_shop_tab = "items";
+    }
+    bundles_btn := v2{UI.get_screen_rect().center.x + 5, 60};
+    if UI.button(bundles_btn, {145, 28}, current_shop_tab == "bundles" ? v4{1,0.5,0,0.9} : v4{0.2,0.2,0.3,0.7}, "BUNDLES", {}) {
+        current_shop_tab = "bundles";
+    }
+
+    if current_shop_tab == "items" { draw_shop(player); }
+    else { draw_bundle_shop(player); }
 }
