@@ -1,31 +1,17 @@
-// ============================================================================
-// AntiCheat - Fair play enforcement
-// ============================================================================
+import "core:ao"
 
-AntiCheat :: class {
-    check_speed :: method(player: Player) -> bool {
-        max_speed := config.player_base_speed * 3;
-        dx := player.entity.world_position.x - player.last_pos.x;
-        dy := player.entity.world_position.y - player.last_pos.y;
-        speed := sqrt(dx*dx + dy*dy) / 0.016;
-        if speed > max_speed {
-            player.entity.local_position = player.last_pos;
-            log_info("AntiCheat: Speed hack detected for %", {player.get_username()});
-            return false;
-        }
-        return true;
+check_player_anticheat :: proc(player: Player, dt: float) {
+    if !#alive(player) {
+        return;
     }
 
-    check_clip :: method(player: Player) -> bool {
-        hw := config.arena_width / 2;
-        hh := config.arena_height / 2;
-        pos := player.entity.world_position;
-        if abs(pos.x) > hw + 2 || abs(pos.y) > hh + 2 {
-            pos.x = clamp(pos.x, -hw, hw);
-            pos.y = clamp(pos.y, -hh, hh);
-            player.entity.local_position = pos;
-            return false;
-        }
-        return true;
+    pos := player.entity.world_position;
+    delta := v2{pos.x - player.last_pos.x, pos.y - player.last_pos.y};
+    max_step := config.player_base_speed * 4.0 * dt;
+    if length_squared(delta) > max_step * max_step {
+        player.entity.set_local_position(player.last_pos);
+        announce("Anti-cheat corrected %", {player.get_username()});
     }
+
+    player.last_pos = player.entity.world_position;
 }

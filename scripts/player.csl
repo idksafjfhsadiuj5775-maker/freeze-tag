@@ -1,411 +1,190 @@
 import "core:ao"
-import "abilities"
-import "effects"
-import "ui"
-
-// ============================================================================
-// Player Class - Freeze Tag Player
-// ============================================================================
 
 Player :: class : Player_Base {
-    // Core State
-    team: Team = .RUNNERS;
-    freeze_state: Freeze_Tier = .NONE;
+    team: Team;
+    freeze_state: FreezeState;
     freeze_timer: float;
-    rescue_progress: float;
-    is_being_rescued: bool;
-    rescuer_id: string;
-    is_invincible: bool;
-    invincible_timer: float;
-    is_slowed: bool;
-    slow_timer: float;
-    slow_amount: float;
-    has_shield: bool;
-    shield_hits: int;
-    is_invisible: bool;
+    admin_frozen: bool;
+    admin_invisible: bool;
     invisible_timer: float;
     is_phased: bool;
     phase_timer: float;
-    size_multiplier: float = 1.0;
-    speed_multiplier: float = 1.0;
-    jump_multiplier: float = 1.0;
-
-    // Stats
-    stats: Match_Stats;
-    last_position: v2;
+    speed_multiplier: float;
+    jump_multiplier: float;
+    speed_tier: int;
+    escape_tier: int;
+    sabotage_tier: int;
+    escape_breakouts: int;
     score: int;
-    streak_count: int;
     tags_this_round: int;
     rescues_this_round: int;
-
-    // Abilities
-    freeze_ability_cooldown: float;
-    rescue_ability_cooldown: float;
-    dash_ability_cooldown: float;
-    shield_ability_cooldown: float;
-    teleport_ability_cooldown: float;
-    speed_boost_cooldown: float;
-    freeze_aura_cooldown: float;
-    rescue_aura_cooldown: float;
-
-    // Progression
-    level: int = 1;
-    xp: s64;
-    prestige_level: int;
-    rebirth_count: int;
-    mastery_level: int;
-    titles: [..]string;
-    selected_title: string;
-    cosmetics: map[string]bool;
-    selected_skin: string;
-    selected_trail: string;
-    selected_pet: string;
-    selected_emote: string;
-    selected_pose: string;
-    selected_nameplate: string;
-    selected_banner: string;
-    selected_spawn_effect: string;
-    selected_elimination_effect: string;
-
-    // Economy
-    coins: s64;
-    gems: s64;
-    tokens: s64;
-    shards: s64;
-    tickets: s64;
-    inventory_items: [..]string;
-    equipped_items: [..]string;
-    blueprints: [..]string;
-    crafted_items: [..]string;
-
-    // Friends/Social
-    friends_list: [..]string;
-    party_id: string;
-    guild_id: string;
-    guild_role: string;
-    is_spectating: bool;
-    spectating_player_id: string;
-
-    // Quests
-    daily_quests: [..]Quest;
-    weekly_quests: [..]Quest;
-    monthly_quests: [..]Quest;
-    quest_progress: map[string]int;
-
-    // Milestones
+    streak_count: int;
+    best_streak: int;
     lifetime_tags: int;
     lifetime_rescues: int;
     lifetime_wins: int;
     lifetime_matches: int;
-    lifetime_score: s64;
-    login_streak: int;
-    last_login_day: int;
-    total_playtime: float;
-
-    // Collections
-    unlocked_skins: [..]string;
-    unlocked_trails: [..]string;
-    unlocked_pets: [..]string;
-    unlocked_emotes: [..]string;
-    unlocked_poses: [..]string;
-    unlocked_nameplates: [..]string;
-    unlocked_banners: [..]string;
-    unlocked_spawn_effects: [..]string;
-    unlocked_elimination_effects: [..]string;
+    level: int;
+    xp: s64;
+    rebirth_count: int;
+    badge_tier: int;
+    round_join_time: float;
+    round_tag_time: float;
+    chat_muted: bool;
+    has_round_shield: bool;
+    shield_hits: int;
+    has_shield: bool;
+    is_invincible: bool;
+    is_slowed: bool;
+    last_pos: v2;
+    inventory_items: [..]string;
+    blueprints: [..]string;
     unlocked_titles: [..]string;
-    collected_achievements: [..]string;
+    show_shop: bool;
+    show_monetization_store: bool;
+    show_admin_toolbar: bool;
+    show_player_directory: bool;
+    show_badge_tester: bool;
+    show_match_archive: bool;
+    selected_admin_target: string;
+    admin_coin_delta: s64;
 
-    // Instance
     ao_start :: method() {
-        username := this.get_username();
-        log_info("Player joined: %", {username});
-
-        this.last_position = this.entity.world_position;
         this.team = .RUNNERS;
         this.freeze_state = .NONE;
-
-        load_progression_data();
-        apply_cosmetics();
-        try_daily_login_bonus();
+        this.freeze_timer = 0;
+        this.admin_frozen = false;
+        this.admin_invisible = false;
+        this.invisible_timer = 0;
+        this.is_phased = false;
+        this.phase_timer = 0;
+        this.speed_multiplier = 1.0;
+        this.jump_multiplier = 1.0;
+        this.speed_tier = 0;
+        this.escape_tier = 0;
+        this.sabotage_tier = 0;
+        this.escape_breakouts = 0;
+        this.score = 0;
+        this.tags_this_round = 0;
+        this.rescues_this_round = 0;
+        this.streak_count = 0;
+        this.best_streak = 0;
+        this.badge_tier = 0;
+        this.level = 1;
+        this.xp = 0;
+        this.rebirth_count = 0;
+        this.round_join_time = get_time();
+        this.round_tag_time = -999.0;
+        this.chat_muted = false;
+        this.has_round_shield = false;
+        this.shield_hits = 0;
+        this.has_shield = false;
+        this.is_invincible = false;
+        this.is_slowed = false;
+        this.last_pos = this.entity.world_position;
+        this.show_shop = false;
+        this.show_monetization_store = false;
+        this.show_admin_toolbar = false;
+        this.show_player_directory = false;
+        this.show_badge_tester = false;
+        this.show_match_archive = false;
+        this.selected_admin_target = "";
+        this.admin_coin_delta = 0;
+        this.load_profile();
+        this.apply_round_defaults();
     }
 
     ao_update :: method(dt: float) {
-        if this.is_spectating {
-            update_spectating(dt);
-            return;
+        this.update_timers(dt);
+        this.apply_round_state();
+    }
+
+    ao_late_update :: method(dt: float) {
+        if this.is_local_or_server() {
+            draw_player_hud(this);
         }
-
-        this.update_freeze_state(dt);
-        this.update_powerup_timers(dt);
-        this.update_cooldowns(dt);
-        this.update_rescue(dt);
-
-        if this.freeze_state == .NONE || this.freeze_state == .SLOWED {
-            this.handle_movement(dt);
-        }
-
-        this.check_nearby_players(dt);
-
         if this.is_local() {
-            draw_hud();
+            apply_local_player_visibility(this);
         }
     }
 
+    ao_end :: method() {
+        this.save_profile();
+    }
+
     ao_can_use_ability :: method(ability: Ability_Base) -> bool {
-        if this.freeze_state == .FULL || this.freeze_state == .PERMAFROST {
+        if this.admin_frozen {
             return false;
         }
-        if this.is_being_rescued {
+        if this.freeze_state == .FULL || this.freeze_state == .PERMAFROST {
             return false;
         }
         return true;
     }
 
-    // ========================================================================
-    // Freeze Mechanics
-    // ========================================================================
+    ao_can_use_interactable :: method(interactable: Interactable) -> bool {
+        return !this.admin_frozen;
+    }
 
-    apply_freeze :: method(duration: float) {
-        if this.is_invincible || this.has_shield {
-            if this.has_shield {
-                this.shield_hits -= 1;
-                if this.shield_hits <= 0 {
-                    this.has_shield = false;
-                    announce("%'s shield broke!", {this.get_username()});
-                } else {
-                    announce("%'s shield absorbed the freeze! (% hits left)", {this.get_username(), this.shield_hits});
-                }
-            }
-            return;
+    load_profile :: method() {
+        this.lifetime_tags = Save.get_int(this, "lifetime_tags", 0).(int);
+        this.lifetime_rescues = Save.get_int(this, "lifetime_rescues", 0).(int);
+        this.lifetime_wins = Save.get_int(this, "lifetime_wins", 0).(int);
+        this.lifetime_matches = Save.get_int(this, "lifetime_matches", 0).(int);
+        this.badge_tier = Save.get_int(this, "badge_tier", 0).(int);
+        this.speed_tier = Save.get_int(this, "speed_tier", 0).(int);
+        this.escape_tier = Save.get_int(this, "escape_tier", 0).(int);
+        this.sabotage_tier = Save.get_int(this, "sabotage_tier", 0).(int);
+        this.apply_win_cosmetic();
+    }
+
+    save_profile :: method() {
+        Save.set_int(this, "lifetime_tags", this.lifetime_tags.(s64));
+        Save.set_int(this, "lifetime_rescues", this.lifetime_rescues.(s64));
+        Save.set_int(this, "lifetime_wins", this.lifetime_wins.(s64));
+        Save.set_int(this, "lifetime_matches", this.lifetime_matches.(s64));
+        Save.set_int(this, "badge_tier", this.badge_tier.(s64));
+        Save.set_int(this, "speed_tier", this.speed_tier.(s64));
+        Save.set_int(this, "escape_tier", this.escape_tier.(s64));
+        Save.set_int(this, "sabotage_tier", this.sabotage_tier.(s64));
+    }
+
+    apply_round_defaults :: method() {
+        if this.team == .FREEZERS {
+            this.speed_multiplier = 1.05 + this.speed_tier.(float) * 0.25;
+        } else {
+            this.speed_multiplier = 1.0 + this.speed_tier.(float) * 0.25;
         }
-
-        if this.is_phased {
-            return;
-        }
-
-        current_freezer_count := 0;
-        for p: player_iterator() {
-            player := p.(Player);
-            if player.team == .FREEZERS {
-                current_freezer_count += 1;
-            }
-        }
-
-        // Determine freeze tier based on situation
-        if this.freeze_state == .NONE {
-            this.freeze_state = .SLOWED;
-            this.slow_amount = 0.5;
-            this.slow_timer = duration * 0.5;
-            announce("% was slowed!", {this.get_username()});
-        } else if this.freeze_state == .SLOWED {
-            this.freeze_state = .PARTIAL;
-            this.freeze_timer = duration;
-            this.apply_effect(Frozen_Effect, duration);
-            announce("% was partially frozen!", {this.get_username()});
-        } else if this.freeze_state == .PARTIAL {
-            this.freeze_state = .FULL;
-            this.freeze_timer = duration;
-            this.entity.set_active_effect(new(Frozen_Effect));
-            this.stats.tags += 1;
-            this.tags_this_round += 1;
-            this.streak_count += 1;
-            if this.streak_count > this.stats.best_streak {
-                this.stats.best_streak = this.streak_count;
-            }
-            this.score += 10;
-            announce("% was FROZEN by a Freezer!", {this.get_username()});
-
-            freeze_tag_event(this.get_user_id(), this.get_username());
-        } else if this.freeze_state == .FULL {
-            this.freeze_state = .PERMAFROST;
-            this.freeze_timer = duration * 2;
-            announce("% was PERMAFROSTED!", {this.get_username()});
+        if this.speed_tier >= 2 {
+            this.speed_multiplier += 0.25;
         }
     }
 
-    apply_tag :: method(by_player_id: string) {
-        if this.is_invincible || this.has_shield {
-            if this.has_shield {
-                this.shield_hits -= 1;
-                if this.shield_hits <= 0 {
-                    this.has_shield = false;
-                }
-            }
+    apply_round_state :: method() {
+        if this.admin_frozen {
             return;
         }
-
-        if this.is_phased {
-            return;
-        }
-
-        freeze_duration := match_settings.freeze_duration;
-
-        if this.team == .RUNNERS {
-            this.freeze_state = .FULL;
-            this.freeze_timer = freeze_duration;
-            this.entity.set_active_effect(new(Frozen_Effect));
-
-            this.stats.tags += 1;
-            this.tags_this_round += 1;
-            this.streak_count += 1;
-            if this.streak_count > this.stats.best_streak {
-                this.stats.best_streak = this.streak_count;
-            }
-            this.score += 10;
-
-            announce("% was tagged by %!", {this.get_username(), get_player_username(by_player_id)});
-
-            // Give tag credit to the freezer
-            freezer := get_player_by_id(by_player_id);
-            if freezer != null {
-                freezer.score += 15;
-                freezer.stats.tags += 1;
-                add_xp(freezer, 25);
-            }
+        if this.freeze_state == .FULL || this.freeze_state == .PERMAFROST {
+            this.speed_multiplier = 0;
         }
     }
 
-    update_freeze_state :: method(dt: float) {
-        if this.freeze_state == .NONE return;
-
-        if this.freeze_state == .SLOWED {
-            this.slow_timer -= dt;
-            if this.slow_timer <= 0 {
+    update_timers :: method(dt: float) {
+        if this.freeze_timer > 0 {
+            this.freeze_timer -= dt;
+            if this.freeze_timer <= 0 && this.freeze_state != .NONE {
+                play_unfreeze_sound(this);
                 this.freeze_state = .NONE;
-                this.slow_amount = 0;
-                announce("% is no longer slowed!", {this.get_username()});
-            }
-            return;
-        }
-
-        this.freeze_timer -= dt;
-        if this.freeze_timer <= 0 {
-            if this.freeze_state == .FULL {
-                this.freeze_state = .SLOWED;
-                this.slow_amount = 0.5;
-                this.slow_timer = 3.0;
-                this.entity.remove_effect(Frozen_Effect, false);
-                announce("% is thawing out!", {this.get_username()});
-            } else if this.freeze_state == .PERMAFROST {
-                this.freeze_state = .FULL;
-                this.freeze_timer = 10.0;
-                announce("% is no longer permafrozen!", {this.get_username()});
-            } else if this.freeze_state == .PARTIAL {
-                this.freeze_state = .SLOWED;
-                this.slow_timer = 2.0;
-                this.entity.remove_effect(Frozen_Effect, false);
-            } else {
-                this.freeze_state = .NONE;
-                this.entity.remove_effect(Frozen_Effect, false);
+                this.freeze_timer = 0;
             }
         }
-    }
-
-    // ========================================================================
-    // Rescue Mechanics
-    // ========================================================================
-
-    start_rescue :: method(target_player_id: string) {
-        target := get_player_by_id(target_player_id);
-        if target == null return;
-        if target.team != this.team return;
-        if target.freeze_state == .NONE return;
-
-        this.is_being_rescued = true;
-        this.rescuer_id = target_player_id;
-        this.rescue_progress = 0;
-        announce("% is rescuing %!", {this.get_username(), target.get_username()});
-    }
-
-    update_rescue :: method(dt: float) {
-        if !this.is_being_rescued return;
-
-        rescuer := get_player_by_id(this.rescuer_id);
-        if rescuer == null || rescuer.freeze_state != .NONE {
-            this.is_being_rescued = false;
-            this.rescue_progress = 0;
-            return;
-        }
-
-        dist := distance(this.entity.world_position, rescuer.entity.world_position);
-        if dist > 3.0 {
-            this.is_being_rescued = false;
-            this.rescue_progress = 0;
-            announce("Rescue interrupted - too far from rescuer!", {});
-            return;
-        }
-
-        this.rescue_progress += dt;
-
-        // Draw rescue progress
-        if this.is_local() {
-            UI.draw_progress_bar(this.rescue_progress / match_settings.rescue_time);
-        }
-
-        if this.rescue_progress >= match_settings.rescue_time {
-            complete_rescue(rescuer, this);
-        }
-    }
-
-    complete_rescue :: proc(rescuer: Player, rescued: Player) {
-        rescued.freeze_state = .NONE;
-        rescued.freeze_timer = 0;
-        rescued.is_being_rescued = false;
-        rescued.rescue_progress = 0;
-        rescued.entity.remove_effect(Frozen_Effect, false);
-        rescued.entity.set_active_effect(new(Rescue_Effect));
-
-        rescued.stats.rescues += 1;
-        rescued.rescues_this_round += 1;
-        rescued.stats.teammates_rescued += 1;
-        rescued.score += 20;
-        rescued.streak_count = 0;
-
-        rescuer.score += 25;
-        rescuer.stats.rescues += 1;
-
-        add_xp(rescued, 30);
-        add_xp(rescuer, 20);
-
-        announce("% rescued %!", {rescuer.get_username(), rescued.get_username()});
-
-        rescued.entity.set_active_effect(new(Invincible_Effect));
-        rescued.is_invincible = true;
-        rescued.invincible_timer = 2.0;
-    }
-
-    // ========================================================================
-    // Powerup Timers
-    // ========================================================================
-
-    update_powerup_timers :: method(dt: float) {
-        if this.is_invincible {
-            this.invincible_timer -= dt;
-            if this.invincible_timer <= 0 {
-                this.is_invincible = false;
-                this.entity.remove_effect(Invincible_Effect, false);
-            }
-        }
-
-        if this.is_slowed {
-            this.slow_timer -= dt;
-            if this.slow_timer <= 0 {
-                this.is_slowed = false;
-                this.slow_amount = 0;
-                this.speed_multiplier = 1.0;
-            }
-        }
-
-        if this.is_invisible {
+        if this.invisible_timer > 0 {
             this.invisible_timer -= dt;
             if this.invisible_timer <= 0 {
-                this.is_invisible = false;
-                this.entity.set_local_scale({1, 1});
-                this.entity.get_component(Sprite_Renderer).color.w = 1;
+                this.admin_invisible = false;
             }
         }
-
-        if this.is_phased {
+        if this.phase_timer > 0 {
             this.phase_timer -= dt;
             if this.phase_timer <= 0 {
                 this.is_phased = false;
@@ -413,411 +192,147 @@ Player :: class : Player_Base {
         }
     }
 
-    // ========================================================================
-    // Movement
-    // ========================================================================
+    set_tagger :: method() {
+        this.team = .FREEZERS;
+        this.apply_round_defaults();
+    }
 
-    handle_movement :: method(dt: float) {
-        input := get_movement_input();
+    set_runner :: method() {
+        this.team = .RUNNERS;
+        this.apply_round_defaults();
+    }
 
-        base_speed: float = 5.0;
-        current_speed := base_speed * this.speed_multiplier;
-
-        if this.freeze_state == .SLOWED {
-            current_speed *= (1.0 - this.slow_amount);
-        }
-
-        velocity := input * current_speed;
-        this.entity.local_position += velocity * dt;
-
-        if this.is_local() {
-            clamp_to_arena(this);
+    award_trophy_badge :: method(badge_tier: int) {
+        if badge_tier > this.badge_tier {
+            this.badge_tier = badge_tier;
+            this.save_profile();
+            this.apply_win_cosmetic();
         }
     }
 
-    // ========================================================================
-    // Nearby Player Detection
-    // ========================================================================
-
-    check_nearby_players :: method(dt: float) {
-        for p: player_iterator() {
-            if p.get_user_id() == this.get_user_id() continue;
-
-            other := p.(Player);
-            dist := distance(this.entity.world_position, other.entity.world_position);
-
-            if dist < 1.5 {
-                // Freezer tagging Runner
-                if this.team == .FREEZERS && other.team == .RUNNERS {
-                    if other.freeze_state == .NONE || other.freeze_state == .SLOWED {
-                        other.apply_tag(this.get_user_id());
-                    }
-                }
-
-                // Runner tagging Freezer (in special modes)
-                if this.team == .RUNNERS && other.team == .FREEZERS && current_mode == .CHAOS {
-                    other.apply_slow(2.0);
-                }
-
-                // Rescue
-                if this.team == .RUNNERS && other.team == .RUNNERS {
-                    if other.freeze_state != .NONE && this.freeze_state == .NONE {
-                        if !other.is_being_rescued {
-                            other.start_rescue(this.get_user_id());
-                        }
-                    }
-                }
-            }
+    apply_win_cosmetic :: method() {
+        tint := v4{1, 1, 1, 1};
+        if this.lifetime_wins >= 250 {
+            tint = {0.9, 0.98, 1.0, 1};
+        } else if this.lifetime_wins >= 100 {
+            tint = {1.0, 0.9, 0.25, 1};
+        } else if this.lifetime_wins >= 50 {
+            tint = {0.35, 0.9, 1.0, 1};
+        } else if this.lifetime_wins >= 10 {
+            tint = {1.0, 0.45, 0.85, 1};
         }
+
+        this.apply_win_cosmetic_to_entity(this.entity, tint);
     }
 
-    // ========================================================================
-    // Utility
-    // ========================================================================
-
-    apply_slow :: method(duration: float) {
-        this.is_slowed = true;
-        this.slow_timer = duration;
-        this.slow_amount = 0.4;
-        this.speed_multiplier = 0.6;
-    }
-
-    apply_effect :: method($T: typeid, duration: float) {
-        effect := new(T);
-        effect.set_duration(duration);
-        this.entity.add_passive_effect(effect);
-    }
-
-    reset_for_round :: method() {
-        this.freeze_state = .NONE;
-        this.freeze_timer = 0;
-        this.rescue_progress = 0;
-        this.is_being_rescued = false;
-        this.is_invincible = false;
-        this.invincible_timer = 0;
-        this.is_slowed = false;
-        this.has_shield = false;
-        this.shield_hits = 0;
-        this.is_invisible = false;
-        this.is_phased = false;
-        this.size_multiplier = 1.0;
-        this.speed_multiplier = 1.0;
-        this.jump_multiplier = 1.0;
-        this.score = 0;
-        this.tags_this_round = 0;
-        this.rescues_this_round = 0;
-        this.streak_count = 0;
-
-        this.entity.remove_all_effects();
-        this.last_position = this.entity.world_position;
-    }
-
-    spawn_at_team_spawn :: method() {
-        if this.team == .FREEZERS {
-            this.entity.local_position = {-15, get_random_float(-5, 5)};
-        } else {
-            this.entity.local_position = {15, get_random_float(-5, 5)};
+    apply_win_cosmetic_to_entity :: method(entity: Entity, tint: v4) {
+        sprite := entity.get_component(Sprite_Renderer);
+        if sprite != null {
+            sprite.color = tint;
         }
-    }
 
-    // ========================================================================
-    // Progression
-    // ========================================================================
-
-    load_progression_data :: method() {
-        this.level = Save.get_int(this, "level", 1).(int);
-        this.xp = Save.get_int(this, "xp", 0);
-        this.prestige_level = Save.get_int(this, "prestige", 0).(int);
-        this.rebirth_count = Save.get_int(this, "rebirth", 0).(int);
-        this.mastery_level = Save.get_int(this, "mastery", 0).(int);
-        this.coins = Economy.get_balance(this, "coins");
-        this.gems = Economy.get_balance(this, "gems");
-        this.tokens = Economy.get_balance(this, "tokens");
-        this.shards = Economy.get_balance(this, "shards");
-        this.tickets = Economy.get_balance(this, "tickets");
-        this.selected_skin = Save.get_string(this, "selected_skin", "default");
-        this.selected_title = Save.get_string(this, "selected_title", "");
-        this.login_streak = Save.get_int(this, "login_streak", 0).(int);
-
-        load_collections();
-    }
-
-    save_progression_data :: method() {
-        Save.set_int(this, "level", this.level.(s64));
-        Save.set_int(this, "xp", this.xp);
-        Save.set_int(this, "prestige", this.prestige_level.(s64));
-        Save.set_int(this, "rebirth", this.rebirth_count.(s64));
-        Save.set_int(this, "mastery", this.mastery_level.(s64));
-        Save.set_string(this, "selected_skin", this.selected_skin);
-        Save.set_string(this, "selected_title", this.selected_title);
-        Save.set_int(this, "login_streak", this.login_streak.(s64));
-    }
-
-    load_collections :: method() {
-        skins_json := Save.get_string(this, "unlocked_skins", "[]");
-        this.unlocked_skins = json_parse_string_array(skins_json);
-    }
-
-    apply_cosmetics :: method() {
-        if this.selected_skin != "" && this.selected_skin != "default" {
-            apply_skin_to_entity(this.entity, this.selected_skin);
-        }
-    }
-
-    // ========================================================================
-    // Daily Login
-    // ========================================================================
-
-    try_daily_login_bonus :: method() {
-        current_day := get_current_day_of_year();
-        saved_day := Save.get_int(this, "last_login_day", 0).(int);
-
-        if saved_day != current_day {
-            next_day := current_day - saved_day;
-            if next_day == 1 {
-                this.login_streak += 1;
+        animator := entity.get_component(Spine_Animator);
+        if animator != null {
+            if this.lifetime_wins >= 250 {
+                animator.set_color_replace_color(.WHITE1);
+            } else if this.lifetime_wins >= 100 {
+                animator.set_color_replace_color(.YELLOW);
+            } else if this.lifetime_wins >= 50 {
+                animator.set_color_replace_color(.CYAN);
+            } else if this.lifetime_wins >= 10 {
+                animator.set_color_replace_color(.PINK);
             } else {
-                this.login_streak = 1;
-            }
-
-            Save.set_int(this, "last_login_day", current_day.(s64));
-
-            // Daily bonus scales with streak
-            bonus_coins := 50 + (this.login_streak * 10);
-            bonus_xp := 100 + (this.login_streak * 25);
-
-            Economy.deposit(this, "coins", bonus_coins.(s64));
-            add_xp(this, bonus_xp.(s64));
-
-            announce("Day % login bonus: % coins, % XP!", {this.login_streak, bonus_coins, bonus_xp});
-        }
-    }
-
-    // ========================================================================
-    // Spectator Mode
-    // ========================================================================
-
-    toggle_spectate :: method() {
-        this.is_spectating = !this.is_spectating;
-        if this.is_spectating {
-            this.entity.set_local_scale({0, 0});
-            this.entity.get_component(Sprite_Renderer).color.w = 0;
-            find_next_spectate_target();
-        } else {
-            this.entity.set_local_scale({1, 1});
-            this.entity.get_component(Sprite_Renderer).color.w = 1;
-            this.entity.remove_effect(Spectator_Effect, false);
-        }
-    }
-
-    update_spectating :: method(dt: float) {
-        if this.spectating_player_id != "" {
-            target := get_player_by_id(this.spectating_player_id);
-            if target != null {
-                this.entity.world_position = target.entity.world_position + {0, 2};
+                animator.set_color_replace_color(.NONE);
             }
         }
 
-        if is_key_pressed(.SPACE) || is_tapped() {
-            cycle_spectate_target();
+        child := entity.get_first_child();
+        while child != null {
+            this.apply_win_cosmetic_to_entity(child, tint);
+            child = child.get_next_sibling();
         }
-    }
-
-    find_next_spectate_target :: method() {
-        players: [..]string;
-        for p: player_iterator() {
-            if p.get_user_id() != this.get_user_id() {
-                players.append(p.get_user_id());
-            }
-        }
-        if players.count > 0 {
-            this.spectating_player_id = players[0];
-            announce("Now spectating: %", {get_player_username(this.spectating_player_id)});
-        }
-    }
-
-    cycle_spectate_target :: method() {
-        players: [..]string;
-        for p: player_iterator() {
-            if p.get_user_id() != this.get_user_id() {
-                players.append(p.get_user_id());
-            }
-        }
-        if players.count == 0 return;
-
-        for i: 0..<players.count {
-            if players[i] == this.spectating_player_id {
-                next := (i + 1) % players.count;
-                this.spectating_player_id = players[next];
-                announce("Now spectating: %", {get_player_username(this.spectating_player_id)});
-                return;
-            }
-        }
-        this.spectating_player_id = players[0];
     }
 }
 
-// ============================================================================
-// Global Player Functions
-// ============================================================================
+apply_local_player_visibility :: proc(player: Player) {
+    if !#alive(player) {
+        return;
+    }
+    sprite := player.entity.get_component(Sprite_Renderer);
+    if sprite != null {
+        if player.admin_invisible || player.is_phased {
+            sprite.color.w = 0.35;
+        } else {
+            sprite.color.w = 1;
+        }
+    }
+}
+
+tag_player :: proc(tagger: Player, target: Player) {
+    if !#alive(tagger) || !#alive(target) {
+        return;
+    }
+    if target.admin_frozen {
+        return;
+    }
+    if target.has_round_shield {
+        target.shield_hits -= 1;
+        if target.shield_hits <= 0 {
+            target.has_round_shield = false;
+        }
+        return;
+    }
+    if target.is_phased {
+        return;
+    }
+    target.freeze_state = .FULL;
+    target.freeze_timer = 8.0;
+    target.round_tag_time = get_time();
+    tagger.tags_this_round += 1;
+    tagger.lifetime_tags += 1;
+    tagger.score += 25;
+    play_freeze_sound(target);
+    announce("% tagged %!", {tagger.get_username(), target.get_username()});
+}
+
+rescue_player :: proc(rescuer: Player, frozen: Player) {
+    if !#alive(rescuer) || !#alive(frozen) {
+        return;
+    }
+    if frozen.freeze_state == .NONE {
+        return;
+    }
+    frozen.freeze_state = .NONE;
+    frozen.freeze_timer = 0;
+    rescuer.rescues_this_round += 1;
+    rescuer.lifetime_rescues += 1;
+    rescuer.score += 50;
+    play_unfreeze_sound(frozen);
+    announce("% rescued %!", {rescuer.get_username(), frozen.get_username()});
+}
 
 get_player_by_id :: proc(id: string) -> Player {
-    for p: player_iterator() {
+    for p: component_iterator(Player) {
         if p.get_user_id() == id {
-            return p.(Player);
+            return p;
         }
     }
     return null;
 }
 
-get_player_username :: proc(id: string) -> string {
-    p := get_player_by_id(id);
-    if p != null {
-        return p.get_username();
-    }
-    return "Unknown";
-}
-
-freeze_tag_event :: proc(frozen_id: string, frozen_name: string) {
-    log_info("Player frozen: % (%)", {frozen_name, frozen_id});
-}
-
-get_movement_input :: proc() -> v2 {
-    input := v2{0, 0};
-    if is_key_held(.W) || is_key_held(.UP) {
-        input.y += 1;
-    }
-    if is_key_held(.S) || is_key_held(.DOWN) {
-        input.y -= 1;
-    }
-    if is_key_held(.A) || is_key_held(.LEFT) {
-        input.x -= 1;
-    }
-    if is_key_held(.D) || is_key_held(.RIGHT) {
-        input.x += 1;
-    }
-
-    // Normalize for diagonal movement
-    if input.x != 0 && input.y != 0 {
-        input.x *= 0.707;
-        input.y *= 0.707;
-    }
-
-    return input;
-}
-
-clamp_to_arena :: proc(player: Player) {
-    arena_bounds: v2 = {22, 17};
-    pos := player.entity.local_position;
-    pos.x = clamp(pos.x, -arena_bounds.x, arena_bounds.x);
-    pos.y = clamp(pos.y, -arena_bounds.y, arena_bounds.y);
-    player.entity.local_position = pos;
-}
-
-clamp :: proc(value: float, min: float, max: float) -> float {
-    if value < min return min;
-    if value > max return max;
-    return value;
-}
-
-add_xp :: proc(player: Player, amount: s64) {
-    player.xp += amount;
-    check_level_up(player);
-}
-
-check_level_up :: proc(player: Player) {
-    needed := get_xp_for_level(player.level);
-    if player.xp >= needed {
-        player.xp -= needed;
-        player.level += 1;
-        player.score += 50;
-        announce("% leveled up! Now level %!", {player.get_username(), player.level});
-
-        if player.level % 10 == 0 {
-            Economy.deposit(player, "gems", 50);
-            announce("Reward: 50 Gems for reaching level %!", {player.level});
-        }
-
-        check_prestige_up(player);
-    }
-}
-
-check_prestige_up :: proc(player: Player) {
-    if player.level >= 50 && player.prestige_level < 10 {
-        if player.xp >= get_xp_for_prestige(player.prestige_level) {
-            player.prestige_level += 1;
-            player.level = 1;
-            player.xp = 0;
-            announce("PRESTIGE! % is now Prestige %!", {player.get_username(), player.prestige_level});
-            Economy.deposit(player, "gems", 200);
-            Economy.deposit(player, "tokens", 10);
+get_player_by_username :: proc(username: string) -> Player {
+    for p: component_iterator(Player) {
+        if p.get_username() == username {
+            return p;
         }
     }
+    return null;
 }
 
-get_xp_for_level :: proc(level: int) -> s64 {
-    return (100 + (level - 1) * 50).(s64);
-}
-
-get_xp_for_prestige :: proc(prestige: int) -> s64 {
-    return (5000 + prestige * 2500).(s64);
-}
-
-get_current_day_of_year :: proc() -> int {
-    return (ao_get_time() / 86400).(int) % 365;
-}
-
-apply_skin_to_entity :: proc(entity: Entity, skin_name: string) {
-    sprite := entity.get_component(Sprite_Renderer);
-    if sprite == null return;
-
-    switch skin_name {
-        case "frost_guardian":  sprite.color = {0.5, 0.8, 1, 1};
-        case "shadow_tag":      sprite.color = {0.2, 0.2, 0.3, 1};
-        case "fire_runner":     sprite.color = {1, 0.4, 0.1, 1};
-        case "ice_queen":       sprite.color = {0.7, 0.9, 1, 1};
-        case "cyber_freezer":   sprite.color = {0, 1, 0.8, 1};
-        case "golden_legend":   sprite.color = {1, 0.85, 0, 1};
-        case "neon_ninja":      sprite.color = {1, 0, 0.5, 1};
-        case "void_walker":     sprite.color = {0.4, 0, 0.8, 1};
-        case "crystal_mage":    sprite.color = {0.6, 0.3, 1, 0.8};
-        case "lava_demon":      sprite.color = {1, 0.2, 0, 1};
-        case "snowflake":       sprite.color = {1, 1, 1, 0.9};
-        case "jade_dragon":     sprite.color = {0, 0.8, 0.4, 1};
-        default:                sprite.color = {1, 1, 1, 1};
+get_player_count :: proc() -> int {
+    count: int;
+    for p: component_iterator(Player) {
+        count += 1;
     }
-}
-
-json_parse_string_array :: proc(json: string) -> [..]string {
-    result: [..]string;
-    current: string;
-    in_array := false;
-    in_string := false;
-
-    for c: json {
-        if c == '[' {
-            in_array = true;
-        } else if c == ']' {
-            if current != "" {
-                result.append(current);
-                current = "";
-            }
-            break;
-        } else if c == '"' {
-            in_string = !in_string;
-            if !in_string && current != "" {
-                result.append(current);
-                current = "";
-            }
-        } else if c == ',' {
-            if current != "" {
-                result.append(current);
-                current = "";
-            }
-        } else if in_string {
-            current += c;
-        }
-    }
-
-    return result;
+    return count;
 }

@@ -1,0 +1,28 @@
+b135bdaa3481b744.png
+	size: 628, 456
+	filter: Linear, Linear
+	scale: 0.5
+new lasers/laser body
+	bounds: 303, 6, 441, 52
+	offsets: 5, 0, 446, 52
+	rotate: 90
+new lasers/laser box
+	bounds: 607, 420, 14, 27
+new lasers/laser head1
+	bounds: 505, 360, 47, 87
+	offsets: 3, 2, 51, 91
+new lasers/laser head2
+	bounds: 558, 362, 43, 85
+	offsets: 2, 2, 47, 89
+prison_pillars/green_light
+	bounds: 433, 380, 67, 66
+	offsets: 5, 5, 77, 76
+	rotate: 90
+prison_pillars/main_pillar
+	bounds: 6, 92, 160, 355
+prison_pillars/red_light
+	bounds: 361, 380, 67, 66
+	offsets: 5, 5, 77, 76
+	rotate: 90
+prison_pillars/slim_pillar
+	bounds: 172, 92, 126, 355

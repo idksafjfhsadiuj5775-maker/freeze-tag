@@ -1,0 +1,55 @@
+6895933de60127e3.png
+	size: 2048, 2048
+	filter: Linear, Linear
+Emergency Button
+	bounds: 628, 591, 94, 76
+	offsets: 1, 1, 96, 78
+Emergency Button Pushed
+	bounds: 798, 1444, 94, 75
+	rotate: 90
+Explosion/Ex_Yellow
+	bounds: 540, 673, 248, 279
+	offsets: 1, 1, 251, 283
+Explosion/ExplosionResidue
+	bounds: 1245, 157, 448, 319
+	offsets: 3, 31, 465, 361
+Explosion/Smoke1
+	bounds: 540, 587, 80, 82
+	offsets: 1, 1, 82, 84
+	rotate: 90
+Explosion/UP_SmokeLine
+	bounds: 560, 958, 807, 232
+	offsets: 57, 42, 903, 297
+	rotate: 90
+Explosion/explosion_5_00
+	bounds: 798, 1544, 221, 142
+	offsets: 307, 185, 839, 660
+	rotate: 90
+Explosion/explosion_5_01
+	bounds: 791, 44, 448, 432
+	offsets: 181, 96, 839, 660
+Explosion/explosion_5_02
+	bounds: 6, 574, 578, 528
+	offsets: 135, 43, 839, 660
+	rotate: 90
+Explosion/explosion_5_03
+	bounds: 6, 1158, 607, 548
+	offsets: 115, 28, 839, 660
+	rotate: 90
+Explosion/explosion_5_04
+	bounds: 1066, 1255, 721, 563
+	offsets: 58, 24, 839, 660
+	rotate: 90
+Explosion/explosion_5_05
+	bounds: 798, 482, 767, 520
+	offsets: 35, 72, 839, 660
+	rotate: 90
+Explosion/explosion_5_06
+	bounds: 6, 287, 779, 281
+	offsets: 29, 138, 839, 660
+Explosion/explosion_5_07
+	bounds: 6, 6, 779, 275
+	offsets: 29, 139, 839, 660
+shockwave
+	bounds: 6, 1771, 1054, 205
+	offsets: 1, 1, 1056, 207

@@ -1,0 +1,5 @@
+test_win_cosmetics :: proc() {
+    Test.run_admin_command("admin_setwins 100");
+    Test.wait_frames(4);
+    Test.screenshot("win_skin_100");
+}

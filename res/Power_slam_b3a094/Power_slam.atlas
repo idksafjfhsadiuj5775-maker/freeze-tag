@@ -1,0 +1,12 @@
+b3a094942b9bcd59.png
+	size: 3336, 664
+	filter: Linear, Linear
+HydraulicPressbottem
+	bounds: 764, 320, 502, 337
+HydraulicPresstop
+	bounds: 1841, 167, 490, 720
+	rotate: 90
+shockwave_effect
+	bounds: 2567, 264, 761, 393
+smoke
+	bounds: 6, 6, 1829, 651

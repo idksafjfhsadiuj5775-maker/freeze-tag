@@ -1,0 +1,18 @@
+1d775e7573db34d0.png
+	size: 240, 108
+	filter: Linear, Linear
+	scale: 0.5
+EXE_stations/button_meme/button_blue
+	bounds: 135, 59, 43, 39
+	rotate: 90
+EXE_stations/button_meme/button_panel
+	bounds: 3, 3, 87, 99
+EXE_stations/button_meme/button_pressed_blue
+	bounds: 208, 59, 43, 28
+	rotate: 90
+EXE_stations/button_meme/button_pressed_red
+	bounds: 177, 59, 43, 28
+	rotate: 90
+EXE_stations/button_meme/button_red
+	bounds: 93, 59, 43, 39
+	rotate: 90

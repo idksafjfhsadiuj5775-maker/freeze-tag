@@ -1,45 +1,56 @@
-// ============================================================================
-// Leaderboard - Score ranking system
-// ============================================================================
+import "core:ao"
 
-LBEntry :: struct {
-    username: string; score: int; tags: int; rescues: int;
+Leaderboard_Row :: struct {
+    name: string;
+    score: int;
+    badges: int;
 }
 
-get_leaderboard :: proc() -> [..]LBEntry {
-    entries: [..]LBEntry;
-    for p: player_iterator() {
-        player := p.(Player);
-        entries.append(LBEntry{
-            username = player.get_username(),
-            score = player.score,
-            tags = player.tags_this_round,
-            rescues = player.rescues_this_round,
-        });
+get_leaderboard_rows :: proc() -> [..]Leaderboard_Row {
+    rows: [..]Leaderboard_Row;
+    for p: component_iterator(Player) {
+        row: Leaderboard_Row;
+        row.name = p.get_username();
+        row.score = p.score;
+        row.badges = p.badge_tier;
+        rows.append(row);
     }
-    // Sort by score descending
-    for i: 0..<entries.count {
-        for j: i+1..<entries.count {
-            if entries[j].score > entries[i].score {
-                t := entries[i]; entries[i] = entries[j]; entries[j] = t;
+
+    i: int = 0;
+    while i < rows.count {
+        j := i + 1;
+        while j < rows.count {
+            if rows[j].score > rows[i].score {
+                temp := rows[i];
+                rows[i] = rows[j];
+                rows[j] = temp;
             }
+            j += 1;
         }
+        i += 1;
     }
-    return entries;
+    return rows;
 }
 
 draw_leaderboard :: proc() {
-    if match_state != .MATCH_END && match_state != .ROUND_END return;
-    ts := UI.default_text_settings(); ts.size = 20; ts.bold = true; ts.color = {1, 0.8, 0, 1};
-    rect := UI.get_screen_rect().top_center_rect().offset(0, 20);
-    UI.text(rect, ts, "LEADERBOARD", {});
+    rows := get_leaderboard_rows();
+    if rows.count == 0 {
+        return;
+    }
 
-    lb := get_leaderboard();
-    ts.size = 14; ts.bold = false;
-    for i: 0..<min(lb.count, 8) {
-        e := lb[i];
-        ts.color = i == 0 ? v4{1,0.8,0,1} : i == 1 ? v4{0.7,0.7,0.7,1} : i == 2 ? v4{0.8,0.5,0.2,1} : v4{1,1,1,0.7};
-        rect.y += 22;
-        UI.text(rect, ts, "%  %  Score:%  Tags:%  Rescues:%", {i+1, e.username, e.score, e.tags, e.rescues});
+    ts := UI.default_text_settings();
+    ts.size = 12;
+    ts.color = {1, 1, 1, 0.9};
+    ts.halign = .RIGHT;
+
+    screen := UI.get_screen_rect();
+    rect := screen.top_right_rect().offset(-12, -14);
+    UI.text(rect, ts, "SCORE", {});
+    rect = rect.offset(0, -14);
+
+    for i: 0..<min(rows.count, 8) {
+        row := rows[i];
+        UI.text(rect, ts, "% % [%]", {i + 1, row.name, row.badges});
+        rect = rect.offset(0, -14);
     }
 }

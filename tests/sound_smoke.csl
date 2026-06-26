@@ -1,0 +1,9 @@
+test_sounds_toggle :: proc() {
+    Test.assert_var_bool("sounds enabled at start", "sounds_enabled", true);
+    Test.run_admin_command("admin_togglesounds");
+    Test.wait_frames(4);
+    Test.assert_var_bool("sounds disabled after toggle", "sounds_enabled", false);
+    Test.run_admin_command("admin_togglesounds");
+    Test.wait_frames(4);
+    Test.assert_var_bool("sounds reenabled after toggle", "sounds_enabled", true);
+}

@@ -1,27 +1,24 @@
-// ============================================================================
-// ChatSystem - In-game messaging
-// ============================================================================
-
-ChatMessage :: struct {
-    sender: string; content: string; channel: string;
-}
-
-chat_history: [..]ChatMessage;
+import "core:ao"
 
 send_message :: proc(sender: Player, content: string, channel: string) {
-    chat_history.append(ChatMessage{sender = sender.get_username(), content = content, channel = channel});
-    if chat_history.count > 50 { chat_history.ordered_remove(0); }
+    record_chat_message(sender, content, channel);
 }
 
-draw_chat :: proc() {
-    ts := UI.default_text_settings(); ts.size = 14; ts.color = {1, 1, 1, 0.7};
-    y: float = UI.get_screen_rect().bottom - 200;
-    start := max(0, chat_history.count - 5);
-    for i: start..<chat_history.count {
-        m := chat_history[i];
-        rect := UI.get_screen_rect().bottom_left_rect().offset(10, y - UI.get_screen_rect().bottom + 200);
-        rect.y = y;
-        UI.text(rect, ts, "%: %", {m.sender, m.content});
-        y += 18;
+draw_chat_overlay :: proc(player: Player) {
+    messages := get_chat_messages("", 6);
+    if messages.count == 0 {
+        return;
+    }
+
+    ts := UI.default_text_settings();
+    ts.size = 13;
+    ts.color = {1, 1, 1, 0.85};
+    screen := UI.get_screen_rect();
+    base := screen.bottom_left_rect().offset(14, 86);
+
+    for i: 0..<messages.count {
+        msg := messages[i];
+        rect := base.offset(0, i.(float) * 16);
+        UI.text(rect, ts, "%: %", {msg.sender, msg.content});
     }
 }

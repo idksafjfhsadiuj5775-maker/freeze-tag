@@ -1,92 +1,196 @@
-// ============================================================================
-// MatchManager - Handles game state and rounds
-// ============================================================================
+import "core:ao"
 
 GameState :: enum {
-    WAITING; COUNTDOWN; PLAYING; OVERTIME; ROUND_END; MATCH_END;
+    WAITING;
+    COUNTDOWN;
+    PLAYING;
+    ROUND_END;
+    MATCH_END;
+    SHUTDOWN;
 }
 
 Team :: enum {
-    FREEZERS; RUNNERS; SPECTATOR;
+    FREEZERS;
+    RUNNERS;
+    SPECTATOR;
 }
 
 FreezeState :: enum {
-    NONE; SLOWED; PARTIAL; FULL; PERMAFROST;
+    NONE;
+    SLOWED;
+    FULL;
+    PERMAFROST;
 }
 
-@ao_serialize
-match_state: GameState = .WAITING;
-@ao_serialize
+match_state: GameState;
 current_round: int;
-@ao_serialize
 round_timer: float;
-@ao_serialize
-freezer_wins: int;
-@ao_serialize
-runner_wins: int;
-@ao_serialize
-sudden_death_active: bool;
+match_countdown: float;
+round_end_timer: float;
+match_end_timer: float;
+shutdown_timer: float;
+cinematic_timer: float;
+cinematic_active: bool;
+time_dilation: float;
+winner_team: Team;
+tagger_count: int;
 
-team_assignments: map[string]Team;
+start_match :: proc() {
+    current_round = 1;
+    match_state = .COUNTDOWN;
+    match_countdown = 3.0;
+    round_timer = config.round_time;
+    round_end_timer = 0;
+    match_end_timer = 0;
+    cinematic_timer = 0;
+    cinematic_active = false;
+    time_dilation = 1.0;
+    load_map(map_rotation[0]);
+    assign_teams();
+}
 
-MatchManager :: class {
-    start_countdown :: method() {
-        match_state = .COUNTDOWN;
-        round_timer = 5.0;
-    }
+stop_match :: proc() {
+    match_state = .WAITING;
+    round_timer = 0;
+    match_countdown = 0;
+}
 
-    start_round :: method() {
-        current_round += 1;
-        match_state = .PLAYING;
-        round_timer = config.round_time;
-        sudden_death_active = false;
-        assign_teams();
-    }
-
-    assign_teams :: method() {
-        players: [..]string;
-        for p: player_iterator() { players.append(p.get_user_id()); }
-        if players.count == 0 return;
-
-        players = shuffle(players);
-        freezer_count := max(1, (players.count * config.freezer_ratio).(int));
-        if freezer_count >= players.count { freezer_count = 1; }
-
-        for i: 0..<players.count {
-            team_assignments[players[i]] = i < freezer_count ? .FREEZERS : .RUNNERS;
+assign_teams :: proc() {
+    first := true;
+    tagger_count = 0;
+    for p: component_iterator(Player) {
+        if first {
+            p.set_tagger();
+            first = false;
+            tagger_count += 1;
+        } else {
+            p.set_runner();
+        }
+        p.freeze_state = .NONE;
+        p.freeze_timer = 0;
+        p.admin_frozen = false;
+        p.round_join_time = get_time();
+        p.entity.set_local_position({18, 0});
+        if p.team == .RUNNERS {
+            teleport_to_runner_spawn(p, false);
+        } else {
+            teleport_to_tagger_spawn(p);
         }
     }
+}
 
-    end_round :: method() {
-        match_state = .ROUND_END;
-        count_frozen();
-        if current_round >= config.rounds_per_match {
-            match_state = .MATCH_END;
-        }
+start_round :: proc() {
+    if current_round <= 0 {
+        current_round = 1;
     }
+    match_state = .PLAYING;
+    round_timer = config.round_time;
+    cinematic_active = false;
+    time_dilation = 1.0;
+}
 
-    count_frozen :: method() {
-        frozen := 0; total := 0;
-        for p: player_iterator() {
-            player := p.(Player);
-            if player.team == .RUNNERS {
-                total += 1;
-                if player.freeze_state != .NONE { frozen += 1; }
+end_round :: proc(team: Team) {
+    winner_team = team;
+    match_state = .ROUND_END;
+    round_end_timer = 5.0;
+    cinematic_active = true;
+    cinematic_timer = 5.0;
+    time_dilation = 0.25;
+
+    for p: component_iterator(Player) {
+        if team == .FREEZERS {
+            if p.team == .FREEZERS {
+                record_match_win(p);
+                award_win_reward(p);
+            }
+        } else {
+            if p.team == .RUNNERS {
+                record_match_win(p);
+                award_win_reward(p);
             }
         }
-        if frozen >= total && total > 0 { freezer_wins += 1; }
-        else { runner_wins += 1; }
     }
 }
 
-match_manager: MatchManager;
+force_tagger_win :: proc() {
+    end_round(.FREEZERS);
+}
 
-shuffle :: proc(list: [..]string) -> [..]string {
-    result: [..]string;
-    for i: 0..<list.count { result.append(list[i]); }
-    for i: 0..<result.count {
-        j := (ao_get_random_seed().(int) & 0x7FFFFFFF) % result.count;
-        temp := result[i]; result[i] = result[j]; result[j] = temp;
+force_runner_win :: proc() {
+    end_round(.RUNNERS);
+}
+
+trigger_shutdown_safety_loop :: proc() {
+    match_state = .SHUTDOWN;
+    shutdown_timer = 3.0;
+    announce("[SERVER UPDATE] Server is restarting for an update. Saving player profiles safely, please wait...", {});
+    for p: component_iterator(Player) {
+        p.admin_frozen = true;
     }
-    return result;
+}
+
+update_match_manager :: proc(dt: float) {
+    if match_state == .SHUTDOWN {
+        shutdown_timer -= dt;
+        if shutdown_timer <= 0 {
+            for p: component_iterator(Player) {
+                p.save_profile();
+            }
+            shutdown_timer = 0;
+        }
+        return;
+    }
+
+    if match_state == .WAITING {
+        if get_player_count() >= config.min_players {
+            match_state = .COUNTDOWN;
+            match_countdown = 3.0;
+        }
+        return;
+    }
+
+    if match_state == .COUNTDOWN {
+        match_countdown -= dt;
+        if match_countdown <= 0 {
+            start_round();
+        }
+        return;
+    }
+
+    if match_state == .PLAYING {
+        round_timer -= dt;
+        if round_timer <= 0 {
+            force_runner_win();
+        }
+
+        frozen_runners := 0;
+        runner_total := 0;
+        for p: component_iterator(Player) {
+            if p.team == .RUNNERS {
+                runner_total += 1;
+                if p.freeze_state == .FULL || p.freeze_state == .PERMAFROST {
+                    frozen_runners += 1;
+                }
+            }
+        }
+
+        if runner_total > 0 && frozen_runners == runner_total {
+            force_tagger_win();
+        }
+        return;
+    }
+
+    if match_state == .ROUND_END {
+        round_end_timer -= dt;
+        cinematic_timer -= dt;
+        if round_end_timer <= 0 {
+            current_round += 1;
+            load_next_map();
+            assign_teams();
+            match_state = .COUNTDOWN;
+            match_countdown = 3.0;
+            time_dilation = 1.0;
+            cinematic_active = false;
+        }
+    }
 }

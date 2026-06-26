@@ -1,0 +1,983 @@
+{
+"skeleton": { "hash": "TyW86avT0dk", "spine": "4.0.64", "x": -469.97, "y": -163.77, "width": 675.82, "height": 387 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "command_master", "parent": "root" },
+	{ "name": "pointer_controller", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller2", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller3", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller4", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller5", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller6", "parent": "root", "x": -452.97 },
+	{ "name": "pointer_controller7", "parent": "root", "x": -452.97 }
+],
+"slots": [
+	{ "name": "command_center/command_center", "bone": "command_master", "attachment": "command_center/command_center" },
+	{ "name": "command_center_shared_assets/hud/screen_green", "bone": "command_master", "attachment": "command_center_shared_assets/hud/screen_green" },
+	{ "name": "command_center_shared_assets/hud/screen_red", "bone": "command_master", "attachment": "command_center_shared_assets/hud/screen_red" },
+	{ "name": "command_center_shared_assets/hud/command_center_redglow", "bone": "command_master", "attachment": "command_center_shared_assets/hud/command_center_redglow" },
+	{ "name": "command_center_shared_assets/hud/command_center_greenglow", "bone": "command_master", "attachment": "command_center_shared_assets/hud/command_center_greenglow" },
+	{ "name": "command_center_shared_assets/hud/echo_location", "bone": "command_master" },
+	{ "name": "command_center_shared_assets/hud/pointer", "bone": "pointer_controller", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer2", "bone": "pointer_controller2", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer3", "bone": "pointer_controller3", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer4", "bone": "pointer_controller4", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer5", "bone": "pointer_controller5", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer6", "bone": "pointer_controller6", "attachment": "command_center_shared_assets/hud/pointer" },
+	{ "name": "command_center_shared_assets/hud/pointer7", "bone": "pointer_controller7", "attachment": "command_center_shared_assets/hud/pointer" }
+],
+"skins": [
+	{
+		"name": "command_center",
+		"attachments": {
+			"command_center/command_center": {
+				"command_center/command_center": { "x": 2.85, "y": -47.27, "width": 256, "height": 233 }
+			},
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"command_center_shared_assets/hud/command_center_greenglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/command_center_redglow": {
+				"command_center_shared_assets/hud/command_center_redglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"command_center_shared_assets/hud/echo_location": { "x": -516.15, "y": -31.77, "width": 171, "height": 170 }
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"command_center_shared_assets/hud/screen_green": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"command_center_shared_assets/hud/screen_red": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			}
+		}
+	},
+	{
+		"name": "ruster_command_center",
+		"attachments": {
+			"command_center/command_center": {
+				"command_center/command_center": { "name": "rusted_command_center/command_center", "x": 2.85, "y": -47.27, "width": 256, "height": 233 }
+			},
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"command_center_shared_assets/hud/command_center_greenglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/command_center_redglow": {
+				"command_center_shared_assets/hud/command_center_redglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"command_center_shared_assets/hud/echo_location": { "x": -516.15, "y": -31.77, "width": 171, "height": 170 }
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"command_center_shared_assets/hud/screen_green": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"command_center_shared_assets/hud/screen_red": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			}
+		}
+	},
+	{
+		"name": "upgraded_command_center",
+		"attachments": {
+			"command_center/command_center": {
+				"command_center/command_center": { "name": "upgraded_command_center/command_center", "x": 2.85, "y": -47.27, "width": 256, "height": 233 }
+			},
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"command_center_shared_assets/hud/command_center_greenglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/command_center_redglow": {
+				"command_center_shared_assets/hud/command_center_redglow": { "x": -3.65, "y": 66.73, "width": 419, "height": 313 }
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"command_center_shared_assets/hud/echo_location": { "x": -516.15, "y": -31.77, "width": 171, "height": 170 }
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"command_center_shared_assets/hud/pointer": { "width": 34, "height": 36 }
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"command_center_shared_assets/hud/screen_green": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"command_center_shared_assets/hud/screen_red": { "x": 3.35, "y": -30.27, "width": 187, "height": 117 }
+			}
+		}
+	}
+],
+"animations": {
+	"017RAIN/Idle": {
+		"slots": {
+			"command_center_shared_assets/hud/echo_location": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.0167, "name": "command_center_shared_assets/hud/screen_green" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0167, "name": null }
+				]
+			}
+		},
+		"bones": {
+			"command_master": {
+				"translate": [
+					{ "y": -2.11, "curve": "stepped" },
+					{ "time": 0.0167, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.35, "y": -2.11 }
+				]
+			}
+		}
+	},
+	"017RAIN/Red_Alert_Activate": {
+		"slots": {
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"attachment": [
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.1, "name": null },
+					{ "time": 0.65, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": null },
+					{ "time": 0.65, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.2833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.65, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.2833, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.3833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.3, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.2833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.1667, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"rgba": [
+					{ "time": 0.4667, "color": "ffffffff" },
+					{ "time": 0.55, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.65, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.05, "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.65, "name": "command_center_shared_assets/hud/screen_green" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.0333, "name": "command_center_shared_assets/hud/screen_red" },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.1, "name": "command_center_shared_assets/hud/screen_red" },
+					{ "time": 0.65, "name": "command_center_shared_assets/hud/screen_red" }
+				]
+			}
+		},
+		"bones": {
+			"command_master": {
+				"translate": [
+					{ "y": -2.11, "curve": "stepped" },
+					{ "time": 0.05, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.1, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.65, "y": -2.11 }
+				]
+			},
+			"pointer_controller": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 452.51,
+						"y": -32.22,
+						"curve": [ 0.128, 453.34, 0.156, 453.85, 0.128, -35.77, 0.156, -38.34 ]
+					},
+					{ "time": 0.1833, "x": 453.85, "y": -38.34, "curve": "stepped" },
+					{
+						"time": 0.2833,
+						"x": 427.51,
+						"y": 5.3,
+						"curve": [ 0.356, 427.51, 0.428, 441.23, 0.356, 5.3, 0.428, -4.19 ]
+					},
+					{
+						"time": 0.5,
+						"x": 445.46,
+						"y": -11.2,
+						"curve": [ 0.55, 448.39, 0.6, 451, 0.55, -16.05, 0.6, -25.82 ]
+					},
+					{ "time": 0.65, "x": 452.51, "y": -32.22 }
+				]
+			},
+			"pointer_controller2": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 405.24,
+						"y": -19.09,
+						"curve": [ 0.172, 405.24, 0.244, 422.44, 0.172, -19.09, 0.244, -23.63 ]
+					},
+					{
+						"time": 0.3167,
+						"x": 430.29,
+						"y": -26.65,
+						"curve": [ 0.394, 438.75, 0.472, 454.15, 0.394, -29.9, 0.472, -37.91 ]
+					},
+					{ "time": 0.55, "x": 454.15, "y": -37.91, "curve": "stepped" },
+					{ "time": 0.65, "x": 405.24, "y": -19.09 }
+				]
+			},
+			"pointer_controller3": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 426.12,
+						"y": -42,
+						"curve": [ 0.134, 432.96, 0.167, 440.67, 0.134, -40.58, 0.167, -39.33 ]
+					},
+					{
+						"time": 0.2,
+						"x": 446.2,
+						"y": -38.49,
+						"curve": [ 0.227, 450.58, 0.254, 453.73, 0.227, -37.83, 0.254, -37.41 ]
+					},
+					{ "time": 0.2833, "x": 453.73, "y": -37.41, "curve": "stepped" },
+					{
+						"time": 0.3833,
+						"x": 388.26,
+						"y": -56.22,
+						"curve": [ 0.45, 388.26, 0.533, 407.66, 0.45, -56.22, 0.533, -46.89 ]
+					},
+					{
+						"time": 0.6,
+						"x": 417.36,
+						"y": -44.1,
+						"curve": [ 0.617, 419.88, 0.634, 422.9, 0.617, -43.37, 0.634, -42.67 ]
+					},
+					{ "time": 0.65, "x": 426.12, "y": -42 }
+				]
+			},
+			"pointer_controller4": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 447.81,
+						"y": -39.83,
+						"curve": [ 0.134, 451.17, 0.167, 453.85, 0.134, -38.74, 0.167, -38.06 ]
+					},
+					{ "time": 0.2, "x": 453.85, "y": -38.06, "curve": "stepped" },
+					{
+						"time": 0.3,
+						"x": 427.51,
+						"y": -63.65,
+						"curve": [ 0.372, 427.51, 0.444, 430.7, 0.372, -63.65, 0.444, -50.17 ]
+					},
+					{
+						"time": 0.5167,
+						"x": 434.93,
+						"y": -46.06,
+						"curve": [ 0.561, 437.54, 0.606, 443.31, 0.561, -43.53, 0.606, -41.3 ]
+					},
+					{ "time": 0.65, "x": 447.81, "y": -39.83 }
+				]
+			},
+			"pointer_controller5": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 457.57,
+						"y": -39.05,
+						"curve": [ 0.128, 455.54, 0.156, 454.15, 0.128, -38.59, 0.156, -38.37 ]
+					},
+					{ "time": 0.1833, "x": 454.15, "y": -38.37, "curve": "stepped" },
+					{
+						"time": 0.2833,
+						"x": 493.28,
+						"y": -64.71,
+						"curve": [ 0.356, 493.28, 0.428, 477.71, 0.356, -64.71, 0.428, -48.73 ]
+					},
+					{
+						"time": 0.5,
+						"x": 471.43,
+						"y": -44.5,
+						"curve": [ 0.55, 467.08, 0.6, 461.22, 0.55, -41.57, 0.6, -39.89 ]
+					},
+					{ "time": 0.65, "x": 457.57, "y": -39.05 }
+				]
+			},
+			"pointer_controller6": {
+				"translate": [
+					{ "time": 0.1, "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.1667, "x": 524.05, "y": -56.22 },
+					{ "time": 0.3833, "x": 485.08, "y": -41.12 },
+					{ "time": 0.6167, "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.65, "x": 454.06, "y": -38.92 }
+				]
+			},
+			"pointer_controller7": {
+				"translate": [
+					{
+						"time": 0.1,
+						"x": 516.62,
+						"y": -2.12,
+						"curve": [ 0.173, 516.62, 0.245, 501.37, 0.173, -2.12, 0.245, -7.35 ]
+					},
+					{
+						"time": 0.3167,
+						"x": 487.02,
+						"y": -15.16,
+						"curve": [ 0.395, 471.68, 0.473, 457.17, 0.395, -23.51, 0.473, -34.48 ]
+					},
+					{ "time": 0.55, "x": 457.17, "y": -34.48, "curve": "stepped" },
+					{ "time": 0.65, "x": 516.62, "y": -2.12 }
+				]
+			}
+		}
+	},
+	"017RAIN/Red_Alert_Loop": {
+		"slots": {
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.55, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.55, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"attachment": [
+					{ "time": 0.1833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.55, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"attachment": [
+					{ "time": 0.1833, "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.2833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"attachment": [
+					{ "time": 0.2, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"attachment": [
+					{ "time": 0.1833, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"attachment": [
+					{ "time": 0.0667, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"rgba": [
+					{ "time": 0.3667, "color": "ffffffff" },
+					{ "time": 0.45, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.55, "name": "command_center_shared_assets/hud/pointer" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.55, "name": "command_center_shared_assets/hud/screen_green" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_red" },
+					{ "time": 0.55, "name": "command_center_shared_assets/hud/screen_red" }
+				]
+			}
+		},
+		"bones": {
+			"command_master": {
+				"translate": [
+					{ "y": -2.11, "curve": "stepped" },
+					{ "time": 0.55, "y": -2.11 }
+				]
+			},
+			"pointer_controller": {
+				"translate": [
+					{
+						"x": 452.51,
+						"y": -32.22,
+						"curve": [ 0.028, 453.34, 0.056, 453.85, 0.028, -35.77, 0.056, -38.34 ]
+					},
+					{ "time": 0.0833, "x": 453.85, "y": -38.34, "curve": "stepped" },
+					{
+						"time": 0.1833,
+						"x": 427.51,
+						"y": 5.3,
+						"curve": [ 0.256, 427.51, 0.328, 441.23, 0.256, 5.3, 0.328, -4.19 ]
+					},
+					{
+						"time": 0.4,
+						"x": 445.46,
+						"y": -11.2,
+						"curve": [ 0.45, 448.39, 0.5, 451, 0.45, -16.05, 0.5, -25.82 ]
+					},
+					{ "time": 0.55, "x": 452.51, "y": -32.22 }
+				]
+			},
+			"pointer_controller2": {
+				"translate": [
+					{
+						"x": 405.24,
+						"y": -19.09,
+						"curve": [ 0.072, 405.24, 0.144, 422.44, 0.072, -19.09, 0.144, -23.63 ]
+					},
+					{
+						"time": 0.2167,
+						"x": 430.29,
+						"y": -26.65,
+						"curve": [ 0.294, 438.75, 0.372, 454.15, 0.294, -29.9, 0.372, -37.91 ]
+					},
+					{ "time": 0.45, "x": 454.15, "y": -37.91, "curve": "stepped" },
+					{ "time": 0.55, "x": 405.24, "y": -19.09 }
+				]
+			},
+			"pointer_controller3": {
+				"translate": [
+					{
+						"x": 426.12,
+						"y": -42,
+						"curve": [ 0.034, 432.96, 0.067, 440.67, 0.034, -40.58, 0.067, -39.33 ]
+					},
+					{
+						"time": 0.1,
+						"x": 446.2,
+						"y": -38.49,
+						"curve": [ 0.127, 450.58, 0.154, 453.73, 0.127, -37.83, 0.154, -37.41 ]
+					},
+					{ "time": 0.1833, "x": 453.73, "y": -37.41, "curve": "stepped" },
+					{
+						"time": 0.2833,
+						"x": 388.26,
+						"y": -56.22,
+						"curve": [ 0.35, 388.26, 0.433, 407.66, 0.35, -56.22, 0.433, -46.89 ]
+					},
+					{
+						"time": 0.5,
+						"x": 417.36,
+						"y": -44.1,
+						"curve": [ 0.517, 419.88, 0.534, 422.9, 0.517, -43.37, 0.534, -42.67 ]
+					},
+					{ "time": 0.55, "x": 426.12, "y": -42 }
+				]
+			},
+			"pointer_controller4": {
+				"translate": [
+					{
+						"x": 447.81,
+						"y": -39.83,
+						"curve": [ 0.034, 451.17, 0.067, 453.85, 0.034, -38.74, 0.067, -38.06 ]
+					},
+					{ "time": 0.1, "x": 453.85, "y": -38.06, "curve": "stepped" },
+					{
+						"time": 0.2,
+						"x": 427.51,
+						"y": -63.65,
+						"curve": [ 0.272, 427.51, 0.344, 430.7, 0.272, -63.65, 0.344, -50.17 ]
+					},
+					{
+						"time": 0.4167,
+						"x": 434.93,
+						"y": -46.06,
+						"curve": [ 0.461, 437.54, 0.506, 443.31, 0.461, -43.53, 0.506, -41.3 ]
+					},
+					{ "time": 0.55, "x": 447.81, "y": -39.83 }
+				]
+			},
+			"pointer_controller5": {
+				"translate": [
+					{
+						"x": 457.57,
+						"y": -39.05,
+						"curve": [ 0.028, 455.54, 0.056, 454.15, 0.028, -38.59, 0.056, -38.37 ]
+					},
+					{ "time": 0.0833, "x": 454.15, "y": -38.37, "curve": "stepped" },
+					{
+						"time": 0.1833,
+						"x": 493.28,
+						"y": -64.71,
+						"curve": [ 0.256, 493.28, 0.328, 477.71, 0.256, -64.71, 0.328, -48.73 ]
+					},
+					{
+						"time": 0.4,
+						"x": 471.43,
+						"y": -44.5,
+						"curve": [ 0.45, 467.08, 0.5, 461.22, 0.45, -41.57, 0.5, -39.89 ]
+					},
+					{ "time": 0.55, "x": 457.57, "y": -39.05 }
+				]
+			},
+			"pointer_controller6": {
+				"translate": [
+					{ "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.0667, "x": 524.05, "y": -56.22 },
+					{ "time": 0.2833, "x": 485.08, "y": -41.12 },
+					{ "time": 0.5167, "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.55, "x": 454.06, "y": -38.92 }
+				]
+			},
+			"pointer_controller7": {
+				"translate": [
+					{
+						"x": 516.62,
+						"y": -2.12,
+						"curve": [ 0.073, 516.62, 0.145, 501.37, 0.073, -2.12, 0.145, -7.35 ]
+					},
+					{
+						"time": 0.2167,
+						"x": 487.02,
+						"y": -15.16,
+						"curve": [ 0.295, 471.68, 0.373, 457.17, 0.295, -23.51, 0.373, -34.48 ]
+					},
+					{ "time": 0.45, "x": 457.17, "y": -34.48, "curve": "stepped" },
+					{ "time": 0.55, "x": 516.62, "y": -2.12 }
+				]
+			}
+		}
+	},
+	"017RAIN/Red_Alert_Outro": {
+		"slots": {
+			"command_center_shared_assets/hud/command_center_greenglow": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.05, "name": "command_center_shared_assets/hud/command_center_greenglow" },
+					{ "time": 0.0833, "name": null },
+					{ "time": 0.1167, "name": "command_center_shared_assets/hud/command_center_greenglow" }
+				]
+			},
+			"command_center_shared_assets/hud/command_center_redglow": {
+				"attachment": [
+					{ "time": 0.1167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/echo_location": {
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer": {
+				"attachment": [
+					{ "time": 0.0833, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer2": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer3": {
+				"attachment": [
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null },
+					{ "time": 0.1167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer4": {
+				"attachment": [
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null },
+					{ "time": 0.1167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer5": {
+				"attachment": [
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null },
+					{ "time": 0.1167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer6": {
+				"attachment": [
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null },
+					{ "time": 0.1167, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/pointer7": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/pointer" },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": null }
+				]
+			},
+			"command_center_shared_assets/hud/screen_green": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_green" },
+					{ "time": 0.05, "name": "command_center_shared_assets/hud/screen_green" }
+				]
+			},
+			"command_center_shared_assets/hud/screen_red": {
+				"attachment": [
+					{ "name": "command_center_shared_assets/hud/screen_red" },
+					{ "time": 0.05, "name": null },
+					{ "time": 0.0833, "name": "command_center_shared_assets/hud/screen_red" },
+					{ "time": 0.1167, "name": null },
+					{ "time": 0.1667, "name": null }
+				]
+			}
+		},
+		"bones": {
+			"command_master": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{ "y": -2.11, "curve": "stepped" },
+					{ "time": 0.05, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.1167, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.1667, "y": -2.11, "curve": "stepped" },
+					{ "time": 0.3333, "y": -2.11 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 452.51,
+						"y": -32.22,
+						"curve": [ 0.017, 453.01, 0.033, 453.39, 0.017, -34.35, 0.033, -36.13 ]
+					},
+					{
+						"time": 0.05,
+						"x": 453.62,
+						"y": -37.21,
+						"curve": [ 0.067, 453.85, 0.1, 453.39, 0.067, -38.29, 0.1, -36.13 ]
+					},
+					{ "time": 0.1167, "x": 453.62, "y": -37.21 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller2": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 405.24,
+						"y": -19.09,
+						"curve": [ 0.017, 405.24, 0.034, 406.19, 0.017, -19.09, 0.034, -19.35 ]
+					},
+					{
+						"time": 0.05,
+						"x": 407.73,
+						"y": -19.76,
+						"curve": [ 0.066, 409.26, 0.1, 406.19, 0.066, -20.18, 0.1, -19.35 ]
+					},
+					{ "time": 0.1167, "x": 407.73, "y": -19.76 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller3": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 426.12,
+						"y": -42,
+						"curve": [ 0.017, 429.51, 0.034, 433.09, 0.017, -41.29, 0.034, -40.64 ]
+					},
+					{
+						"time": 0.05,
+						"x": 436.54,
+						"y": -40.04,
+						"curve": [ 0.066, 439.99, 0.1, 433.09, 0.066, -39.45, 0.1, -40.64 ]
+					},
+					{ "time": 0.1167, "x": 436.54, "y": -40.04 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller4": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 447.81,
+						"y": -39.83,
+						"curve": [ 0.017, 449.49, 0.034, 450.99, 0.017, -39.29, 0.034, -38.85 ]
+					},
+					{
+						"time": 0.05,
+						"x": 452.08,
+						"y": -38.54,
+						"curve": [ 0.066, 453.17, 0.1, 450.99, 0.066, -38.24, 0.1, -38.85 ]
+					},
+					{ "time": 0.1167, "x": 452.08, "y": -38.54 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller5": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 457.57,
+						"y": -39.05,
+						"curve": [ 0.017, 456.35, 0.033, 455.36, 0.017, -38.78, 0.033, -38.59 ]
+					},
+					{
+						"time": 0.05,
+						"x": 454.77,
+						"y": -38.48,
+						"curve": [ 0.067, 454.18, 0.1, 455.36, 0.067, -38.37, 0.1, -38.59 ]
+					},
+					{ "time": 0.1167, "x": 454.77, "y": -38.48 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller6": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{ "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.05, "x": 454.06, "y": -38.92, "curve": "stepped" },
+					{ "time": 0.1167, "x": 454.06, "y": -38.92 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"pointer_controller7": {
+				"rotate": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				],
+				"translate": [
+					{
+						"x": 516.62,
+						"y": -2.12,
+						"curve": [ 0.017, 516.62, 0.033, 515.75, 0.017, -2.12, 0.033, -2.43 ]
+					},
+					{
+						"time": 0.05,
+						"x": 514.33,
+						"y": -2.95,
+						"curve": [ 0.067, 512.91, 0.1, 515.75, 0.067, -3.47, 0.1, -2.43 ]
+					},
+					{ "time": 0.1167, "x": 514.33, "y": -2.95 }
+				],
+				"scale": [
+					{ "time": 0.05, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			}
+		}
+	}
+}
+}

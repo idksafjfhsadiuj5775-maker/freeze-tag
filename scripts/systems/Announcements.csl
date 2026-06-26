@@ -1,0 +1,52 @@
+import "core:ao"
+
+Announcement :: struct {
+    message: string;
+    timer: float;
+    duration: float;
+}
+
+announcements: [..]Announcement;
+
+announce :: proc(msg: string, args: [^]any = {}) {
+    entry: Announcement;
+    entry.message = format_string(msg, args);
+    entry.timer = 3.0;
+    entry.duration = 3.0;
+    announcements.append(entry);
+}
+
+update_announcements :: proc(dt: float) {
+    i: int = announcements.count - 1;
+    while i >= 0 {
+        announcements[i].timer -= dt;
+        if announcements[i].timer <= 0 {
+            announcements.ordered_remove_by_index(i);
+        }
+        i -= 1;
+    }
+}
+
+draw_announcements :: proc() {
+    ts := UI.default_text_settings();
+    ts.size = 18;
+    ts.color = {1, 1, 1, 1};
+    ts.halign = .CENTER;
+    ts.valign = .CENTER;
+
+    screen := UI.get_screen_rect();
+    base := screen.top_center_rect().offset(0, -18);
+    for i: 0..<announcements.count {
+        msg := announcements[i];
+        alpha := msg.timer / msg.duration;
+        if alpha < 0 {
+            alpha = 0;
+        }
+        if alpha > 1 {
+            alpha = 1;
+        }
+        ts.color = {1, 1, 1, alpha};
+        rect := base.offset(0, -i.(float) * 22);
+        UI.text(rect, ts, msg.message, {});
+    }
+}

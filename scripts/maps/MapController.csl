@@ -1,0 +1,27 @@
+import "core:ao"
+
+Map_Controller :: class : Component {
+    frost_root: Entity @ao_serialize;
+    volcano_root: Entity @ao_serialize;
+    space_root: Entity @ao_serialize;
+
+    ao_start :: method() {
+        this.sync_active_map();
+    }
+
+    ao_update :: method(dt: float) {
+        this.sync_active_map();
+    }
+
+    sync_active_map :: method() {
+        if #alive(this.frost_root) {
+            this.frost_root.set_local_enabled(current_map_name == "Neon Frost Playground");
+        }
+        if #alive(this.volcano_root) {
+            this.volcano_root.set_local_enabled(current_map_name == "Volcanic Extraction Factory");
+        }
+        if #alive(this.space_root) {
+            this.space_root.set_local_enabled(current_map_name == "Space Station Sector-7");
+        }
+    }
+}

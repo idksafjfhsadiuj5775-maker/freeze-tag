@@ -1,0 +1,5 @@
+test_store_open :: proc() {
+    Test.run_admin_command("admin_showstore");
+    Test.wait_frames(4);
+    Test.screenshot("monetization_store_open");
+}

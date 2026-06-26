@@ -3,24 +3,45 @@
 // ============================================================================
 
 GameConfig :: struct {
-    round_time: float = 120.0;
-    freeze_duration: float = 15.0;
-    rescue_time: float = 2.0;
-    min_players: int = 2;
-    max_players: int = 16;
-    freezer_ratio: float = 0.3;
-    powerup_interval: float = 10.0;
-    sudden_death_enabled: bool = true;
-    overtime_enabled: bool = true;
-    rounds_per_match: int = 5;
-    score_to_win: int = 3;
-    arena_width: float = 44;
-    arena_height: float = 34;
-    spawn_padding: float = 2;
-    player_base_speed: float = 5.0;
-    invincibility_after_rescue: float = 2.0;
-    rescue_range: float = 1.5;
-    tag_range: float = 1.5;
+    round_time: float;
+    freeze_duration: float;
+    rescue_time: float;
+    min_players: int;
+    max_players: int;
+    freezer_ratio: float;
+    powerup_interval: float;
+    sudden_death_enabled: bool;
+    overtime_enabled: bool;
+    rounds_per_match: int;
+    score_to_win: int;
+    arena_width: float;
+    arena_height: float;
+    spawn_padding: float;
+    player_base_speed: float;
+    invincibility_after_rescue: float;
+    rescue_range: float;
+    tag_range: float;
 }
 
 config: GameConfig;
+
+init_game_config :: proc() {
+    config.round_time = 120.0;
+    config.freeze_duration = 15.0;
+    config.rescue_time = 2.0;
+    config.min_players = 2;
+    config.max_players = 16;
+    config.freezer_ratio = 0.3;
+    config.powerup_interval = 10.0;
+    config.sudden_death_enabled = true;
+    config.overtime_enabled = true;
+    config.rounds_per_match = 5;
+    config.score_to_win = 3;
+    config.arena_width = 44;
+    config.arena_height = 34;
+    config.spawn_padding = 2;
+    config.player_base_speed = 5.0;
+    config.invincibility_after_rescue = 2.0;
+    config.rescue_range = 1.5;
+    config.tag_range = 1.5;
+}

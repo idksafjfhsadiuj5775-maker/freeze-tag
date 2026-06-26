@@ -1,77 +1,172 @@
-// ============================================================================
-// DebugCommands - Testing and admin commands
-// ============================================================================
+import "core:ao"
 
-execute_command :: proc(player: Player, cmd: string) {
-    if !player.is_admin() && !player.is_vip() && !player.is_moderator() {
-        announce("No permission!", {}); return;
+is_admin_allowed :: proc(player: Player) -> bool {
+    if player.get_username() == "MochiMoch" {
+        return true;
     }
+    key := format_string("admin_whitelist_%", {player.get_user_id()});
+    return Save.get_game_string(key, "") == "1";
+}
 
-    parts := split(cmd, " ");
-    if parts.count == 0 return;
-
-    switch parts[0] {
-        case "/start": match_manager.start_countdown();
-        case "/end": match_manager.end_round();
-        case "/freeze": {
-            target := get_player_by_username(parts.count > 1 ? parts[1] : player.get_username());
-            if target != null { target.freeze_state = .FULL; target.freeze_timer = 999; }
-        }
-        case "/unfreeze": {
-            target := get_player_by_username(parts.count > 1 ? parts[1] : player.get_username());
-            if target != null { target.freeze_state = .NONE; target.freeze_timer = 0; }
-        }
-        case "/coins": {
-            if parts.count > 1 {
-                Economy.deposit(player, "coins", parse_int(parts[1]).(s64));
-            }
-        }
-        case "/gems": {
-            if parts.count > 1 {
-                Economy.deposit(player, "gems", parse_int(parts[1]).(s64));
-            }
-        }
-        case "/level": {
-            if parts.count > 1 {
-                level := parse_int(parts[1]).(int);
-                Save.set_int(player, "level", level.(s64));
-                announce("Level set to %!", {level});
-            }
-        }
-        case "/skin": {
-            if parts.count > 1 {
-                player.selected_skin = parts[1];
-                Save.set_string(player, "selected_skin", parts[1]);
-                announce("Skin set to %!", {parts[1]});
-            }
-        }
-        case "/help": {
-            announce("Commands: /start, /end, /freeze, /unfreeze, /coins, /gems, /level, /skin", {});
-        }
-        default: announce("Unknown command!", {});
+set_whitelist :: proc(target: Player, enabled: bool) {
+    key := format_string("admin_whitelist_%", {target.get_user_id()});
+    if enabled {
+        Save.set_game_string(key, "1");
+    } else {
+        Save.set_game_string(key, "");
     }
 }
 
-split :: proc(s: string, delim: string) -> [..]string {
-    result: [..]string; current: string;
-    for c: s {
-        if c == delim[0] { result.append(current); current = ""; }
-        else { current += c; }
+parse_int :: proc(value: string) -> s64 {
+    sign: s64 = 1;
+    index: int = 0;
+    result: s64 = 0;
+    if value.count > 0 && value[0] == '-' {
+        sign = -1;
+        index = 1;
     }
-    result.append(current);
-    return result;
-}
-
-parse_int :: proc(s: string) -> int {
-    result: int; sign: int = 1; start: int = 0;
-    if s[0] == '-' { sign = -1; start = 1; }
-    for i: start..<s.count { result = result * 10 + (s[i] - '0'); }
+    while index < value.count {
+        c := value[index];
+        if c >= '0' && c <= '9' {
+            result = result * 10 + (c - '0').(s64);
+        }
+        index += 1;
+    }
     return result * sign;
 }
 
-get_player_by_username :: proc(username: string) -> Player {
-    for p: player_iterator() {
-        if p.get_username() == username { return p.(Player); }
+command_guard :: proc(player: Player) -> bool {
+    if is_admin_allowed(player) {
+        return true;
     }
-    return null;
+    announce("Admin only.", {});
+    return false;
 }
+
+admin_start :: proc(player: Player) {
+    if !command_guard(player) return;
+    start_match();
+} @chat_command @any
+
+admin_stop :: proc(player: Player) {
+    if !command_guard(player) return;
+    stop_match();
+} @chat_command @any
+
+admin_forcetaggerwin :: proc(player: Player) {
+    if !command_guard(player) return;
+    force_tagger_win();
+} @chat_command @any
+
+admin_forcerunnerwin :: proc(player: Player) {
+    if !command_guard(player) return;
+    force_runner_win();
+} @chat_command @any
+
+admin_loadmapfrost :: proc(player: Player) {
+    if !command_guard(player) return;
+    load_map("Neon Frost Playground");
+} @chat_command @any
+
+admin_loadmapvolcano :: proc(player: Player) {
+    if !command_guard(player) return;
+    load_map("Volcanic Extraction Factory");
+} @chat_command @any
+
+admin_loadmapspace :: proc(player: Player) {
+    if !command_guard(player) return;
+    load_map("Space Station Sector-7");
+} @chat_command @any
+
+admin_nextmap :: proc(player: Player) {
+    if !command_guard(player) return;
+    load_next_map();
+} @chat_command @any
+
+admin_togglelasers :: proc(player: Player) {
+    if !command_guard(player) return;
+    toggle_lasers();
+} @chat_command @any
+
+admin_toggleicepatches :: proc(player: Player) {
+    if !command_guard(player) return;
+    toggle_ice_patches();
+} @chat_command @any
+
+admin_cleartraps :: proc(player: Player) {
+    if !command_guard(player) return;
+    clear_traps();
+} @chat_command @any
+
+admin_setgravity :: proc(player: Player, value: float) {
+    if !command_guard(player) return;
+    set_match_gravity(value);
+} @chat_command @any
+
+admin_ambientcolor :: proc(player: Player, hex: string) {
+    if !command_guard(player) return;
+    set_ambient_color_from_hex(hex);
+} @chat_command @any
+
+admin_fogdensity :: proc(player: Player, value: float) {
+    if !command_guard(player) return;
+    set_fog_density(value);
+} @chat_command @any
+
+admin_settimeleft :: proc(player: Player, seconds: int) {
+    if !command_guard(player) return;
+    set_round_time_left(seconds.(float));
+} @chat_command @any
+
+admin_resetleaderboard :: proc(player: Player) {
+    if !command_guard(player) return;
+    reset_leaderboard();
+} @chat_command @any
+
+admin_clearallwallets :: proc(player: Player) {
+    if !command_guard(player) return;
+    clear_all_wallets();
+} @chat_command @any
+
+admin_togglesounds :: proc(player: Player) {
+    if !command_guard(player) return;
+    toggle_sounds();
+} @chat_command @any
+
+admin_showstore :: proc(player: Player) {
+    if !command_guard(player) return;
+    player.show_monetization_store = true;
+} @chat_command @any
+
+admin_hidestore :: proc(player: Player) {
+    if !command_guard(player) return;
+    player.show_monetization_store = false;
+} @chat_command @any
+
+admin_setwins :: proc(player: Player, wins: int) {
+    if !command_guard(player) return;
+    player.lifetime_wins = wins;
+    Save.set_int(player, "lifetime_wins", wins.(s64));
+    sync_badge_tier(player);
+    player.apply_win_cosmetic();
+} @chat_command @any
+
+reset_leaderboard :: proc() {
+}
+
+admin_whitelist :: proc(player: Player, target: Player) {
+    if !command_guard(player) return;
+    set_whitelist(target, true);
+    announce("% whitelisted %", {player.get_username(), target.get_username()});
+} @chat_command @any
+
+admin_unwhitelist :: proc(player: Player, target: Player) {
+    if !command_guard(player) return;
+    set_whitelist(target, false);
+    announce("% removed % from whitelist", {player.get_username(), target.get_username()});
+} @chat_command @any
+
+admin_forceshutdownloop :: proc(player: Player) {
+    if !command_guard(player) return;
+    trigger_shutdown_safety_loop();
+} @chat_command @any

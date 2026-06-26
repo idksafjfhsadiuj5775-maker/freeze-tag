@@ -1,0 +1,65 @@
+import "core:ao"
+
+Monetization_Product :: struct {
+    id: string;
+    name: string;
+    price: s64;
+}
+
+get_monetization_products :: proc() -> [..]Monetization_Product {
+    #static products: [..]Monetization_Product;
+    #static initted: bool;
+    if !initted {
+        initted = true;
+        products.append(Monetization_Product{"6a3557ca4da8f6e90b0f65e7", "Speed Juice", 10});
+        products.append(Monetization_Product{"6a3558494da8f6e90b0f6675", "Small Coin Pouch", 15});
+        products.append(Monetization_Product{"6a35586b4e794e91c3c6f287", "Handful of Coins", 10});
+        products.append(Monetization_Product{"6a3558856f9a2607e8d33288", "Coin Pouch", 25});
+        products.append(Monetization_Product{"6a3558a04da8f6e90b0f66cb", "Coin Purse", 50});
+        products.append(Monetization_Product{"6a3558b44e794e91c3c6f2f1", "Bucket of Coins", 100});
+        products.append(Monetization_Product{"6a3559214e794e91c3c6f390", "Treasure Chest", 250});
+        products.append(Monetization_Product{"6a355b986f9a2607e8d335fc", "VIP Pass", 250});
+        products.append(Monetization_Product{"6a355c4e4f1e9e0a442548d1", "Admin", 2500});
+        products.append(Monetization_Product{"6a355dc9ddd4ffedafc014fc", "Shield", 15});
+        products.append(Monetization_Product{"6a374f5b418c4a72d6fc4a65", "The Freezer", 150});
+        products.append(Monetization_Product{"6a3754a22495b157deb6ef3a", "The UnFreezer", 150});
+        products.append(Monetization_Product{"6a3754c71d261a13d5654c92", "Starter Pack", 50});
+        products.append(Monetization_Product{"6a3754e6781030433c78874b", "Freezer Bundle", 150});
+        products.append(Monetization_Product{"6a37551f781030433c788773", "Runner Bundle", 50});
+        products.append(Monetization_Product{"6a375530781030433c788782", "Legend Bundle", 250});
+        products.append(Monetization_Product{"6a3755bd418c4a72d6fc4dc0", "Air", 5000});
+    }
+    return products;
+}
+
+draw_monetization_window :: proc(player: Player, screen: Rect) {
+    products := get_monetization_products();
+    if products.count == 0 {
+        return;
+    }
+
+    panel := screen.right_center_rect().grow_left(340).grow_top(260).grow_bottom(260);
+    title_rect := panel.top_left_rect().grow_right(300).grow_bottom(24).offset(0, 12);
+    ts := make_hud_text(12, {1, 1, 1, 1});
+    UI.text(title_rect, ts, "Monetization Store", {});
+
+    item_ts := make_hud_text(10, {1, 1, 1, 1});
+    left := title_rect.offset(0, -20);
+    right := left.offset(165, 0);
+    i: int = 0;
+    while i < products.count {
+        meta := products[i];
+        slot := i % 2;
+        col := i / 2;
+        row_offset := col.(float) * 30;
+        row := left.offset(0, -row_offset);
+        if slot == 1 {
+            row = right.offset(0, -row_offset);
+        }
+        row = row.grow_right(150).grow_bottom(22);
+        if UI.button(row, make_button({0.2, 0.18, 0.28, 1}), item_ts, "%\n% Coins", {meta.name, meta.price}).clicked {
+            Purchasing.prompt_purchase(player, meta.id);
+        }
+        i += 1;
+    }
+}

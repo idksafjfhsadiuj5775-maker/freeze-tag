@@ -1,0 +1,28 @@
+4751616c17e4fc91.png
+	size: 456, 836
+	filter: Linear, Linear
+Dream Sparkle (1)
+	bounds: 206, 54, 48, 59
+	offsets: 1, 2, 50, 63
+Dream Sparkle (4)
+	bounds: 150, 10, 13, 12
+	offsets: 1, 1, 15, 14
+Dream Sparkle (5)
+	bounds: 150, 25, 14, 14
+	offsets: 1, 1, 16, 16
+Dream Sparkle (8)
+	bounds: 125, 9, 22, 30
+	offsets: 1, 1, 24, 32
+White Sparkle (2)
+	bounds: 125, 42, 78, 71
+	offsets: 1, 1, 80, 73
+White Sparkle (3)
+	bounds: 3, 3, 110, 119
+	offsets: 1, 1, 112, 121
+	rotate: 90
+icy_patch
+	bounds: 3, 461, 439, 370
+	offsets: 1, 1, 441, 372
+oil_spill
+	bounds: 3, 116, 450, 342
+	offsets: 1, 1, 452, 344

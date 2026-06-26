@@ -1,0 +1,10 @@
+{
+    csl: true
+    projects:
+    [
+        {
+            name: "Freeze Tag Session"
+            id: "6a3553184da8f6e90b0f614b"
+        }
+    ]
+}

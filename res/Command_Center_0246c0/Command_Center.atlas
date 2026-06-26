@@ -1,0 +1,31 @@
+0246c055cfc2e150.png
+	size: 1024, 156
+	filter: Linear, Linear
+	scale: 0.5
+command_center/command_center
+	bounds: 658, 20, 128, 117
+	rotate: 90
+command_center_shared_assets/hud/command_center_greenglow
+	bounds: 209, 6, 197, 142
+	offsets: 7, 0, 210, 157
+command_center_shared_assets/hud/command_center_redglow
+	bounds: 6, 6, 197, 142
+	offsets: 7, 0, 210, 157
+command_center_shared_assets/hud/echo_location
+	bounds: 781, 64, 84, 82
+	offsets: 1, 1, 86, 85
+	rotate: 90
+command_center_shared_assets/hud/pointer
+	bounds: 999, 130, 17, 18
+command_center_shared_assets/hud/screen_green
+	bounds: 934, 54, 94, 59
+	rotate: 90
+command_center_shared_assets/hud/screen_red
+	bounds: 869, 54, 94, 59
+	rotate: 90
+rusted_command_center/command_center
+	bounds: 535, 20, 128, 117
+	rotate: 90
+upgraded_command_center/command_center
+	bounds: 412, 20, 128, 117
+	rotate: 90

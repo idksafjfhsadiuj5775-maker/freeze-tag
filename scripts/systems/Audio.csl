@@ -1,0 +1,51 @@
+import "core:ao"
+
+get_purchase_sfx :: proc() -> SFX_Asset {
+    #static asset := get_asset(SFX_Asset, "drum_ability_high_pitch_13ca1f.wav");
+    return asset;
+}
+
+get_freeze_sfx :: proc() -> SFX_Asset {
+    #static asset := get_asset(SFX_Asset, "use_ice_chest_freeze_d86385.wav");
+    return asset;
+}
+
+get_unfreeze_sfx :: proc() -> SFX_Asset {
+    #static asset := get_asset(SFX_Asset, "thaw_out_b649d2.wav");
+    return asset;
+}
+
+play_purchase_sound :: proc(player: Player) {
+    if !sounds_enabled {
+        return;
+    }
+    desc := SFX.default_sfx_desc();
+    desc.specific_to_player = player;
+    desc.volume = 0.6;
+    desc.speed = 1.0;
+    SFX.play(get_purchase_sfx(), desc);
+}
+
+play_freeze_sound :: proc(target: Player) {
+    if !sounds_enabled {
+        return;
+    }
+    desc := SFX.default_sfx_desc();
+    desc.entity_to_follow = target.entity.id;
+    desc.positional = true;
+    desc.volume = 0.75;
+    desc.speed = 0.95;
+    SFX.play(get_freeze_sfx(), desc);
+}
+
+play_unfreeze_sound :: proc(target: Player) {
+    if !sounds_enabled {
+        return;
+    }
+    desc := SFX.default_sfx_desc();
+    desc.entity_to_follow = target.entity.id;
+    desc.positional = true;
+    desc.volume = 0.7;
+    desc.speed = 1.05;
+    SFX.play(get_unfreeze_sfx(), desc);
+}

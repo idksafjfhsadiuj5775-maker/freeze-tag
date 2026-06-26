@@ -1,121 +1,29 @@
-// ============================================================================
-// Freeze Tag for AllOut - Main Entry Point
-// ============================================================================
-// Game ID: 6a3553184da8f6e90b0f614b
-// ============================================================================
-// To build: Import all files from subdirectories.
-// The game will automatically sync from your GitHub repo.
-// ============================================================================
-
 import "core:ao"
-// ========== GAME CORE ==========
-import "game/GameConfig"
-import "game/MatchManager"
-import "game/GameLoop"
+import "abilities"
+import "effects"
+import "economy"
+import "game"
+import "maps"
+import "progression"
+import "social"
+import "systems"
+import "ui"
 
-// ========== PLAYER ==========
-import "player/PlayerClass"
-import "player/FreezeSystem"
-// ========== ABILITIES ==========
-import "abilities/Ability_Base"
-import "abilities/DashAbility"
-import "abilities/ShieldAbility"
-import "abilities/SpeedBoostAbility"
-import "abilities/TeleportAbility"
-import "abilities/FreezeAuraAbility"
-import "abilities/InvisibilityAbility"
-import "abilities/MassRescueAbility"
-import "abilities/RescueAuraAbility"
-import "abilities/SuperJumpAbility"
-import "abilities/UltraFreezeAbility"
-import "abilities/CloneAbility"
-import "abilities/MagnetAbility"
-import "abilities/PhaseShiftAbility"
-import "abilities/RepulsionAbility"
-import "abilities/TimeSlowAbility"
-import "abilities/init"
-// ========== EFFECTS ==========
-import "effects/FrozenEffect"
-import "effects/SpeedEffect"
-import "effects/RescueEffect"
-import "effects/SlowEffect"
-import "effects/InvincibleEffect"
-import "effects/PowerupPickupEffect"
-import "effects/SpawnEffect"
-import "effects/VictoryEffect"
-import "effects/init"
-// ========== EVENTS ==========
-import "events/init"
-// ========== MAPS ==========
-import "maps/ArenaSetup"
-import "maps/PowerupSystem"
-import "maps/MapDefinitions"
-import "maps/Hazards"
-import "maps/WeatherSystem"
-import "maps/InteractiveObjects"
-import "maps/Secrets"
-import "maps/TeleportPads"
-import "maps/init"
-// ========== UI ==========
-import "ui/HUD"
-import "ui/MainMenu"
-import "ui/Announcements"
-import "ui/Minimap"
-import "ui/ShopUI"
-import "ui/init"
-// ========== ECONOMY ==========
-import "economy/init"
-import "systems/EconomySystem"
-// ========== PROGRESSION ==========
-import "progression/init"
-import "systems/Progression"
-import "systems/Achievements"
-import "systems/DailyQuests"
-import "systems/DailyLogin"
-import "systems/DailyRewards"
-import "systems/MatchRewards"
-import "systems/MasterySystem"
-import "systems/PrestigeSystem"
-import "systems/RebirthSystem"
-import "systems/TitleSystem"
+ao_before_scene_load :: proc() {
+    // Game-wide setup happens in the imported init files.
+}
 
-import "systems/Statistics"
-import "systems/QuestSystem"
-import "systems/SeasonPass"
-import "systems/LootBoxSystem"
-import "systems/CraftingSystem"
-import "systems/TradingSystem"
-import "systems/CollectionSystem"
-import "systems/LoreSystem"
-// ========== SOCIAL ==========
-import "social/init"
-import "systems/Leaderboard"
-import "systems/FriendSystem"
-import "systems/FriendBonus"
-import "systems/GuildSystem"
-import "systems/GuildUI"
-import "systems/ChatSystem"
-// ========== GAME SYSTEMS ==========
-import "systems/SpectatorMode"
-import "systems/MatchHistory"
-import "systems/SecretAreas"
-import "systems/EventManager"
-import "systems/AntiCheat"
-import "systems/BotAI"
-import "systems/GameModes"
-import "systems/BossSystem"
-import "systems/Matchmaking"
-import "systems/MapVoting"
-import "systems/ReplaySystem"
-import "systems/ReportSystem"
-import "systems/InputHelper"
-import "systems/DebugCommands"
-import "systems/Tutorial"
-import "systems/Animations"
-import "systems/PlayerColors"
-import "systems/SoundManager"
-import "systems/NotificationSystem"
-import "systems/PerformanceStats"
-import "systems/Settings"
-import "systems/DevTools"
-import "systems/BattlePassUI"
+ao_start :: proc() {
+    init_game_config();
+    init_map_rotation();
+    register_game_currencies();
+    load_map("Neon Frost Playground");
+}
+
+ao_update :: proc(dt: float) {
+    // Shared bootstrap hook.
+}
+
+ao_late_update :: proc(dt: float) {
+    // Shared bootstrap hook.
+}

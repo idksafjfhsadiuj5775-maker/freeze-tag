@@ -1,0 +1,630 @@
+{
+"skeleton": { "hash": "u+j3hicfzLk", "spine": "4.0.64", "x": -288.12, "y": -49.67, "width": 560.05, "height": 300.44 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "pillars_all", "parent": "root", "scaleX": 0.4151, "scaleY": 0.4151 },
+	{ "name": "AIM", "parent": "pillars_all", "x": 476.47, "y": 147.54 },
+	{ "name": "new lasers/laser box", "parent": "pillars_all", "x": -444.18, "y": -29.15 },
+	{ "name": "new lasers/laser body", "parent": "new lasers/laser box", "x": 24.74, "y": 0.41 },
+	{ "name": "new lasers/laser head1", "parent": "AIM", "x": -0.15, "y": -176.19 },
+	{ "name": "new lasers/laser box2", "parent": "pillars_all", "x": -444.18, "y": 85.58 },
+	{ "name": "new lasers/laser body2", "parent": "new lasers/laser box2", "x": 24.74, "y": 0.41 },
+	{ "name": "new lasers/laser head2", "parent": "AIM", "x": -0.15, "y": -61.46 },
+	{ "name": "new lasers/laser head3", "parent": "AIM", "x": -0.15, "y": 55.27 },
+	{ "name": "new lasers/laser head4", "parent": "AIM", "x": -0.15, "y": 166.46 },
+	{ "name": "new lasers/laser box3", "parent": "pillars_all", "x": -444.18, "y": 202.31 },
+	{ "name": "new lasers/laser body3", "parent": "new lasers/laser box3", "x": 24.74, "y": 0.41 },
+	{ "name": "new lasers/laser box4", "parent": "pillars_all", "x": -444.18, "y": 313.5 },
+	{ "name": "new lasers/laser body4", "parent": "new lasers/laser box4", "x": 24.74, "y": 0.41 }
+],
+"slots": [
+	{ "name": "new lasers/laser body", "bone": "new lasers/laser body", "attachment": "new lasers/laser body" },
+	{ "name": "new lasers/laser body3", "bone": "new lasers/laser body3", "attachment": "new lasers/laser body" },
+	{ "name": "new lasers/laser body2", "bone": "new lasers/laser body2", "attachment": "new lasers/laser body" },
+	{ "name": "new lasers/laser body4", "bone": "new lasers/laser body4", "attachment": "new lasers/laser body" },
+	{ "name": "new lasers/laser box", "bone": "new lasers/laser box", "attachment": "new lasers/laser box" },
+	{ "name": "new lasers/laser box3", "bone": "new lasers/laser box3", "attachment": "new lasers/laser box" },
+	{ "name": "new lasers/laser box2", "bone": "new lasers/laser box2", "attachment": "new lasers/laser box" },
+	{ "name": "new lasers/laser box4", "bone": "new lasers/laser box4", "attachment": "new lasers/laser box" },
+	{ "name": "new lasers/laser head1", "bone": "new lasers/laser head1", "attachment": "new lasers/laser head1" },
+	{ "name": "new lasers/laser head3", "bone": "new lasers/laser head3", "attachment": "new lasers/laser head1" },
+	{ "name": "new lasers/laser head2", "bone": "new lasers/laser head2", "attachment": "new lasers/laser head1" },
+	{ "name": "new lasers/laser head4", "bone": "new lasers/laser head4", "attachment": "new lasers/laser head1" },
+	{ "name": "prison_pillars/main_pillar", "bone": "pillars_all", "attachment": "prison_pillars/main_pillar" },
+	{ "name": "prison_pillars/red_light", "bone": "pillars_all", "attachment": "prison_pillars/red_light" },
+	{ "name": "prison_pillars/slim_pillar", "bone": "pillars_all", "attachment": "prison_pillars/slim_pillar" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"new lasers/laser body": {
+				"new lasers/laser body": {
+					"type": "mesh",
+					"uvs": [ 1, 1, 0.10188, 0.99999, 0.01448, 0.99999, 0.01278, 0.01474, 0.10097, 0.01342, 1, 0 ],
+					"triangles": [ 1, 5, 0, 2, 4, 1, 1, 4, 5, 2, 3, 4 ],
+					"vertices": [ 1, 5, -45.18, -51.59, 1, 1, 4, 50.35, -51.5, 1, 1, 4, -27.52, -51.5, 1, 1, 4, -29.03, 49.98, 1, 1, 4, 49.54, 50.12, 1, 1, 5, -45.18, 51.41, 1 ],
+					"hull": 6
+				}
+			},
+			"new lasers/laser body2": {
+				"new lasers/laser body": {
+					"type": "mesh",
+					"uvs": [ 1, 1, 0.10188, 0.99999, 0.01448, 0.99999, 0.01278, 0.01474, 0.10097, 0.01342, 1, 0 ],
+					"triangles": [ 1, 5, 0, 2, 3, 4, 1, 4, 5, 2, 4, 1 ],
+					"vertices": [ 1, 8, -45.18, -51.59, 1, 1, 7, 50.35, -51.5, 1, 1, 7, -27.52, -51.5, 1, 1, 7, -29.03, 49.98, 1, 1, 7, 49.54, 50.12, 1, 1, 8, -45.18, 51.41, 1 ],
+					"hull": 6
+				}
+			},
+			"new lasers/laser body3": {
+				"new lasers/laser body": {
+					"type": "mesh",
+					"uvs": [ 1, 1, 0.10188, 0.99999, 0.01448, 0.99999, 0.01278, 0.01474, 0.10097, 0.01342, 1, 0 ],
+					"triangles": [ 1, 5, 0, 2, 3, 4, 1, 4, 5, 2, 4, 1 ],
+					"vertices": [ 1, 9, -45.18, -51.59, 1, 1, 12, 50.35, -51.5, 1, 1, 12, -27.52, -51.5, 1, 1, 12, -29.03, 49.98, 1, 1, 12, 49.54, 50.12, 1, 1, 9, -45.18, 51.41, 1 ],
+					"hull": 6
+				}
+			},
+			"new lasers/laser body4": {
+				"new lasers/laser body": {
+					"type": "mesh",
+					"uvs": [ 1, 1, 0.10188, 0.99999, 0.01448, 0.99999, 0.01278, 0.01474, 0.10097, 0.01342, 1, 0 ],
+					"triangles": [ 1, 5, 0, 2, 4, 1, 1, 4, 5, 2, 3, 4 ],
+					"vertices": [ 1, 10, -45.18, -51.59, 1, 1, 14, 50.35, -51.5, 1, 1, 14, -27.52, -51.5, 1, 1, 14, -29.03, 49.98, 1, 1, 14, 49.54, 50.12, 1, 1, 10, -45.18, 51.41, 1 ],
+					"hull": 6
+				}
+			},
+			"new lasers/laser box": {
+				"new lasers/laser box": { "x": 11.56, "width": 28, "height": 54 }
+			},
+			"new lasers/laser box2": {
+				"new lasers/laser box": { "x": 11.56, "width": 28, "height": 54 }
+			},
+			"new lasers/laser box3": {
+				"new lasers/laser box": { "x": 11.56, "width": 28, "height": 54 }
+			},
+			"new lasers/laser box4": {
+				"new lasers/laser box": { "x": 11.56, "width": 28, "height": 54 }
+			},
+			"new lasers/laser head1": {
+				"new lasers/laser head1": { "x": -32.25, "width": 101, "height": 182 },
+				"new lasers/laser head2": { "x": -32.25, "y": 1.27, "width": 93, "height": 177 }
+			},
+			"new lasers/laser head2": {
+				"new lasers/laser head1": { "x": -32.25, "width": 101, "height": 182 },
+				"new lasers/laser head2": { "x": -32.25, "y": 1.27, "width": 93, "height": 177 }
+			},
+			"new lasers/laser head3": {
+				"new lasers/laser head1": { "x": -32.25, "width": 101, "height": 182 },
+				"new lasers/laser head2": { "x": -32.25, "y": 1.27, "width": 93, "height": 177 }
+			},
+			"new lasers/laser head4": {
+				"new lasers/laser head1": { "x": -32.25, "width": 101, "height": 182 },
+				"new lasers/laser head2": { "x": -32.25, "y": 1.27, "width": 93, "height": 177 }
+			},
+			"prison_pillars/main_pillar": {
+				"prison_pillars/main_pillar": { "x": -534.02, "y": 249.05, "width": 320, "height": 710 }
+			},
+			"prison_pillars/red_light": {
+				"prison_pillars/green_light": { "x": -535.51, "y": 254.33, "width": 153, "height": 151 },
+				"prison_pillars/red_light": { "x": -535.51, "y": 254.33, "width": 153, "height": 151 }
+			},
+			"prison_pillars/slim_pillar": {
+				"prison_pillars/slim_pillar": { "x": 529.54, "y": 248.41, "width": 251, "height": 710 }
+			}
+		}
+	}
+],
+"animations": {
+	"018MZOO/Activate": {
+		"slots": {
+			"new lasers/laser body": {
+				"rgba": [
+					{
+						"color": "ffffff00",
+						"curve": [ 0.044, 1, 0.056, 1, 0.044, 1, 0.056, 1, 0.044, 1, 0.056, 1, 0.044, 0, 0.056, 1 ]
+					},
+					{ "time": 0.1, "color": "ffffffff" }
+				]
+			},
+			"new lasers/laser body2": {
+				"rgba": [
+					{ "color": "ffffff00", "curve": "stepped" },
+					{
+						"time": 0.05,
+						"color": "ffffff00",
+						"curve": [ 0.094, 1, 0.106, 1, 0.094, 1, 0.106, 1, 0.094, 1, 0.106, 1, 0.094, 0, 0.106, 1 ]
+					},
+					{ "time": 0.15, "color": "ffffffff" }
+				]
+			},
+			"new lasers/laser body3": {
+				"rgba": [
+					{ "color": "ffffff00", "curve": "stepped" },
+					{
+						"time": 0.1,
+						"color": "ffffff00",
+						"curve": [ 0.144, 1, 0.156, 1, 0.144, 1, 0.156, 1, 0.144, 1, 0.156, 1, 0.144, 0, 0.156, 1 ]
+					},
+					{ "time": 0.2, "color": "ffffffff" }
+				]
+			},
+			"new lasers/laser body4": {
+				"rgba": [
+					{ "color": "ffffff00", "curve": "stepped" },
+					{
+						"time": 0.15,
+						"color": "ffffff00",
+						"curve": [ 0.194, 1, 0.206, 1, 0.194, 1, 0.206, 1, 0.194, 1, 0.206, 1, 0.194, 0, 0.206, 1 ]
+					},
+					{ "time": 0.25, "color": "ffffffff" }
+				]
+			},
+			"new lasers/laser head1": {
+				"rgba": [
+					{
+						"color": "ffffff00",
+						"curve": [ 0.044, 1, 0.056, 1, 0.044, 1, 0.056, 1, 0.044, 1, 0.056, 1, 0.044, 0, 0.056, 1 ]
+					},
+					{ "time": 0.1, "color": "ffffffff" }
+				],
+				"attachment": [
+					{ "name": "new lasers/laser head1" },
+					{ "time": 0.0333, "name": "new lasers/laser head2" },
+					{ "time": 0.0667, "name": "new lasers/laser head1" },
+					{ "time": 0.1, "name": "new lasers/laser head2" }
+				]
+			},
+			"new lasers/laser head2": {
+				"rgba": [
+					{
+						"time": 0.05,
+						"color": "ffffff00",
+						"curve": [ 0.094, 1, 0.106, 1, 0.094, 1, 0.106, 1, 0.094, 1, 0.106, 1, 0.094, 0, 0.106, 1 ]
+					},
+					{ "time": 0.15, "color": "ffffffff" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.05, "name": "new lasers/laser head1" },
+					{ "time": 0.0833, "name": "new lasers/laser head2" },
+					{ "time": 0.1167, "name": "new lasers/laser head1" },
+					{ "time": 0.15, "name": "new lasers/laser head2" }
+				]
+			},
+			"new lasers/laser head3": {
+				"rgba": [
+					{
+						"time": 0.1,
+						"color": "ffffff00",
+						"curve": [ 0.144, 1, 0.156, 1, 0.144, 1, 0.156, 1, 0.144, 1, 0.156, 1, 0.144, 0, 0.156, 1 ]
+					},
+					{ "time": 0.2, "color": "ffffffff" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.1, "name": "new lasers/laser head1" },
+					{ "time": 0.1333, "name": "new lasers/laser head2" },
+					{ "time": 0.1667, "name": "new lasers/laser head1" },
+					{ "time": 0.2, "name": "new lasers/laser head2" }
+				]
+			},
+			"new lasers/laser head4": {
+				"rgba": [
+					{
+						"time": 0.15,
+						"color": "ffffff00",
+						"curve": [ 0.194, 1, 0.206, 1, 0.194, 1, 0.206, 1, 0.194, 1, 0.206, 1, 0.194, 0, 0.206, 1 ]
+					},
+					{ "time": 0.25, "color": "ffffffff" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.15, "name": "new lasers/laser head1" },
+					{ "time": 0.1833, "name": "new lasers/laser head2" },
+					{ "time": 0.2167, "name": "new lasers/laser head1" },
+					{ "time": 0.25, "name": "new lasers/laser head2" }
+				]
+			},
+			"prison_pillars/red_light": {
+				"attachment": [
+					{ "name": "prison_pillars/green_light" },
+					{ "time": 0.0333, "name": "prison_pillars/red_light" }
+				]
+			}
+		},
+		"bones": {
+			"new lasers/laser body": {
+				"scale": [
+					{ "y": 0.54, "curve": "stepped" },
+					{ "time": 0.0333, "curve": "stepped" },
+					{ "time": 0.0667, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1 }
+				]
+			},
+			"new lasers/laser head1": {
+				"scale": [
+					{ "y": 0.54, "curve": "stepped" },
+					{ "time": 0.0333, "curve": "stepped" },
+					{ "time": 0.0667, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1 }
+				]
+			},
+			"new lasers/laser body2": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.05, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.0833, "curve": "stepped" },
+					{ "time": 0.1167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.15 }
+				]
+			},
+			"new lasers/laser head2": {
+				"scale": [
+					{ "time": 0.05, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.0833, "curve": "stepped" },
+					{ "time": 0.1167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.15 }
+				]
+			},
+			"new lasers/laser head3": {
+				"scale": [
+					{ "time": 0.1, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.1333, "curve": "stepped" },
+					{ "time": 0.1667, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.2 }
+				]
+			},
+			"new lasers/laser head4": {
+				"scale": [
+					{ "time": 0.15, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.1833, "curve": "stepped" },
+					{ "time": 0.2167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.25 }
+				]
+			},
+			"new lasers/laser body3": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.1, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.1333, "curve": "stepped" },
+					{ "time": 0.1667, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.2 }
+				]
+			},
+			"new lasers/laser body4": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.15, "y": 0.54, "curve": "stepped" },
+					{ "time": 0.1833, "curve": "stepped" },
+					{ "time": 0.2167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.25 }
+				]
+			}
+		}
+	},
+	"018MZOO/Activated_Idle": {
+		"slots": {
+			"new lasers/laser head1": {
+				"attachment": [
+					{ "name": "new lasers/laser head1" },
+					{ "time": 0.0333, "name": "new lasers/laser head2" },
+					{ "time": 0.0833, "name": "new lasers/laser head1" }
+				]
+			},
+			"new lasers/laser head2": {
+				"attachment": [
+					{ "name": "new lasers/laser head1" },
+					{ "time": 0.0333, "name": "new lasers/laser head2" },
+					{ "time": 0.0833, "name": "new lasers/laser head1" }
+				]
+			},
+			"new lasers/laser head3": {
+				"attachment": [
+					{ "name": "new lasers/laser head1" },
+					{ "time": 0.0333, "name": "new lasers/laser head2" },
+					{ "time": 0.0833, "name": "new lasers/laser head1" }
+				]
+			},
+			"new lasers/laser head4": {
+				"attachment": [
+					{ "name": "new lasers/laser head1" },
+					{ "time": 0.0333, "name": "new lasers/laser head2" },
+					{ "time": 0.0833, "name": "new lasers/laser head1" }
+				]
+			},
+			"prison_pillars/red_light": {
+				"attachment": [
+					{ "name": "prison_pillars/red_light" }
+				]
+			}
+		},
+		"bones": {
+			"new lasers/laser body": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser head1": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser body2": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser head2": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser head3": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser head4": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser body3": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			},
+			"new lasers/laser body4": {
+				"scale": [
+					{ "curve": "stepped" },
+					{ "time": 0.0333, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1167 }
+				]
+			}
+		}
+	},
+	"018MZOO/Deactivate": {
+		"slots": {
+			"new lasers/laser body": {
+				"rgba": [
+					{ "color": "ffffffff", "curve": "stepped" },
+					{
+						"time": 0.2167,
+						"color": "ffffffff",
+						"curve": [ 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 0 ]
+					},
+					{ "time": 0.3333, "color": "ffffff00" }
+				]
+			},
+			"new lasers/laser body2": {
+				"rgba": [
+					{ "color": "ffffffff", "curve": "stepped" },
+					{
+						"time": 0.15,
+						"color": "ffffffff",
+						"curve": [ 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 0 ]
+					},
+					{ "time": 0.2667, "color": "ffffff00", "curve": "stepped" },
+					{ "time": 0.3333, "color": "ffffff00" }
+				]
+			},
+			"new lasers/laser body3": {
+				"rgba": [
+					{ "color": "ffffffff", "curve": "stepped" },
+					{
+						"time": 0.0667,
+						"color": "ffffffff",
+						"curve": [ 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 0 ]
+					},
+					{ "time": 0.1833, "color": "ffffff00" }
+				]
+			},
+			"new lasers/laser body4": {
+				"rgba": [
+					{
+						"color": "ffffffff",
+						"curve": [ 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 0 ]
+					},
+					{ "time": 0.1167, "color": "ffffff00", "curve": "stepped" },
+					{ "time": 0.3333, "color": "ffffff00" }
+				]
+			},
+			"new lasers/laser head1": {
+				"rgba": [
+					{
+						"time": 0.2167,
+						"color": "ffffffff",
+						"curve": [ 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 1, 0.254, 1, 0.296, 0 ]
+					},
+					{ "time": 0.3333, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.2167, "name": "new lasers/laser head2" },
+					{ "time": 0.25, "name": "new lasers/laser head1" },
+					{ "time": 0.2833, "name": "new lasers/laser head2" },
+					{ "time": 0.3333, "name": "new lasers/laser head1" }
+				]
+			},
+			"new lasers/laser head2": {
+				"rgba": [
+					{
+						"time": 0.15,
+						"color": "ffffffff",
+						"curve": [ 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 1, 0.187, 1, 0.23, 0 ]
+					},
+					{ "time": 0.2667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.15, "name": "new lasers/laser head2" },
+					{ "time": 0.1833, "name": "new lasers/laser head1" },
+					{ "time": 0.2167, "name": "new lasers/laser head2" },
+					{ "time": 0.2667, "name": "new lasers/laser head1" }
+				]
+			},
+			"new lasers/laser head3": {
+				"rgba": [
+					{
+						"time": 0.0667,
+						"color": "ffffffff",
+						"curve": [ 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 1, 0.104, 1, 0.146, 0 ]
+					},
+					{ "time": 0.1833, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.0667, "name": "new lasers/laser head2" },
+					{ "time": 0.1, "name": "new lasers/laser head1" },
+					{ "time": 0.1333, "name": "new lasers/laser head2" },
+					{ "time": 0.1833, "name": "new lasers/laser head1" },
+					{ "time": 0.2167, "name": "new lasers/laser head2" }
+				]
+			},
+			"new lasers/laser head4": {
+				"rgba": [
+					{
+						"color": "ffffffff",
+						"curve": [ 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 1, 0.037, 1, 0.08, 0 ]
+					},
+					{ "time": 0.1167, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": "new lasers/laser head2" },
+					{ "time": 0.0333, "name": "new lasers/laser head1" },
+					{ "time": 0.0667, "name": "new lasers/laser head2" },
+					{ "time": 0.1167, "name": "new lasers/laser head1" }
+				]
+			},
+			"prison_pillars/red_light": {
+				"attachment": [
+					{ "name": "prison_pillars/red_light" },
+					{ "time": 0.3, "name": "prison_pillars/green_light" },
+					{ "time": 0.3333, "name": "prison_pillars/green_light" }
+				]
+			}
+		},
+		"bones": {
+			"new lasers/laser body": {
+				"scale": [
+					{ "y": 0.861, "curve": "stepped" },
+					{ "time": 0.0667, "curve": "stepped" },
+					{ "time": 0.1167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1833, "curve": "stepped" },
+					{ "time": 0.2167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.3 }
+				]
+			},
+			"new lasers/laser head1": {
+				"scale": [
+					{ "time": 0.2167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.2833 }
+				]
+			},
+			"new lasers/laser body2": {
+				"scale": [
+					{ "y": 0.861, "curve": "stepped" },
+					{ "time": 0.0667, "curve": "stepped" },
+					{ "time": 0.1167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1833, "curve": "stepped" },
+					{ "time": 0.2167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.3 }
+				]
+			},
+			"new lasers/laser head2": {
+				"scale": [
+					{ "time": 0.15, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.2167 }
+				]
+			},
+			"new lasers/laser head3": {
+				"scale": [
+					{ "time": 0.0667, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1333 }
+				]
+			},
+			"new lasers/laser head4": {
+				"scale": [
+					{ "y": 0.861, "curve": "stepped" },
+					{ "time": 0.0667 }
+				]
+			},
+			"new lasers/laser body3": {
+				"scale": [
+					{ "y": 0.861, "curve": "stepped" },
+					{ "time": 0.0667, "curve": "stepped" },
+					{ "time": 0.1167, "y": 0.861, "curve": "stepped" },
+					{ "time": 0.1833 }
+				]
+			},
+			"new lasers/laser body4": {
+				"scale": [
+					{ "y": 0.861, "curve": "stepped" },
+					{ "time": 0.0667 }
+				]
+			}
+		}
+	},
+	"018MZOO/Deactivated_Idle": {
+		"slots": {
+			"new lasers/laser body": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser body2": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser body3": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser body4": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser head1": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser head2": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser head3": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"new lasers/laser head4": {
+				"attachment": [
+					{ "name": null }
+				]
+			},
+			"prison_pillars/red_light": {
+				"attachment": [
+					{ "name": "prison_pillars/green_light" }
+				]
+			}
+		}
+	}
+}
+}

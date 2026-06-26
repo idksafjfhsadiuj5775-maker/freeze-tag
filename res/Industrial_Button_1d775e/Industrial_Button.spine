@@ -1,0 +1,133 @@
+{
+"skeleton": { "hash": "PEZ+4vIqgAw", "spine": "4.0.64", "x": -99.3, "y": -41.78, "width": 173, "height": 202.04 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "EXE_stations/button_meme/button_panel2", "parent": "root", "y": -12.59 },
+	{ "name": "EXE_stations/button_meme/button_pressed_blue", "parent": "EXE_stations/button_meme/button_panel2", "x": -1.08, "y": 110.47 }
+],
+"slots": [
+	{ "name": "EXE_stations/button_meme/button_panel2", "bone": "EXE_stations/button_meme/button_panel2", "attachment": "EXE_stations/button_meme/button_panel" },
+	{ "name": "EXE_stations/button_meme/button_blue", "bone": "EXE_stations/button_meme/button_pressed_blue", "attachment": "EXE_stations/button_meme/button_red" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"EXE_stations/button_meme/button_panel2": {
+				"EXE_stations/button_meme/button_panel": { "x": -12.8, "y": 69.81, "width": 173, "height": 198 }
+			}
+		}
+	},
+	{
+		"name": "blue_button",
+		"attachments": {
+			"EXE_stations/button_meme/button_blue": {
+				"EXE_stations/button_meme/button_red": { "name": "EXE_stations/button_meme/button_blue", "x": -0.27, "y": 23.39, "width": 86, "height": 78 },
+				"EXE_stations/button_meme/button_pressed_red": { "name": "EXE_stations/button_meme/button_pressed_blue", "x": -0.49, "y": 11.49, "width": 86, "height": 56 }
+			}
+		}
+	},
+	{
+		"name": "red_button",
+		"attachments": {
+			"EXE_stations/button_meme/button_blue": {
+				"EXE_stations/button_meme/button_pressed_red": { "x": -0.49, "y": 11.49, "width": 86, "height": 56 },
+				"EXE_stations/button_meme/button_red": { "x": -0.27, "y": 23.39, "width": 86, "height": 78 }
+			}
+		}
+	}
+],
+"events": {
+	"Fire": {}
+},
+"animations": {
+	"idle_pressed": {
+		"slots": {
+			"EXE_stations/button_meme/button_blue": {
+				"attachment": [
+					{ "name": "EXE_stations/button_meme/button_pressed_red" }
+				]
+			},
+			"EXE_stations/button_meme/button_panel2": {
+				"attachment": [
+					{ "name": "EXE_stations/button_meme/button_panel" }
+				]
+			}
+		},
+		"bones": {
+			"EXE_stations/button_meme/button_panel2": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			},
+			"EXE_stations/button_meme/button_pressed_blue": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			}
+		}
+	},
+	"idle_unpressed": {
+		"slots": {
+			"EXE_stations/button_meme/button_blue": {
+				"attachment": [
+					{ "name": "EXE_stations/button_meme/button_red" }
+				]
+			},
+			"EXE_stations/button_meme/button_panel2": {
+				"attachment": [
+					{ "name": "EXE_stations/button_meme/button_panel" }
+				]
+			}
+		},
+		"bones": {
+			"EXE_stations/button_meme/button_panel2": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			},
+			"EXE_stations/button_meme/button_pressed_blue": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			}
+		}
+	}
+}
+}

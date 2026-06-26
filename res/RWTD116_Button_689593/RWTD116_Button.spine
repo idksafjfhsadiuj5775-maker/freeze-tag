@@ -1,0 +1,387 @@
+{
+"skeleton": { "hash": "O2c8HBgEa/0", "spine": "4.0.64", "x": -48, "y": -39, "width": 96, "height": 78 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "Button", "parent": "root" },
+	{ "name": "Shockwave", "parent": "root" },
+	{ "name": "Explosion", "parent": "root" },
+	{ "name": "Flash", "parent": "root" },
+	{ "name": "FX2", "parent": "root", "x": 0.9, "y": -120.93 },
+	{ "name": "+mouseIK2", "parent": "FX2" },
+	{ "name": "weapon_mIK2", "parent": "+mouseIK2", "x": 114.65, "y": -12.63 },
+	{ "name": "spawn2", "parent": "weapon_mIK2", "x": 76.6 },
+	{ "name": "muzzle_flash2", "parent": "weapon_mIK2", "x": 122.67, "y": 54.07 },
+	{ "name": "hand_mIK_L2", "parent": "+mouseIK2", "x": -133.27, "y": 30.37 },
+	{ "name": "hand_mIK_R2", "parent": "+mouseIK2", "rotation": -17.31, "x": 87.8, "y": -14.84 },
+	{ "name": "bindle_swing2", "parent": "FX2", "x": 131.29, "y": 312.95 },
+	{ "name": "Explosion/ExplosionResidue", "parent": "root", "x": 29.4 },
+	{ "name": "UP_SmokeLine", "parent": "root" },
+	{ "name": "Smoke", "parent": "root" },
+	{ "name": "Smoke2", "parent": "root" },
+	{ "name": "Smoke3", "parent": "root" }
+],
+"slots": [
+	{ "name": "Explosion/ExplosionResidue", "bone": "Explosion/ExplosionResidue" },
+	{ "name": "Emergency Button Pushed", "bone": "Button", "attachment": "Emergency Button" },
+	{ "name": "shockwave", "bone": "Shockwave" },
+	{ "name": "Explosion/explosion_5_00", "bone": "Explosion" },
+	{ "name": "Explosion/Ex_Yellow", "bone": "Flash" },
+	{ "name": "hand_mIK_R2", "bone": "hand_mIK_R2" },
+	{ "name": "muzzle_flash2", "bone": "muzzle_flash2" },
+	{ "name": "item_mIK2", "bone": "weapon_mIK2" },
+	{ "name": "item_extra_mIK2", "bone": "weapon_mIK2" },
+	{ "name": "hand_mIK_L2", "bone": "hand_mIK_L2" },
+	{ "name": "weapon_hand_mIK_R2", "bone": "weapon_mIK2" },
+	{ "name": "weapon_hand_mIK_L2", "bone": "weapon_mIK2" },
+	{ "name": "held_projectile_mIK2", "bone": "hand_mIK_L2" },
+	{ "name": "Explosion/Smoke1", "bone": "Smoke" },
+	{ "name": "Explosion/Smoke2", "bone": "Smoke2" },
+	{ "name": "Explosion/Smoke3", "bone": "Smoke3" },
+	{ "name": "Explosion/UP_SmokeLine", "bone": "UP_SmokeLine" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"Emergency Button Pushed": {
+				"Emergency Button": { "width": 96, "height": 78 },
+				"Emergency Button Pushed": { "y": -0.16, "width": 94, "height": 75 }
+			},
+			"Explosion/ExplosionResidue": {
+				"Explosion/ExplosionResidue": { "width": 465, "height": 361 }
+			},
+			"Explosion/explosion_5_00": {
+				"Explosion/explosion_5_00": { "x": 0.5, "y": 74.16, "width": 839, "height": 660 },
+				"Explosion/explosion_5_01": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_02": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_03": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_04": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_05": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_06": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 },
+				"Explosion/explosion_5_07": { "x": 0.5, "y": 61.44, "width": 839, "height": 660 }
+			},
+			"Explosion/Ex_Yellow": {
+				"Explosion/Ex_Yellow": { "x": 0.5, "y": 0.5, "width": 251, "height": 283 }
+			},
+			"Explosion/Smoke1": {
+				"Explosion/Smoke1": { "x": -2.16, "y": 8.13, "width": 82, "height": 84 }
+			},
+			"Explosion/Smoke2": {
+				"Explosion/Smoke1": { "x": -2.16, "y": 8.13, "width": 82, "height": 84 }
+			},
+			"Explosion/Smoke3": {
+				"Explosion/Smoke1": { "x": -2.16, "y": 8.13, "width": 82, "height": 84 }
+			},
+			"Explosion/UP_SmokeLine": {
+				"Explosion/UP_SmokeLine": { "x": 0.1, "y": 394.82, "rotation": 90.16, "width": 903, "height": 297 }
+			},
+			"shockwave": {
+				"shockwave": { "width": 1056, "height": 207 }
+			}
+		}
+	}
+],
+"animations": {
+	"RWTD116_Button/button": {
+		"bones": {
+			"root": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			}
+		}
+	},
+	"RWTD116_Button/explode": {
+		"slots": {
+			"Emergency Button Pushed": {
+				"attachment": [
+					{ "name": "Emergency Button Pushed" },
+					{ "time": 0.2333, "name": null }
+				]
+			},
+			"Explosion/ExplosionResidue": {
+				"attachment": [
+					{ "time": 0.3, "name": "Explosion/ExplosionResidue" }
+				]
+			},
+			"Explosion/explosion_5_00": {
+				"rgba": [
+					{ "time": 0.7667, "color": "ffffffff" },
+					{ "time": 1.1, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.1667, "name": "Explosion/explosion_5_00" },
+					{ "time": 0.2333, "name": "Explosion/explosion_5_01" },
+					{ "time": 0.3, "name": "Explosion/explosion_5_02" },
+					{ "time": 0.4, "name": "Explosion/explosion_5_03" },
+					{ "time": 0.5333, "name": "Explosion/explosion_5_04" },
+					{ "time": 0.7, "name": "Explosion/explosion_5_05" },
+					{ "time": 0.8, "name": "Explosion/explosion_5_06" },
+					{ "time": 0.9, "name": "Explosion/explosion_5_07" },
+					{ "time": 1.1333, "name": null }
+				]
+			},
+			"Explosion/Ex_Yellow": {
+				"rgba": [
+					{ "time": 0.0333, "color": "ffffffff" },
+					{ "time": 0.2667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.0333, "name": "Explosion/Ex_Yellow" }
+				]
+			},
+			"Explosion/Smoke1": {
+				"rgba": [
+					{ "time": 0.5333, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.7333, "color": "ffffffff" },
+					{ "time": 1.4667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.5333, "name": "Explosion/Smoke1" }
+				]
+			},
+			"Explosion/Smoke2": {
+				"rgba": [
+					{ "time": 0.5333, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.7333, "color": "ffffffff" },
+					{ "time": 1.4667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.5333, "name": "Explosion/Smoke1" }
+				]
+			},
+			"Explosion/Smoke3": {
+				"rgba": [
+					{ "time": 0.5333, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.7333, "color": "ffffffff" },
+					{ "time": 1.4667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.5333, "name": "Explosion/Smoke1" }
+				]
+			},
+			"Explosion/UP_SmokeLine": {
+				"rgba": [
+					{
+						"time": 0.5333,
+						"color": "ffffffff",
+						"curve": [ 0.534, 1, 1.267, 1, 0.534, 1, 1.267, 1, 0.534, 1, 1.267, 1, 0.534, 1, 1.267, 0 ]
+					},
+					{ "time": 1.4667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.5333, "name": "Explosion/UP_SmokeLine" }
+				]
+			},
+			"shockwave": {
+				"rgba": [
+					{
+						"time": 0.2,
+						"color": "ffffff9a",
+						"curve": [ 0.422, 1, 0.644, 1, 0.422, 1, 0.644, 1, 0.422, 1, 0.644, 1, 0.422, -0.06, 0.644, 0 ]
+					},
+					{ "time": 0.8667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": null },
+					{ "time": 0.2, "name": "shockwave" }
+				]
+			}
+		},
+		"bones": {
+			"root": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			},
+			"Explosion": {
+				"scale": [
+					{
+						"time": 0.1667,
+						"x": 1.108,
+						"y": 1.108,
+						"curve": [ 0.211, 1.63, 0.265, 2.317, 0.211, 1.63, 0.265, 2.317 ]
+					},
+					{
+						"time": 0.3,
+						"x": 2.673,
+						"y": 2.673,
+						"curve": [ 0.429, 3.965, 0.574, 4.097, 0.429, 3.965, 0.574, 4.097 ]
+					},
+					{ "time": 0.7333, "x": 4.155, "y": 4.155 }
+				]
+			},
+			"Shockwave": {
+				"translate": [
+					{ "time": 0.2, "y": -53.79 }
+				],
+				"scale": [
+					{
+						"time": 0.2,
+						"x": 0.354,
+						"y": 0.354,
+						"curve": [ 0.2, 0.769, 0.254, 1.498, 0.2, 0.769, 0.254, 2.517 ]
+					},
+					{
+						"time": 0.3333,
+						"x": 2.305,
+						"y": 3.324,
+						"curve": [ 0.484, 3.803, 0.722, 3.997, 0.484, 4.822, 0.722, 6 ]
+					},
+					{ "time": 0.8667, "x": 3.997, "y": 6 }
+				]
+			},
+			"Flash": {
+				"translate": [
+					{ "time": 0.0333, "y": 61.64 }
+				],
+				"scale": [
+					{
+						"time": 0.0333,
+						"x": 6.744,
+						"y": 6.744,
+						"curve": [ 0.078, 6.744, 0.167, 3.909, 0.078, 6.744, 0.167, 3.909 ]
+					},
+					{
+						"time": 0.1667,
+						"x": -0.554,
+						"y": -0.554,
+						"curve": [ 0.167, -0.57, 0.656, -0.537, 0.167, -0.57, 0.656, -0.537 ]
+					},
+					{ "time": 0.8667, "x": -0.537, "y": -0.537 }
+				]
+			},
+			"UP_SmokeLine": {
+				"translate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.534, 0, 1.267, 0, 0.534, 0, 1.267, 164.32 ]
+					},
+					{ "time": 1.4667, "y": 164.32 }
+				],
+				"scale": [
+					{
+						"time": 0.5333,
+						"y": 0.654,
+						"curve": [ 0.534, 1, 1.267, 1, 0.534, 0.654, 1.267, 1.202 ]
+					},
+					{ "time": 1.4667, "y": 1.202 }
+				]
+			},
+			"Smoke": {
+				"rotate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.844, 0, 1.156, 141.79 ]
+					},
+					{ "time": 1.4667, "value": 141.79 }
+				],
+				"translate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.674, -13.17, 0.83, -110.24, 0.701, 25.57, 0.813, 71.75 ]
+					},
+					{ "time": 1.4667, "x": -133.92, "y": 94.25 }
+				],
+				"scale": [
+					{ "time": 0.5333 },
+					{ "time": 1.4667, "x": 2.013, "y": 2.013 }
+				],
+				"shear": [
+					{ "time": 0.5333 }
+				]
+			},
+			"Smoke2": {
+				"rotate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.844, 0, 1.156, -27.33 ]
+					},
+					{ "time": 1.4667, "value": -27.33 }
+				],
+				"translate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.674, -13.17, 0.83, 122.2, 0.701, 25.57, 0.813, 100.33 ]
+					},
+					{ "time": 1.4667, "x": 98.52, "y": 122.83 }
+				],
+				"scale": [
+					{ "time": 0.5333 },
+					{ "time": 1.4667, "x": 2.013, "y": 2.013 }
+				],
+				"shear": [
+					{ "time": 0.5333 }
+				]
+			},
+			"Smoke3": {
+				"rotate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.534, 0, 1.156, -120.45 ]
+					},
+					{ "time": 1.4667, "value": -120.45 }
+				],
+				"translate": [
+					{
+						"time": 0.5333,
+						"curve": [ 0.674, -13.17, 0.83, 37.14, 0.701, 25.57, 0.813, -117.71 ]
+					},
+					{ "time": 1.4667, "x": 13.46, "y": -95.21 }
+				],
+				"scale": [
+					{ "time": 0.5333 },
+					{ "time": 1.4667, "x": 2.013, "y": 2.013 }
+				],
+				"shear": [
+					{ "time": 0.5333 }
+				]
+			}
+		}
+	},
+	"RWTD116_Button/pressed": {
+		"slots": {
+			"Emergency Button Pushed": {
+				"attachment": [
+					{ "name": "Emergency Button Pushed" }
+				]
+			}
+		},
+		"bones": {
+			"root": {
+				"rotate": [
+					{}
+				],
+				"translate": [
+					{}
+				],
+				"scale": [
+					{}
+				],
+				"shear": [
+					{}
+				]
+			}
+		}
+	}
+}
+}
