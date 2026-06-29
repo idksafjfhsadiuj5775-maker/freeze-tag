@@ -10,6 +10,8 @@ distribute_rewards :: proc(winner_team: Team) {
 
         if player.team == winner_team {
             bonus_coins += 100; bonus_xp += 200;
+            Economy.deposit(player, "gems", 1);
+            announce("+1 Gem for winning!", {});
         }
 
         bonus_coins += player.tags_this_round * 10;

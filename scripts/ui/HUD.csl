@@ -15,15 +15,17 @@ draw_timer :: proc() {
     ts.size = 36; ts.bold = true;
     remaining := round_timer.(int);
     switch match_state {
-        case .COUNTDOWN:
+        case .COUNTDOWN: {
             ts.color = {1, 1, 0, 1};
             rect := UI.get_screen_rect().center();
             UI.text(rect, ts, "%", {remaining + 1});
-        case .PLAYING, .OVERTIME:
+        }
+        case .PLAYING, .OVERTIME: {
             mins := remaining / 60; secs := remaining % 60;
             ts.color = remaining <= 10 ? v4{1,0,0,1} : remaining <= 30 ? v4{1,1,0,1} : v4{1,1,1,1};
             rect := UI.get_screen_rect().top_center_rect().offset(0, 10);
             UI.text(rect, ts, "%02d:%02d", {mins, secs});
+        }
     }
 }
 

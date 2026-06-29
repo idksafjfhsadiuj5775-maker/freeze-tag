@@ -21,13 +21,7 @@ draw_shop :: proc(player: Player) {
     for i: 0..<min(items.count, 10) {
         item := items[i];
         btn := v2{UI.get_screen_rect().center.x - 140, y};
-        currency_name: string;
-        switch item.price_currency {
-            case .COINS:  currency_name = "coins";
-            case .GEMS:   currency_name = "gems";
-            case .TOKENS: currency_name = "tokens";
-            default:      currency_name = "coins";
-        }
+        currency_name := shop_price_label(item.price_currency);
         if UI.button(btn, {280, 26}, {0.15, 0.15, 0.25, 0.8},
             "% - % %", {item.name, item.price_amount, currency_name}) {
             purchase_item(player, item.id);
@@ -36,23 +30,21 @@ draw_shop :: proc(player: Player) {
     }
 }
 
-purchase_item :: proc(player: Player, item_id: string) {
+purchase_shop_item_legacy :: proc(player: Player, item_id: string) {
     items := get_shop_items();
     for item: items {
         if item.id == item_id {
-            currency_name: string;
-            switch item.price_currency {
-                case .COINS:  currency_name = "coins";
-                case .GEMS:   currency_name = "gems";
-                case .TOKENS: currency_name = "tokens";
-                default:      currency_name = "coins";
+            if item.price_currency == .SPARKS && !can_buy_spark_item(player) {
+                announce("Reach 100 Gems to buy Spark items!", {});
+                return;
             }
+            currency_name := shop_currency_name(item.price_currency);
             if Economy.get_balance(player, currency_name) >= item.price_amount {
-                Economy.withdraw(player, currency_name, item.price_amount);
+                Economy.withdraw_currency(player, currency_name, item.price_amount);
                 player.inventory_items.append(item_id);
                 announce("Purchased %!", {item.name});
             } else {
-                announce("Not enough %!", {currency_name});
+                announce("Not enough %!", {shop_price_label(item.price_currency)});
             }
             return;
         }

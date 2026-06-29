@@ -3,24 +3,43 @@
 // ============================================================================
 
 GameConfig :: struct {
-    round_time: float = 120.0;
-    freeze_duration: float = 15.0;
-    rescue_time: float = 2.0;
-    min_players: int = 2;
-    max_players: int = 16;
-    freezer_ratio: float = 0.3;
-    powerup_interval: float = 10.0;
-    sudden_death_enabled: bool = true;
-    overtime_enabled: bool = true;
-    rounds_per_match: int = 5;
-    score_to_win: int = 3;
-    arena_width: float = 44;
-    arena_height: float = 34;
-    spawn_padding: float = 2;
-    player_base_speed: float = 5.0;
-    invincibility_after_rescue: float = 2.0;
-    rescue_range: float = 1.5;
-    tag_range: float = 1.5;
+    round_time: float;
+    freeze_duration: float;
+    rescue_time: float;
+    min_players: int;
+    max_players: int;
+    freezer_ratio: float;
+    powerup_interval: float;
+    sudden_death_enabled: bool;
+    overtime_enabled: bool;
+    rounds_per_match: int;
+    score_to_win: int;
+    arena_width: float;
+    arena_height: float;
+    spawn_padding: float;
+    player_base_speed: float;
+    invincibility_after_rescue: float;
+    rescue_range: float;
+    tag_range: float;
 }
 
-config: GameConfig;
+config: GameConfig = {
+    120.0,
+    15.0,
+    2.0,
+    2,
+    16,
+    0.3,
+    10.0,
+    true,
+    true,
+    5,
+    3,
+    44,
+    34,
+    2,
+    5.0,
+    2.0,
+    1.5,
+    1.5
+};

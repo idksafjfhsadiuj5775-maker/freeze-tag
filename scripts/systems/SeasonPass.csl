@@ -3,11 +3,15 @@ SeasonPass :: struct {
     premium: bool;
 }
 
-get_season_pass_rewards :: proc(level: int) -> (string, int) {
-    free_rewards := [?](string, int){{"coins", 100}, {"gems", 5}, {"coins", 200}, {"skin_blue", 0}, {"coins", 300}};
-    premium_rewards := [?](string, int){{"gems", 20}, {"tokens", 2}, {"skin_gold", 0}, {"gems", 50}, {"tokens", 10}};
+Season_Pass_Reward :: struct {
+    reward: string;
+    amount: int;
+}
+
+get_season_pass_rewards :: proc(level: int) -> Season_Pass_Reward {
+    free_rewards: [5]Season_Pass_Reward = {{"coins", 100}, {"gems", 5}, {"coins", 200}, {"skin_blue", 0}, {"coins", 300}};
     idx := (level - 1) % 5;
-    return free_rewards[idx].0, free_rewards[idx].1;
+    return free_rewards[idx];
 }
 
 add_season_xp :: proc(player: Player, amount: s64) {
@@ -17,9 +21,9 @@ add_season_xp :: proc(player: Player, amount: s64) {
     if sx >= needed {
         sx -= needed; sl += 1;
         Save.set_int(player, "season_level", sl.(s64));
-        reward, qty := get_season_pass_rewards(sl);
-        if qty > 0 { Economy.deposit(player, reward, qty.(s64)); }
-        announce("Season Pass Level %! Reward: %", {sl, reward});
+        reward := get_season_pass_rewards(sl);
+        if reward.amount > 0 { Economy.deposit(player, reward.reward, reward.amount.(s64)); }
+        announce("Season Pass Level %! Reward: %", {sl, reward.reward});
     }
     Save.set_int(player, "season_xp", sx);
 }

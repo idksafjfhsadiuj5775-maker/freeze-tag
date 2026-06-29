@@ -1,5 +1,10 @@
-get_daily_reward :: proc(day: int) -> (string, s64) {
-    rewards := [?](string, s64){
+Daily_Reward :: struct {
+    reward: string;
+    amount: s64;
+}
+
+get_daily_reward :: proc(day: int) -> Daily_Reward {
+    rewards: [7]Daily_Reward = {
         {"coins", 200},
         {"gems", 10},
         {"coins", 300},
@@ -9,12 +14,12 @@ get_daily_reward :: proc(day: int) -> (string, s64) {
         {"tokens", 10},
     };
     idx := (day - 1) % 7;
-    return rewards[idx].0, rewards[idx].1;
+    return rewards[idx];
 }
 
 claim_daily_reward :: proc(player: Player) -> bool {
     last := Save.get_int(player, "daily_last_claim", 0);
-    now := ao_get_time().(s64);
+    now := get_time().(s64);
     // 86400 seconds = 1 day
     if now - last < 86400 {
         announce("Already claimed today!", {}); return false;
@@ -23,10 +28,10 @@ claim_daily_reward :: proc(player: Player) -> bool {
     Save.set_int(player, "daily_streak", streak.(s64));
     Save.set_int(player, "daily_last_claim", now);
 
-    reward, amount := get_daily_reward(streak);
-    Economy.deposit(player, reward, amount);
+    reward := get_daily_reward(streak);
+    Economy.deposit(player, reward.reward, reward.amount);
     add_xp(player, (streak * 50).(s64));
-    announce("DAY %! +% %!", {streak, amount, reward});
+    announce("DAY %! +% %!", {streak, reward.amount, reward.reward});
 
     if streak % 7 == 0 {
         Economy.deposit(player, "tokens", 10);
@@ -38,7 +43,7 @@ claim_daily_reward :: proc(player: Player) -> bool {
 draw_daily_rewards :: proc(player: Player) {
     streak := Save.get_int(player, "daily_streak", 0).(int);
     last := Save.get_int(player, "daily_last_claim", 0);
-    now := ao_get_time().(s64);
+    now := get_time().(s64);
     can_claim := now - last >= 86400;
 
     ts := UI.default_text_settings(); ts.size = 20; ts.bold = true; ts.color = {1, 1, 1, 1};
@@ -51,12 +56,12 @@ draw_daily_rewards :: proc(player: Player) {
     UI.text(rect, ts, can_claim ? "CLAIM AVAILABLE!" : "Come back tomorrow!", {});
 
     ts.color = {1, 1, 1, 0.7};
-    for i: 1..<=7 {
-        reward, amount := get_daily_reward(streak + i);
+    for i: 1..7 {
+        reward := get_daily_reward(streak + i);
         completed := i <= streak;
         ts.color = completed ? v4{0, 1, 0, 0.5} : (i == streak + 1 ? v4{1, 1, 0, 1} : v4{0.5, 0.5, 0.5, 0.7});
         rect.y += 25;
-        UI.text(rect, ts, completed ? "Day %: % +% ✓" : "Day %: % +%", {i, reward, amount});
+        UI.text(rect, ts, completed ? "Day %: % +%" : "Day %: % +%", {i, reward.reward, reward.amount});
     }
 
     rect.y += 35;

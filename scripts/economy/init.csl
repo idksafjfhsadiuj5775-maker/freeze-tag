@@ -1,465 +1,86 @@
-import "core:ao"
-
-// ============================================================================
-// Economy Module - Freeze Tag
-// ============================================================================
-
 Currency_Type :: enum {
     COINS;
     GEMS;
-    TOKENS;
-    SHARDS;
-    TICKETS;
-    ICE_CRYSTALS;
-    FROST_ESSENCE;
-    RUNE_FRAGMENTS;
-    STAR_DUST;
-    EVENT_TICKETS;
+    SPARKS;
 }
 
 Shop_Item :: struct {
     id: string;
     name: string;
-    description: string;
-    category: string;
-    rarity: string;
     price_currency: Currency_Type;
     price_amount: s64;
-    icon: string;
-    limited: bool;
-    limited_quantity: int;
-    sold_count: int;
-    seasonal: bool;
-    season: string;
-    requires_level: int;
-    craftable: bool;
-    crafting_recipe: [..]Crafting_Ingredient;
+    minimum_gems_to_unlock: s64;
 }
-
-Crafting_Ingredient :: struct {
-    item_id: string;
-    quantity: int;
-}
-
-Blueprint :: struct {
-    id: string;
-    name: string;
-    description: string;
-    target_item: string;
-    ingredients: [..]Crafting_Ingredient;
-    craft_time: float;
-    rarity: string;
-}
-
-Bundle :: struct {
-    id: string;
-    name: string;
-    description: string;
-    items: [..]string;
-    price_currency: Currency_Type;
-    price_amount: s64;
-    discount: float;
-    limited: bool;
-    seasonal: bool;
-}
-
-// ============================================================================
-// Currency Management
-// ============================================================================
 
 init_player_economy :: proc(player: Player) {
-    Economy.get_or_create_currency(player, "coins", 500);
-    Economy.get_or_create_currency(player, "gems", 100);
-    Economy.get_or_create_currency(player, "tokens", 5);
-    Economy.get_or_create_currency(player, "shards", 0);
-    Economy.get_or_create_currency(player, "tickets", 3);
-    Economy.get_or_create_currency(player, "ice_crystals", 0);
-    Economy.get_or_create_currency(player, "frost_essence", 0);
-    Economy.get_or_create_currency(player, "rune_fragments", 0);
-    Economy.get_or_create_currency(player, "star_dust", 0);
-    Economy.get_or_create_currency(player, "event_tickets", 0);
-}
-
-deposit_currency :: proc(player: Player, currency: string, amount: s64) {
-    Economy.deposit(player, currency, amount);
-}
-
-withdraw_currency :: proc(player: Player, currency: string, amount: s64) -> bool {
-    balance := Economy.get_balance(player, currency);
-    if balance >= amount {
-        Economy.withdraw(player, currency, amount);
-        return true;
-    }
-    return false;
-}
-
-get_currency_balance :: proc(player: Player, currency: string) -> s64 {
-    return Economy.get_balance(player, currency);
-}
-
-// ============================================================================
-// Reward Distribution
-// ============================================================================
-
-distribute_match_rewards :: proc(winner_team: Team) {
-    for p: player_iterator() {
-        player := p.(Player);
-
-        base_coins: s64 = 50;
-        base_xp: s64 = 100;
-        bonus_coins: s64 = 0;
-        bonus_xp: s64 = 0;
-
-        // Win bonus
-        if player.team == winner_team {
-            bonus_coins += 100;
-            bonus_xp += 200;
-        }
-
-        // Performance bonuses
-        bonus_coins += player.tags_this_round.(s64) * 10;
-        bonus_xp += player.tags_this_round.(s64) * 20;
-        bonus_coins += player.rescues_this_round.(s64) * 15;
-        bonus_xp += player.rescues_this_round.(s64) * 30;
-
-        // Streak bonus
-        if player.streak_count >= 3 {
-            bonus_coins += 50;
-            bonus_xp += 100;
-        }
-
-        // Score bonus
-        score_bonus := (player.score / 10).(s64);
-        bonus_coins += score_bonus;
-        bonus_xp += score_bonus * 2;
-
-        total_coins := base_coins + bonus_coins;
-        total_xp := base_xp + bonus_xp;
-
-        Economy.deposit(player, "coins", total_coins);
-        add_xp(player, total_xp);
-
-        // Small gem chance
-        if get_random_float(0, 1) < 0.1 {
-            gem_amount: s64 = 5;
-            Economy.deposit(player, "gems", gem_amount);
-            announce("Bonus: +% Gems!", {gem_amount});
-        }
-
-        player.save_progression_data();
+    if Economy.get_balance(player, "coins") == 0 {
+        Economy.deposit_currency(player, "coins", 500);
     }
 }
-
-// ============================================================================
-// Shop Items
-// ============================================================================
 
 get_shop_items :: proc() -> [..]Shop_Item {
-    return {
-        // Skins
-        {"skin_frost_guardian", "Frost Guardian", "A frozen warrior skin", "skin", "rare", .COINS, 5000, "skins/frost_guardian.png", false, 0, 0, false, "", 1, false, {}},
-        {"skin_shadow_tag", "Shadow Tag", "Dark stealth skin", "skin", "epic", .GEMS, 200, "skins/shadow_tag.png", false, 0, 0, false, "", 5, false, {}},
-        {"skin_fire_runner", "Fire Runner", "Burning speed skin", "skin", "rare", .COINS, 8000, "skins/fire_runner.png", false, 0, 0, false, "", 3, false, {}},
-        {"skin_ice_queen", "Ice Queen", "Royal ice skin", "skin", "epic", .GEMS, 350, "skins/ice_queen.png", false, 0, 0, false, "", 10, false, {}},
-        {"skin_cyber_freezer", "Cyber Freezer", "Neon cyberpunk skin", "skin", "epic", .GEMS, 300, "skins/cyber_freezer.png", false, 0, 0, false, "", 8, false, {}},
-        {"skin_golden_legend", "Golden Legend", "Pure gold skin", "skin", "legendary", .TOKENS, 50, "skins/golden_legend.png", true, 100, 0, false, "", 25, false, {}},
-        {"skin_neon_ninja", "Neon Ninja", "Neon-styled ninja skin", "skin", "epic", .COINS, 12000, "skins/neon_ninja.png", false, 0, 0, false, "", 15, false, {}},
-        {"skin_void_walker", "Void Walker", "Dark void entity skin", "skin", "legendary", .GEMS, 500, "skins/void_walker.png", false, 0, 0, false, "", 30, false, {}},
-        {"skin_crystal_mage", "Crystal Mage", "Crystal-powered mage skin", "skin", "rare", .COINS, 6000, "skins/crystal_mage.png", false, 0, 0, false, "", 5, false, {}},
-        {"skin_lava_demon", "Lava Demon", "Molten lava skin", "skin", "epic", .GEMS, 250, "skins/lava_demon.png", true, 200, 0, false, "", 10, false, {}},
-        {"skin_snowflake", "Snowflake", "Delicate snowflake skin", "skin", "common", .COINS, 2000, "skins/snowflake.png", false, 0, 0, true, "winter", 1, false, {}},
-        {"skin_jade_dragon", "Jade Dragon", "Mystical jade skin", "skin", "legendary", .TOKENS, 100, "skins/jade_dragon.png", true, 50, 0, false, "", 50, true, {{"rune_fragments", 10}, {"frost_essence", 5}}},
-
-        // Trails
-        {"trail_ice", "Ice Trail", "Leave a trail of ice", "trail", "common", .COINS, 1500, "trails/ice.png", false, 0, 0, false, "", 1, false, {}},
-        {"trail_fire", "Fire Trail", "Leave a trail of fire", "trail", "rare", .COINS, 4000, "trails/fire.png", false, 0, 0, false, "", 3, false, {}},
-        {"trail_neon", "Neon Trail", "Leave a neon light trail", "trail", "epic", .GEMS, 150, "trails/neon.png", false, 0, 0, false, "", 8, false, {}},
-        {"trail_star", "Star Trail", "Leave a trail of stars", "trail", "epic", .GEMS, 200, "trails/star.png", false, 0, 0, false, "", 10, false, {}},
-        {"trail_rainbow", "Rainbow Trail", "Leave a rainbow trail", "trail", "rare", .COINS, 6000, "trails/rainbow.png", false, 0, 0, false, "", 5, false, {}},
-        {"trail_lightning", "Lightning Trail", "Electric trail effect", "trail", "legendary", .TOKENS, 30, "trails/lightning.png", false, 0, 0, false, "", 20, false, {}},
-        {"trail_heart", "Heart Trail", "Leave a trail of hearts", "trail", "rare", .COINS, 3500, "trails/heart.png", false, 0, 0, true, "valentines", 2, false, {}},
-        {"trail_ghost", "Ghost Trail", "Ethereal ghost trail", "trail", "epic", .GEMS, 180, "trails/ghost.png", false, 0, 0, true, "halloween", 5, false, {}},
-
-        // Emotes
-        {"emote_wave", "Wave", "Wave at other players", "emote", "common", .COINS, 500, "emotes/wave.png", false, 0, 0, false, "", 1, false, {}},
-        {"emote_dance", "Dance", "Show off your moves", "emote", "common", .COINS, 1000, "emotes/dance.png", false, 0, 0, false, "", 1, false, {}},
-        {"emote_freeze", "Freeze Dance", "Freeze in a dramatic pose", "emote", "rare", .COINS, 3000, "emotes/freeze_dance.png", false, 0, 0, false, "", 3, false, {}},
-        {"emote_snowball", "Snowball Throw", "Throw a snowball in celebration", "emote", "epic", .GEMS, 100, "emotes/snowball.png", false, 0, 0, false, "", 5, false, {}},
-        {"emote_ice_skate", "Ice Skate", "Show off ice skating moves", "emote", "rare", .COINS, 4500, "emotes/ice_skate.png", false, 0, 0, false, "", 5, false, {}},
-        {"emote_flex", "Flex", "Show your strength", "emote", "common", .COINS, 800, "emotes/flex.png", false, 0, 0, false, "", 1, false, {}},
-        {"emote_confetti", "Confetti", "Celebrate with confetti", "emote", "epic", .GEMS, 150, "emotes/confetti.png", false, 0, 0, false, "", 10, false, {}},
-
-        // Pets
-        {"pet_penguin", "Penguin Pet", "A cute penguin follows you", "pet", "rare", .COINS, 10000, "pets/penguin.png", false, 0, 0, false, "", 5, false, {}},
-        {"pet_snowman", "Snowman Pet", "A jolly snowman companion", "pet", "rare", .COINS, 8000, "pets/snowman.png", false, 0, 0, true, "winter", 3, false, {}},
-        {"pet_fox", "Arctic Fox", "A sleek arctic fox", "pet", "epic", .GEMS, 250, "pets/fox.png", false, 0, 0, false, "", 10, false, {}},
-        {"pet_dragon", "Ice Dragon", "A miniature ice dragon", "pet", "legendary", .TOKENS, 80, "pets/dragon.png", true, 50, 0, false, "", 30, false, {}},
-        {"pet_cat", "Snow Cat", "A fluffy snow cat", "pet", "common", .COINS, 3000, "pets/cat.png", false, 0, 0, false, "", 1, false, {}},
-        {"pet_ghost", "Ghost Pet", "A spooky ghost companion", "pet", "epic", .GEMS, 200, "pets/ghost.png", false, 0, 0, true, "halloween", 8, false, {}},
-        {"pet_bot", "Mini Bot", "A tiny robot companion", "pet", "epic", .GEMS, 300, "pets/bot.png", false, 0, 0, false, "", 15, true, {{"rune_fragments", 5}, {"star_dust", 10}}},
-    };
+    items: [..]Shop_Item;
+    items.append({"item_speed_juice", "Speed Juice", .SPARKS, 45, 100});
+    items.append({"item_phase_chip", "Phase Chip", .SPARKS, 65, 100});
+    items.append({"item_rescue_beacon", "Rescue Beacon", .SPARKS, 80, 100});
+    items.append({"skin_frost_guardian", "Frost Guardian", .COINS, 5000, 0});
+    items.append({"trail_ice", "Ice Trail", .COINS, 1500, 0});
+    return items;
 }
 
-// ============================================================================
-// Purchase System
-// ============================================================================
+shop_currency_name :: proc(currency: Currency_Type) -> string {
+    switch currency {
+        case .COINS: return "coins";
+        case .GEMS: return "gems";
+        case .SPARKS: return "gems";
+    }
+    return "coins";
+}
+
+shop_price_label :: proc(currency: Currency_Type) -> string {
+    if currency == .SPARKS return "Sparks";
+    return shop_currency_name(currency);
+}
 
 purchase_item :: proc(player: Player, item_id: string) -> bool {
     items := get_shop_items();
     for item: items {
-        if item.id == item_id {
-            if player.level < item.requires_level {
-                announce("Need level % to purchase this!", {item.requires_level});
-                return false;
-            }
+        if item.id != item_id continue;
 
-            if item.limited && item.sold_count >= item.limited_quantity {
-                announce("Item sold out!", {});
-                return false;
-            }
-
-            currency_name: string;
-            switch item.price_currency {
-                case .COINS:       currency_name = "coins";
-                case .GEMS:        currency_name = "gems";
-                case .TOKENS:      currency_name = "tokens";
-                case .SHARDS:      currency_name = "shards";
-                case .TICKETS:     currency_name = "tickets";
-                case .ICE_CRYSTALS: currency_name = "ice_crystals";
-                case .FROST_ESSENCE: currency_name = "frost_essence";
-                case .RUNE_FRAGMENTS: currency_name = "rune_fragments";
-                case .STAR_DUST:   currency_name = "star_dust";
-                case .EVENT_TICKETS: currency_name = "event_tickets";
-            }
-
-            if !withdraw_currency(player, currency_name, item.price_amount) {
-                announce("Not enough %!", {currency_name});
-                return false;
-            }
-
-            // Add item to player inventory
-            player.inventory_items.append(item_id);
-
-            // Track category unlocks
-            switch item.category {
-                case "skin":  player.unlocked_skins.append(item_id);
-                case "trail": player.unlocked_trails.append(item_id);
-                case "pet":   player.unlocked_pets.append(item_id);
-                case "emote": player.unlocked_emotes.append(item_id);
-            }
-
-            announce("Purchased: %!", {item.name});
-            return true;
+        if item.price_currency == .SPARKS && Economy.get_balance(player, "gems") < item.minimum_gems_to_unlock {
+            Chat.server_send_message("Reach 100 Gems to buy Spark items.", player);
+            return false;
         }
+
+        currency := shop_currency_name(item.price_currency);
+        if !Economy.can_withdraw_currency(player, currency, item.price_amount) {
+            Chat.server_send_message(format_string("Not enough %.", {shop_price_label(item.price_currency)}), player);
+            return false;
+        }
+
+        Economy.withdraw_currency(player, currency, item.price_amount);
+        player.inventory_items.append(item.id);
+        Chat.server_send_message(format_string("Purchased %.", {item.name}), player);
+        return true;
     }
+
+    Chat.server_send_message("Item not found.", player);
     return false;
 }
 
-// ============================================================================
-// Crafting System
-// ============================================================================
+distribute_match_rewards :: proc(winner_team: Team) {
+    for player: component_iterator(Player) {
+        coins: s64 = 50 + player.tags_this_round.(s64) * 10 + player.rescues_this_round.(s64) * 15;
+        xp: s64 = 100 + player.tags_this_round.(s64) * 20 + player.rescues_this_round.(s64) * 30;
 
-get_all_blueprints :: proc() -> [..]Blueprint {
-    return {
-        {"bp_skin_jade_dragon", "Jade Dragon Blueprint", "Craft the Jade Dragon skin", "skin_jade_dragon", {{"rune_fragments", 10}, {"frost_essence", 5}, {"star_dust", 20}}, 3600, "legendary"},
-        {"bp_pet_bot", "Mini Bot Blueprint", "Craft the Mini Bot pet", "pet_bot", {{"rune_fragments", 5}, {"star_dust", 10}}, 1800, "epic"},
-        {"bp_trail_lightning", "Lightning Trail Blueprint", "Craft the Lightning Trail", "trail_lightning", {{"frost_essence", 3}, {"star_dust", 15}}, 1200, "legendary"},
-        {"bp_skin_void_walker", "Void Walker Blueprint", "Craft the Void Walker skin", "skin_void_walker", {{"rune_fragments", 15}, {"frost_essence", 10}}, 7200, "legendary"},
-        {"bp_emote_confetti", "Confetti Emote Blueprint", "Craft the Confetti emote", "emote_confetti", {{"star_dust", 5}}, 300, "epic"},
-    };
-}
-
-craft_item :: proc(player: Player, blueprint_id: string) -> bool {
-    blueprints := get_all_blueprints();
-    for bp: blueprints {
-        if bp.id == blueprint_id {
-            // Check if player has blueprint
-            has_bp := false;
-            for b: player.blueprints {
-                if b == blueprint_id {
-                    has_bp = true;
-                    break;
-                }
-            }
-            if !has_bp {
-                announce("You don't have this blueprint!", {});
-                return false;
-            }
-
-            // Check ingredients
-            for ing: bp.ingredients {
-                if !has_item(player, ing.item_id, ing.quantity) {
-                    announce("Missing ingredients!", {});
-                    return false;
-                }
-            }
-
-            // Consume ingredients
-            for ing: bp.ingredients {
-                remove_items(player, ing.item_id, ing.quantity);
-            }
-
-            // Grant item
-            player.inventory_items.append(bp.target_item);
-            announce("Crafted: %!", {bp.name});
-
-            // Remove blueprint
-            for i: 0..<player.blueprints.count {
-                if player.blueprints[i] == blueprint_id {
-                    player.blueprints.ordered_remove(i);
-                    break;
-                }
-            }
-
-            return true;
+        if player.team == winner_team {
+            coins += 100;
+            xp += 200;
+            Economy.deposit_currency(player, "gems", 1);
         }
+
+        Economy.deposit_currency(player, "coins", coins);
+        player.coins_earned_this_round += coins;
+        add_xp(player, xp);
     }
-    return false;
-}
-
-// ============================================================================
-// Trading System
-// ============================================================================
-
-Trade_Offer :: struct {
-    offer_id: string;
-    player_id: string;
-    offered_item: string;
-    requested_item: string;
-    offered_currency: string;
-    offered_amount: s64;
-    requested_currency: string;
-    requested_amount: s64;
-    expires_at: float;
-}
-
-trade_offers: [..]Trade_Offer;
-
-create_trade_offer :: proc(player: Player, offered_item: string, requested_item: string, offered_currency: string, offered_amount: s64, requested_currency: string, requested_amount: s64) -> bool {
-    if offered_item != "" && !has_item(player, offered_item, 1) {
-        announce("You don't have this item!", {});
-        return false;
-    }
-
-    offer := Trade_Offer{
-        offer_id = format_string("trade_%_%", {player.get_user_id(), ao_get_time()});
-        player_id = player.get_user_id();
-        offered_item = offered_item;
-        requested_item = requested_item;
-        offered_currency = offered_currency;
-        offered_amount = offered_amount;
-        requested_currency = requested_currency;
-        requested_amount = requested_amount;
-        expires_at = ao_get_time() + 86400;
-    };
-    trade_offers.append(offer);
-    announce("Trade offer created!", {});
-    return true;
-}
-
-accept_trade :: proc(acceptor: Player, offer_id: string) -> bool {
-    for i: 0..<trade_offers.count {
-        offer := &trade_offers[i];
-        if offer.offer_id == offer_id {
-            if offer.expires_at < ao_get_time() {
-                announce("Trade offer expired!", {});
-                trade_offers.ordered_remove(i);
-                return false;
-            }
-
-            // Exchange items
-            if offer.offered_item != "" {
-                remove_items(acceptor, offer.offered_item, 1);
-                giver := get_player_by_id(offer.player_id);
-                if giver != null {
-                    giver.inventory_items.append(offer.offered_item);
-                }
-            }
-
-            if offer.requested_item != "" {
-                remove_items_by_id(offer.player_id, offer.requested_item, 1);
-                acceptor.inventory_items.append(offer.requested_item);
-            }
-
-            announce("Trade completed!", {});
-            trade_offers.ordered_remove(i);
-            return true;
-        }
-    }
-    return false;
-}
-
-// ============================================================================
-// Inventory Helpers
-// ============================================================================
-
-has_item :: proc(player: Player, item_id: string, quantity: int) -> bool {
-    count := 0;
-    for item: player.inventory_items {
-        if item == item_id {
-            count += 1;
-        }
-    }
-    return count >= quantity;
-}
-
-remove_items :: proc(player: Player, item_id: string, quantity: int) {
-    removed := 0;
-    for i: 0..<player.inventory_items.count {
-        if removed >= quantity break;
-        if player.inventory_items[i] == item_id {
-            player.inventory_items.ordered_remove(i);
-            removed += 1;
-        }
-    }
-}
-
-remove_items_by_id :: proc(player_id: string, item_id: string, quantity: int) {
-    player := get_player_by_id(player_id);
-    if player != null {
-        remove_items(player, item_id, quantity);
-    }
-}
-
-// ============================================================================
-// Bundles
-// ============================================================================
-
-get_bundles :: proc() -> [..]Bundle {
-    return {
-        {"bundle_starter", "Starter Pack", "Everything you need to start!", {"skin_frost_guardian", "trail_ice", "emote_wave", "pet_cat"}, .COINS, 5000, 0.5, false, false},
-        {"bundle_freezer", "Freezer Bundle", "Best for Freezer mains", {"skin_cyber_freezer", "trail_neon", "emote_freeze"}, .GEMS, 500, 0.3, false, false},
-        {"bundle_runner", "Runner Bundle", "Best for Runner mains", {"skin_fire_runner", "trail_rainbow", "emote_dance"}, .GEMS, 450, 0.25, false, false},
-        {"bundle_legendary", "Legendary Bundle", "The ultimate collection", {"skin_golden_legend", "trail_lightning", "pet_dragon", "emote_confetti"}, .TOKENS, 200, 0.4, true, false},
-        {"bundle_winter", "Winter Bundle", "Seasonal winter collection", {"skin_snowflake", "pet_snowman", "trail_ice", "emote_snowball"}, .GEMS, 300, 0.3, false, true},
-        {"bundle_halloween", "Halloween Bundle", "Spooky seasonal collection", {"trail_ghost", "pet_ghost", "emote_freeze"}, .GEMS, 350, 0.3, false, true},
-    };
-}
-
-purchase_bundle :: proc(player: Player, bundle_id: string) -> bool {
-    bundles := get_bundles();
-    for bundle: bundles {
-        if bundle.id == bundle_id {
-            currency_name: string;
-            switch bundle.price_currency {
-                case .COINS:  currency_name = "coins";
-                case .GEMS:   currency_name = "gems";
-                case .TOKENS: currency_name = "tokens";
-                default:      currency_name = "coins";
-            }
-
-            if !withdraw_currency(player, currency_name, bundle.price_amount) {
-                announce("Not enough %!", {currency_name});
-                return false;
-            }
-
-            for item_id: bundle.items {
-                player.inventory_items.append(item_id);
-            }
-
-            announce("Bundle purchased: %!", {bundle.name});
-            return true;
-        }
-    }
-    return false;
 }

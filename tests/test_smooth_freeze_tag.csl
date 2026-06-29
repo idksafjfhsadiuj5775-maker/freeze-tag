@@ -1,0 +1,18 @@
+test_smooth_arena_movement :: proc() {
+    Test.teleport({0, -5});
+    Test.wait_seconds(0.5);
+    Test.move({1, 0});
+    Test.wait_seconds(1.0);
+    Test.stop_moving();
+    Test.assert_player_near("player moves smoothly across lower lane", {5, -5}, 7.0);
+    Test.screenshot("smooth_arena_lower_lane");
+}
+
+test_boundary_blocks_player :: proc() {
+    Test.teleport({10.8, 0});
+    Test.wait_seconds(0.5);
+    Test.move({1, 0});
+    Test.wait_seconds(1.0);
+    Test.stop_moving();
+    Test.assert_player_near("east wall keeps player in arena", {11.0, 0}, 3.0);
+}

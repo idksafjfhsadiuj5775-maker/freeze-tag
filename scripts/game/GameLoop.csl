@@ -1,91 +1,69 @@
-// ============================================================================
-// GameLoop - Main update loop, runs every frame
-// ============================================================================
-
-ao_start :: proc() {
-    log_info("Freeze Tag started!");
-}
-
 ao_update :: proc(dt: float) {
     switch match_state {
         case .WAITING: {
-            count := 0;
-            for p: player_iterator() { count += 1; }
-            if count >= config.min_players && count > 0 {
-                match_manager.start_countdown();
+            if get_player_count() >= config.min_players {
+                start_countdown();
             }
         }
         case .COUNTDOWN: {
             round_timer -= dt;
-            if round_timer <= 0 { match_manager.start_round(); }
+            if round_timer <= 0 {
+                start_round();
+            }
         }
         case .PLAYING: {
             round_timer -= dt;
-            check_win();
+            if all_runners_frozen() {
+                end_round();
+                return;
+            }
             if round_timer <= 0 {
-                if config.overtime_enabled && !sudden_death_active {
+                if config.overtime_enabled {
                     match_state = .OVERTIME;
                     sudden_death_active = config.sudden_death_enabled;
+                    overtime_timer = 30.0;
                 } else {
-                    match_manager.end_round();
+                    end_round();
                 }
             }
         }
         case .OVERTIME: {
             overtime_timer -= dt;
-            if overtime_timer <= 0 { match_manager.end_round(); }
-            update_sudden_death(dt);
+            if all_runners_frozen() || overtime_timer <= 0 {
+                end_round();
+                return;
+            }
+            if sudden_death_active {
+                update_sudden_death(dt);
+            }
         }
         case .ROUND_END: {
             round_end_timer -= dt;
             if round_end_timer <= 0 {
                 if current_round >= config.rounds_per_match {
                     match_state = .MATCH_END;
+                    match_end_timer = 10.0;
                 } else {
-                    match_manager.start_countdown();
+                    start_countdown();
                 }
             }
         }
         case .MATCH_END: {
             match_end_timer -= dt;
             if match_end_timer <= 0 {
-                match_state = .WAITING; current_round = 0;
-                freezer_wins = 0; runner_wins = 0;
+                smooth_game_start();
             }
         }
-    }
-}
-
-overtime_timer: float = 30.0;
-round_end_timer: float = 5.0;
-match_end_timer: float = 10.0;
-
-check_win :: proc() {
-    frozen := 0; total := 0;
-    for p: player_iterator() {
-        player := p.(Player);
-        if player.team == .RUNNERS {
-            total += 1;
-            if player.freeze_state != .NONE || player.freeze_state == . PERMAFROST || player.freeze_state == .FULL {
-                frozen += 1;
-            }
-        }
-    }
-    if total > 0 && frozen >= total {
-        match_manager.end_round();
     }
 }
 
 update_sudden_death :: proc(dt: float) {
-    sd_timer += dt;
-    radius := 20.0 - sd_timer * 0.3;
-    for p: player_iterator() {
-        player := p.(Player);
-        dist := distance(player.entity.world_position, {0, 0});
-        if dist > radius {
-            player.apply_freeze(dt * 3);
+    radius := 18.0 - overtime_timer * 0.15;
+    radius_sq := radius * radius;
+    for player: component_iterator(Player) {
+        delta := player.entity.world_position;
+        if length_squared(delta) > radius_sq {
+            player.apply_slow(0.55, 0.5);
         }
     }
 }
-
-sd_timer: float;

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "railing_2_b7cdf6.png",
+    "texture": {
+      "wrap_repeat": true,
+      "crop": [
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "CautionTape_Tile_20f962.png",
+    "texture": {
+      "wrap_repeat": true,
+      "crop": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  {
+    "id": "metal_floor_tile_crosshatch_76a126.png",
+    "texture": {
+      "wrap_repeat": true,
+      "crop": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  {
+    "id": "space_nebula2_efa1f4.png",
+    "texture": {
+      "wrap_repeat": true
+    }
+  }
+]
